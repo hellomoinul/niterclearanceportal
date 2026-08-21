@@ -14,16 +14,407 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string | null
+          created_at: string
+          details: string | null
+          entity: string | null
+          entity_id: string | null
+          id: string
+          ip_address: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name?: string | null
+          created_at?: string
+          details?: string | null
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          ip_address?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string | null
+          created_at?: string
+          details?: string | null
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          ip_address?: string | null
+        }
+        Relationships: []
+      }
+      certificates: {
+        Row: {
+          application_id: string
+          batch: string | null
+          certificate_code: string
+          id: string
+          issued_at: string
+          program: string | null
+          student_code: string
+          student_name: string
+        }
+        Insert: {
+          application_id: string
+          batch?: string | null
+          certificate_code: string
+          id?: string
+          issued_at?: string
+          program?: string | null
+          student_code: string
+          student_name: string
+        }
+        Update: {
+          application_id?: string
+          batch?: string | null
+          certificate_code?: string
+          id?: string
+          issued_at?: string
+          program?: string | null
+          student_code?: string
+          student_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "clearance_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clearance_applications: {
+        Row: {
+          cleared_at: string | null
+          expected_graduation: string | null
+          id: string
+          status: Database["public"]["Enums"]["application_status"]
+          student_id: string
+          submitted_at: string
+          supervisor_name: string | null
+          thesis_title: string | null
+        }
+        Insert: {
+          cleared_at?: string | null
+          expected_graduation?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          student_id: string
+          submitted_at?: string
+          supervisor_name?: string | null
+          thesis_title?: string | null
+        }
+        Update: {
+          cleared_at?: string | null
+          expected_graduation?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          student_id?: string
+          submitted_at?: string
+          supervisor_name?: string | null
+          thesis_title?: string | null
+        }
+        Relationships: []
+      }
+      department_reviews: {
+        Row: {
+          application_id: string
+          attempts: number
+          created_at: string
+          department_id: string
+          escalated: boolean
+          id: string
+          remarks: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["review_status"]
+        }
+        Insert: {
+          application_id: string
+          attempts?: number
+          created_at?: string
+          department_id: string
+          escalated?: boolean
+          id?: string
+          remarks?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
+        }
+        Update: {
+          application_id?: string
+          attempts?: number
+          created_at?: string
+          department_id?: string
+          escalated?: boolean
+          id?: string
+          remarks?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "department_reviews_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "clearance_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "department_reviews_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          code: string
+          document_hint: string | null
+          id: string
+          is_final_signoff: boolean
+          name: string
+          requirement: string | null
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          document_hint?: string | null
+          id?: string
+          is_final_signoff?: boolean
+          name: string
+          requirement?: string | null
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          document_hint?: string | null
+          id?: string
+          is_final_signoff?: boolean
+          name?: string
+          requirement?: string | null
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          rejection_reason: string | null
+          review_id: string
+          status: Database["public"]["Enums"]["review_status"]
+          uploaded_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          rejection_reason?: string | null
+          review_id: string
+          status?: Database["public"]["Enums"]["review_status"]
+          uploaded_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          rejection_reason?: string | null
+          review_id?: string
+          status?: Database["public"]["Enums"]["review_status"]
+          uploaded_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "department_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          batch: string | null
+          cgpa: number | null
+          created_at: string
+          credits_completed: number | null
+          full_name: string
+          guardian_name: string | null
+          guardian_phone: string | null
+          id: string
+          permanent_address: string | null
+          personal_email: string | null
+          phone: string | null
+          photo_url: string | null
+          present_address: string | null
+          program: string | null
+          registration_no: string | null
+          updated_at: string
+          user_code: string
+        }
+        Insert: {
+          batch?: string | null
+          cgpa?: number | null
+          created_at?: string
+          credits_completed?: number | null
+          full_name: string
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id: string
+          permanent_address?: string | null
+          personal_email?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          present_address?: string | null
+          program?: string | null
+          registration_no?: string | null
+          updated_at?: string
+          user_code: string
+        }
+        Update: {
+          batch?: string | null
+          cgpa?: number | null
+          created_at?: string
+          credits_completed?: number | null
+          full_name?: string
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          permanent_address?: string | null
+          personal_email?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          present_address?: string | null
+          program?: string | null
+          registration_no?: string | null
+          updated_at?: string
+          user_code?: string
+        }
+        Relationships: []
+      }
+      staff_departments: {
+        Row: {
+          department_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          department_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          department_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_departments_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_see_review: {
+        Args: { _review_id: string; _user_id: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      owns_application: {
+        Args: { _application_id: string; _user_id: string }
+        Returns: boolean
+      }
+      staff_in_department: {
+        Args: { _department_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "student" | "staff" | "admin"
+      application_status: "draft" | "in_review" | "cleared"
+      review_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +541,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["student", "staff", "admin"],
+      application_status: ["draft", "in_review", "cleared"],
+      review_status: ["pending", "approved", "rejected"],
+    },
   },
 } as const
