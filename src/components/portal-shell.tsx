@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, GraduationCap, LogOut, Menu } from "lucide-react";
+import { Bell, GraduationCap, LogOut, Menu, Settings } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth";
@@ -70,6 +70,11 @@ export function PortalHeader() {
               <Button asChild variant="ghost" size="icon" aria-label="Notifications">
                 <Link to="/notifications">
                   <Bell className="size-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="icon" aria-label="Settings">
+                <Link to="/settings">
+                  <Settings className="size-4" />
                 </Link>
               </Button>
               <span className="hidden text-sm text-muted-foreground sm:inline">
