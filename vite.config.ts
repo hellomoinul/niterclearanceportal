@@ -60,7 +60,7 @@ export default defineConfig(({ command, mode }) => {
         },
       }),
       ...(command === "build"
-        ? [nitro({ preset: process.env.NITRO_PRESET ?? "node-server" })]
+        ? [nitro({ preset: process.env["NITRO_PRESET"] ?? "node-server" })]
         : []),
       viteReact(),
     ],
