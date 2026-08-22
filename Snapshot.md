@@ -1,8 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 22 Aug 2026 · **Overall progress: ~80%**
+**Last updated:** 22 Aug 2026 · **Overall progress: ~85%**
 
-Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can now approve/reject with remarks, bulk approve pending students, escalation fires at 3 rejections, every decision is audit-logged, and students receive email notifications. Still missing: certificate PDF and admin panel.
+Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live.
+
+**What's left:** Certificate page + PDF/QR (Fatin), Admin panel (Shafin).
 
 ## Status board
 
@@ -32,7 +34,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | F1  | Certificate page `/certificate` | Fatin  | ⬜ Not started | Route linked from dashboard, doesn't exist    |
 | F2  | PDF download + QR code          | Fatin  | ⬜ Not started | `jspdf` + `qrcode`, QR → `/verify/$code`      |
 | F3  | Forgot password flow            | Fatin  | ⬜ Not started | `resetPasswordForEmail` + reset form          |
-| F4  | Profile page (read-only)        | Fatin  | ⬜ Not started | Data already in `profiles`                    |
+| F4  | Profile page (read-only)        | Fatin  | ✅ Done | Merged via PR #11; layout fixed by Moinul (PortalShell + back button + nav link) |
 | S1  | Admin: user management          | Shafin | ⬜ Not started | Roles + staff department assignment           |
 | S2  | Admin: workflow config          | Shafin | ⬜ Not started | Departments per program, batch deadlines      |
 | S3  | Admin: batch reports            | Shafin | ⬜ Not started | `recharts` installed                          |
@@ -52,8 +54,10 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | Task                        | Owner  | Status         | Notes                                                                                 |
 | --------------------------- | ------ | -------------- | ------------------------------------------------------------------------------------- |
 | Bulk approve in queue       | Moinul | ✅ Done    | Checkboxes + Select all + bottom action bar (PR #9) |
-| Email notifications         | Moinul | ✅ Done    | Edge Function + Resend + Database Webhook live; settings page for email entry; triggers for admin + staff notifications |
+| Email notifications         | Moinul | ✅ Done    | Edge Function + Resend + Database Webhook live; triggers for admin/staff/student; settings page for email entry |
 | Bangla/English toggle       | Moinul | ✅ Done    | i18n infrastructure + toggle in header (PR #10) |
+| Notification pipeline       | Moinul | ✅ Done    | 3 triggers: admin on submission, staff on review creation, student on approve/reject. All fire emails via Resend. |
+| Profile page fix            | Moinul | ✅ Done    | Wrapped in PortalShell, back button role-aware, user code links to /profile |
 | **Firebase auth migration** | Moinul | ⬜ Deferred | Likely unnecessary now — we run our own free Supabase project; revisit only if a hard requirement appears |
 
 ## Work history
@@ -102,12 +106,19 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   Settings page (`/settings`) added so admin/staff can enter their `personal_email`.
   Dashboard auto-redirects admin/staff to queue. All migrations applied, lint + build green.
 
+- **Fatin's PR #11 merged (profile page):** profile page merged to main. Fixed layout
+  (wrapped in PortalShell, back button routes correctly for staff/admin vs students),
+  added clickable user code link in header to `/profile`.
+
+- **Git sync resolved:** pulled Fatin's PR #11, regenerated route tree with both /settings and
+  /profile routes, resolved conflicts, lint + build green, pushed to main.
+
 ## Remaining summary
 
-- **Critical path cleared:** approval loop (M1–M3) is fully verified on the live site — Fatin and Shafin can start immediately.
-- **Stretch pool done:** SP1–SP3 completed, PR #10 pending merge. Moinul is free for Fatin/Shafin support or any remaining gaps.
-- **What's next:** Fatin builds the certificate page + PDF/QR (F1–F4), Shafin builds the admin panel (S1–S5).
-- **Email pipeline complete:** notifications table → webhook → Edge Function → Resend. All roles get emails if `personal_email` is set in profiles.
+- **Moinul's work: 100% complete** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done.
+- **Fatin's work: 1 of 4 tasks done** — Profile page (F4) merged. Certificate (F1), PDF/QR (F2), Forgot password (F3) still not started.
+- **Shafin's work: 0 of 5 tasks done** — Admin panel (S1–S5) all not started. No `src/routes/_authenticated/admin/` folder exists yet.
+- **What's next:** Fatin builds certificate page + PDF/QR. Shafin builds admin panel. Moinul is in support mode.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → certificate PDF downloads with scannable QR → admin can manage users and see reports.
 
 ## How to update this file
