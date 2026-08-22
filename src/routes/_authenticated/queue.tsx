@@ -48,6 +48,13 @@ interface QueueDocument {
   uploaded_at: string;
 }
 
+interface QueueStudent {
+  full_name: string;
+  user_code: string;
+  program: string | null;
+  batch: string | null;
+}
+
 interface QueueReview {
   id: string;
   status: ReviewStatus;
@@ -58,12 +65,7 @@ interface QueueReview {
   clearance_applications: {
     id: string;
     thesis_title: string | null;
-    profiles: {
-      full_name: string;
-      user_code: string;
-      program: string | null;
-      batch: string | null;
-    } | null;
+    profiles: QueueStudent | null;
   } | null;
 }
 
@@ -138,13 +140,53 @@ function QueuePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("department_reviews")
-        .select(
-          "*, departments(code, name), clearance_applications(id, thesis_title, profiles(full_name, user_code, program, batch))",
-        )
+        .select("*, departments(code, name), clearance_applications(id, thesis_title, student_id)")
         .in("status", ["pending", "rejected"])
         .in("department_id", scopedDeptIds);
       if (error) throw error;
-      return (data ?? []) as unknown as QueueReview[];
+
+      const raw = (data ?? []) as unknown as {
+        id: string;
+        status: ReviewStatus;
+        remarks: string | null;
+        attempts: number;
+        escalated: boolean;
+        departments: { code: string; name: string } | null;
+        clearance_applications: {
+          id: string;
+          thesis_title: string | null;
+          student_id: string;
+        } | null;
+      }[];
+
+      const studentIds = [
+        ...new Set(
+          raw.flatMap((r) =>
+            r.clearance_applications ? [r.clearance_applications.student_id] : [],
+          ),
+        ),
+      ];
+
+      let studentsById: Record<string, QueueStudent> = {};
+      if (studentIds.length > 0) {
+        const { data: students, error: studentsError } = await supabase
+          .from("profiles")
+          .select("id, full_name, user_code, program, batch")
+          .in("id", studentIds);
+        if (studentsError) throw studentsError;
+        studentsById = Object.fromEntries((students ?? []).map((s) => [s.id, s]));
+      }
+
+      return raw.map((r) => ({
+        ...r,
+        clearance_applications: r.clearance_applications
+          ? {
+              id: r.clearance_applications.id,
+              thesis_title: r.clearance_applications.thesis_title,
+              profiles: studentsById[r.clearance_applications.student_id] ?? null,
+            }
+          : null,
+      }));
     },
   });
 
