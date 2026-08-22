@@ -19,6 +19,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { DOCS_BUCKET } from "@/lib/portal";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/queue")({
   ssr: false,
@@ -78,6 +79,7 @@ interface DepartmentInfo {
 
 function QueuePage() {
   const { user, isStaff, isAdmin, loading } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"pending" | "rejected">("pending");
@@ -324,10 +326,10 @@ function QueuePage() {
     <PortalShell>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Department queue</h1>
+          <h1 className="text-2xl font-semibold">{t("queue.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · {pendingCount}{" "}
-            awaiting review
+            {isAdmin ? t("queue.allOffices") : departments!.map((d) => d.name).join(", ")} ·{" "}
+            {pendingCount} {t("queue.awaitingReview")}
           </p>
         </div>
         {isAdmin && (
@@ -356,8 +358,12 @@ function QueuePage() {
         className="mt-6"
       >
         <TabsList>
-          <TabsTrigger value="pending">Pending ({pendingCount})</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected ({rejectedCount})</TabsTrigger>
+          <TabsTrigger value="pending">
+            {t("queue.pending")} ({pendingCount})
+          </TabsTrigger>
+          <TabsTrigger value="rejected">
+            {t("queue.rejected")} ({rejectedCount})
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -367,12 +373,10 @@ function QueuePage() {
         <div className="card-surface mt-6 p-8 text-center">
           <Inbox className="mx-auto size-7 text-primary" aria-hidden />
           <h2 className="mt-3 text-lg font-semibold">
-            {tab === "pending" ? "Nothing awaiting review" : "No rejections outstanding"}
+            {tab === "pending" ? t("queue.nothingPending") : t("queue.nothingRejected")}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            {tab === "pending"
-              ? "New clearance requests for your office will appear here."
-              : "Students you rejected will reappear here while they prepare their fixes."}
+            {tab === "pending" ? t("queue.pendingHint") : t("queue.rejectedHint")}
           </p>
         </div>
       ) : (
