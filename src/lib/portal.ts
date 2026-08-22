@@ -3,7 +3,8 @@ export type ReviewStatus = "pending" | "approved" | "rejected";
 
 export const ID_DOMAIN = "niter.portal";
 export const MAX_ATTEMPTS = 3;
-export const MAX_FILE_MB = 5;
+export const DOCS_BUCKET = "clearance-docs";
+export const MAX_FILE_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 
 /** UCAM-style sign in: students and staff type an ID, never an email. */
@@ -28,12 +29,12 @@ export function formatDate(value?: string | null) {
   });
 }
 
-export function validateFile(file: File) {
+export function validateUpload(file: File) {
   if (!ACCEPTED_TYPES.includes(file.type)) {
     return "Only JPG, PNG or PDF files are accepted.";
   }
-  if (file.size > MAX_FILE_MB * 1024 * 1024) {
-    return `File must be smaller than ${MAX_FILE_MB} MB.`;
+  if (file.size > MAX_FILE_BYTES) {
+    return `File must be smaller than ${MAX_FILE_BYTES / (1024 * 1024)} MB.`;
   }
   return null;
 }

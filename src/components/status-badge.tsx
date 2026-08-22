@@ -14,13 +14,7 @@ const icons: Record<ReviewStatus, typeof Clock> = {
   rejected: XCircle,
 };
 
-export function StatusBadge({
-  status,
-  className,
-}: {
-  status: ReviewStatus;
-  className?: string;
-}) {
+export function StatusBadge({ status, className }: { status: ReviewStatus; className?: string }) {
   const Icon = icons[status];
   return (
     <span

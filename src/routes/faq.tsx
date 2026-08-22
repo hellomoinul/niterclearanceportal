@@ -64,7 +64,9 @@ function FaqPage() {
               <AccordionTrigger className="text-left text-sm font-semibold">
                 {item.q}
               </AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground">{item.a}</AccordionContent>
+              <AccordionContent className="text-sm text-muted-foreground">
+                {item.a}
+              </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
