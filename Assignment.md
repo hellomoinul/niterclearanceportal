@@ -14,7 +14,7 @@
 
 1. Work on your own branch — never push directly to `main`.
 2. Do not edit files another member owns; ask them instead.
-3. Merge order: Moinul's queue first (unblocks end-to-end testing), then Fatin and Shafin.
+3. ~~Merge order: Moinul's queue first (unblocks end-to-end testing), then Fatin and Shafin.~~ ✅ Done — queue merged and verified.
 4. When a task is done: tick it here, add a dated entry in `Snapshot.md`.
 5. Run lint before opening a PR.
 
