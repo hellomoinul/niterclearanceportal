@@ -6,7 +6,7 @@
 
 | Member | Branch               | Owns                                                                                                                           |
 | ------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Moinul | `moinul/staff-queue` | `src/routes/_authenticated/queue.tsx` (new), escalation migration (`supabase/migrations/`), small edits in `section.$code.tsx` |
+| Moinul | `moinul/queue-and-escalation` | `src/routes/_authenticated/queue.tsx` (new), escalation migration (`supabase/migrations/`), small edits in `section.$code.tsx` |
 | Fatin  | `fatin/certificate`  | `src/routes/_authenticated/certificate.tsx` (new), forgot-password in `routes/auth.tsx`, profile page (new)                    |
 | Shafin | `shafin/admin-panel` | `src/routes/_authenticated/admin/` (new folder, everything inside)                                                             |
 
@@ -28,6 +28,10 @@
   - Document preview beside the decision buttons (signed URL)
 - [x] **Escalation logic** — new SQL migration: increment `attempts` on each rejection; auto-set `escalated = true` after 3; notify Department Head
 - [x] **Audit trail writes** — insert into `audit_log` on every approve/reject (actor, action, timestamp)
+
+*Extra (beyond original scope):* own Supabase project created & configured
+(`jmpavfglhtmcraxfiock` — Lovable Cloud was inaccessible), app deployed to Vercel
+(<https://niterclearanceportal.vercel.app/>, auto-deploys `main`), NITER favicon.
 
 ## 🟢 Fatin — Certificate pipeline & account features
 
