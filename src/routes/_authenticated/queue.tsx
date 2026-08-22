@@ -19,7 +19,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { DOCS_BUCKET } from "@/lib/portal";
 import { useAuth } from "@/lib/auth";
-import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/queue")({
   ssr: false,
@@ -79,7 +78,6 @@ interface DepartmentInfo {
 
 function QueuePage() {
   const { user, isStaff, isAdmin, loading } = useAuth();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"pending" | "rejected">("pending");
@@ -254,15 +252,46 @@ function QueuePage() {
     }
 
     setBusyId(review.id);
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from("department_reviews")
       .update({
         status: decision,
         remarks: note || null,
         reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
+        reviewed_at: now,
       })
       .eq("id", review.id);
+
+    if (!error) {
+      if (decision === "approved") {
+        const { error: docError } = await supabase
+          .from("documents")
+          .update({ status: "approved", reviewed_by: user.id, reviewed_at: now })
+          .eq("review_id", review.id);
+        if (docError) toast.error("Approved, but document status update failed");
+      } else {
+        const { data: latestDoc } = await supabase
+          .from("documents")
+          .select("id")
+          .eq("review_id", review.id)
+          .order("uploaded_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (latestDoc) {
+          const { error: docError } = await supabase
+            .from("documents")
+            .update({
+              status: "rejected",
+              rejection_reason: note,
+              reviewed_by: user.id,
+              reviewed_at: now,
+            })
+            .eq("id", latestDoc.id);
+          if (docError) toast.error("Rejected, but document status update failed");
+        }
+      }
+    }
     setBusyId(null);
 
     if (error) {
@@ -284,6 +313,13 @@ function QueuePage() {
       .from("department_reviews")
       .update({ status: "approved", reviewed_by: user.id, reviewed_at: now })
       .in("id", ids);
+    if (!error) {
+      const { error: docError } = await supabase
+        .from("documents")
+        .update({ status: "approved", reviewed_by: user.id, reviewed_at: now })
+        .in("review_id", ids);
+      if (docError) toast.error("Approved, but document status update failed");
+    }
     setBulkBusy(false);
     if (error) {
       toast.error("Bulk approve failed", { description: error.message });
@@ -326,10 +362,10 @@ function QueuePage() {
     <PortalShell>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{t("queue.title")}</h1>
+          <h1 className="text-2xl font-semibold">Department queue</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isAdmin ? t("queue.allOffices") : departments!.map((d) => d.name).join(", ")} ·{" "}
-            {pendingCount} {t("queue.awaitingReview")}
+            {isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · {pendingCount}{" "}
+            awaiting review
           </p>
         </div>
         {isAdmin && (
@@ -358,12 +394,8 @@ function QueuePage() {
         className="mt-6"
       >
         <TabsList>
-          <TabsTrigger value="pending">
-            {t("queue.pending")} ({pendingCount})
-          </TabsTrigger>
-          <TabsTrigger value="rejected">
-            {t("queue.rejected")} ({rejectedCount})
-          </TabsTrigger>
+          <TabsTrigger value="pending">Pending ({pendingCount})</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected ({rejectedCount})</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -373,10 +405,12 @@ function QueuePage() {
         <div className="card-surface mt-6 p-8 text-center">
           <Inbox className="mx-auto size-7 text-primary" aria-hidden />
           <h2 className="mt-3 text-lg font-semibold">
-            {tab === "pending" ? t("queue.nothingPending") : t("queue.nothingRejected")}
+            {tab === "pending" ? "Nothing awaiting review" : "No rejections outstanding"}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            {tab === "pending" ? t("queue.pendingHint") : t("queue.rejectedHint")}
+            {tab === "pending"
+              ? "New clearance requests for your office will appear here."
+              : "Students you rejected will reappear here while they prepare their fixes."}
           </p>
         </div>
       ) : (
