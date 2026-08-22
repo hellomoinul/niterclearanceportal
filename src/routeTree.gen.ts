@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,20 +41,27 @@ const VerifyRoute = VerifyRouteImport.update({
   path: '/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifyCodeRoute = VerifyCodeRouteImport.update({
+  id: '/$code',
+  path: '/$code',
+  getParentRoute: () => VerifyRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
-  '/verify': typeof VerifyRoute
+  '/verify': typeof VerifyRouteWithChildren
+  '/verify/$code': typeof VerifyCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
-  '/verify': typeof VerifyRoute
+  '/verify': typeof VerifyRouteWithChildren
+  '/verify/$code': typeof VerifyCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,14 +69,16 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
-  '/verify': typeof VerifyRoute
+  '/verify': typeof VerifyRouteWithChildren
+  '/verify/$code': typeof VerifyCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/auth' | '/faq' | '/verify'
+  fullPaths: '/' | '/about' | '/auth' | '/faq' | '/verify' | '/verify/$code'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/auth' | '/faq' | '/verify'
-  id: '__root__' | '/' | '/about' | '/auth' | '/faq' | '/verify'
+  to: '/' | '/about' | '/auth' | '/faq' | '/verify' | '/verify/$code'
+  id:
+    '__root__' | '/' | '/about' | '/auth' | '/faq' | '/verify' | '/verify/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,7 +86,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   FaqRoute: typeof FaqRoute
-  VerifyRoute: typeof VerifyRoute
+  VerifyRoute: typeof VerifyRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -116,15 +126,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verify/$code': {
+      id: '/verify/$code'
+      path: '/$code'
+      fullPath: '/verify/$code'
+      preLoaderRoute: typeof VerifyCodeRouteImport
+      parentRoute: typeof VerifyRoute
+    }
   }
 }
+
+interface VerifyRouteChildren {
+  VerifyCodeRoute: typeof VerifyCodeRoute
+}
+
+const VerifyRouteChildren: VerifyRouteChildren = {
+  VerifyCodeRoute: VerifyCodeRoute,
+}
+
+const VerifyRouteWithChildren =
+  VerifyRoute._addFileChildren(VerifyRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   FaqRoute: FaqRoute,
-  VerifyRoute: VerifyRoute,
+  VerifyRoute: VerifyRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
