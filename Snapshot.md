@@ -52,7 +52,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | Task                        | Owner  | Status         | Notes                                                                                 |
 | --------------------------- | ------ | -------------- | ------------------------------------------------------------------------------------- |
 | Bulk approve in queue       | Moinul | ✅ Done    | Checkboxes + Select all + bottom action bar (PR #9) |
-| Email notifications         | Moinul | 🚧 In progress | Edge Function + Resend — code done, awaiting user setup (PR #10) |
+| Email notifications         | Moinul | ✅ Done    | Edge Function + Resend + Database Webhook live; settings page for email entry; triggers for admin + staff notifications |
 | Bangla/English toggle       | Moinul | ✅ Done    | i18n infrastructure + toggle in header (PR #10) |
 | **Firebase auth migration** | Moinul | ⬜ Deferred | Likely unnecessary now — we run our own free Supabase project; revisit only if a hard requirement appears |
 
@@ -94,11 +94,20 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   code done, user setup pending), Bangla/English language toggle with i18n infrastructure
   and browser language detection. All lint + build green. PR #10 contains all three.
 
+- **Full notification pipeline built:** admin notified on application submission
+  (`trg_notify_admin_on_application`), department staff notified on review creation
+  (`trg_notify_staff_on_review`), student notified on approve/reject (existing
+  `trg_notify_review_change`). All notifications fire emails via Resend Edge Function
+  (Database Webhook on `notifications` table → `send-notification-email` → Resend API).
+  Settings page (`/settings`) added so admin/staff can enter their `personal_email`.
+  Dashboard auto-redirects admin/staff to queue. All migrations applied, lint + build green.
+
 ## Remaining summary
 
 - **Critical path cleared:** approval loop (M1–M3) is fully verified on the live site — Fatin and Shafin can start immediately.
 - **Stretch pool done:** SP1–SP3 completed, PR #10 pending merge. Moinul is free for Fatin/Shafin support or any remaining gaps.
 - **What's next:** Fatin builds the certificate page + PDF/QR (F1–F4), Shafin builds the admin panel (S1–S5).
+- **Email pipeline complete:** notifications table → webhook → Edge Function → Resend. All roles get emails if `personal_email` is set in profiles.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → certificate PDF downloads with scannable QR → admin can manage users and see reports.
 
 ## How to update this file
