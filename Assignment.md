@@ -22,12 +22,12 @@
 
 ## 🔵 Moinul — Core approval loop (highest priority)
 
-- [ ] **Staff queue `/queue`** — route missing but the dashboard already links to it.
+- [x] **Staff queue `/queue`** — route missing but the dashboard already links to it.
   - Pending students list filtered to the logged-in staff member's department(s)
   - Approve / Reject actions; remarks field **required on rejection**
   - Document preview beside the decision buttons (signed URL)
-- [ ] **Escalation logic** — new SQL migration: increment `attempts` on each rejection; auto-set `escalated = true` after 3; notify Department Head
-- [ ] **Audit trail writes** — insert into `audit_log` on every approve/reject (actor, action, timestamp)
+- [x] **Escalation logic** — new SQL migration: increment `attempts` on each rejection; auto-set `escalated = true` after 3; notify Department Head
+- [x] **Audit trail writes** — insert into `audit_log` on every approve/reject (actor, action, timestamp)
 
 ## 🟢 Fatin — Certificate pipeline & account features
 

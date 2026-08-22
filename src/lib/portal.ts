@@ -9,7 +9,10 @@ export const ACCEPTED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 
 /** UCAM-style sign in: students and staff type an ID, never an email. */
 export function idToEmail(userCode: string) {
-  return `${userCode.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "")}@${ID_DOMAIN}`;
+  return `${userCode
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "")}@${ID_DOMAIN}`;
 }
 
 export function statusLabel(status: ReviewStatus) {
