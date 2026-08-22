@@ -15,7 +15,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { title: "My clearance dashboard — NITER" },
       {
         name: "description",
-        content: "Track each department's clearance decision, upload documents and download your certificate.",
+        content:
+          "Track each department's clearance decision, upload documents and download your certificate.",
       },
       { property: "og:title", content: "My clearance dashboard — NITER" },
       {

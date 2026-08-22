@@ -72,8 +72,9 @@ function VerifyResult() {
             <XCircle className="size-7 text-status-rejected" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold">No certificate found</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              No NITER clearance certificate matches the code <span className="font-mono">{code}</span>.
-              Check for typing errors, or contact the registrar office.
+              No NITER clearance certificate matches the code{" "}
+              <span className="font-mono">{code}</span>. Check for typing errors, or contact the
+              registrar office.
             </p>
           </>
         )}
