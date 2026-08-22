@@ -1,6 +1,6 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 22 Aug 2026 · **Overall progress: ~60%**
+**Last updated:** 22 Aug 2026 · **Overall progress: ~65%**
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Missing: staff cannot act on applications, no certificate PDF, no admin panel.
 
@@ -26,9 +26,9 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 | #   | Task                            | Owner  | Status         | Notes                                         |
 | --- | ------------------------------- | ------ | -------------- | --------------------------------------------- |
-| M1 | Staff queue `/queue` | Moinul | 🚧 In progress | Built + lint/typecheck/build green — PR open, live after merge |
-| M2 | Escalation logic migration | Moinul | 🚧 In progress | `20260822120000_escalation_audit.sql` written — must be applied via Supabase SQL editor after merge |
-| M3 | Audit trail writes | Moinul | 🚧 In progress | Same migration as M2 — auto-logs every status change |
+| M1 | Staff queue `/queue` | Moinul | ✅ Done | Merged (PR #2) and live — staff see own office, admins get filter, remarks-required rejection |
+| M2 | Escalation logic migration | Moinul | ✅ Done | Applied to live DB — auto-escalates at 3 rejections, notifies Head + admins |
+| M3 | Audit trail writes | Moinul | ✅ Done | Applied to live DB — every status change auto-logged with actor + remark |
 | F1  | Certificate page `/certificate` | Fatin  | ⬜ Not started | Route linked from dashboard, doesn't exist    |
 | F2  | PDF download + QR code          | Fatin  | ⬜ Not started | `jspdf` + `qrcode`, QR → `/verify/$code`      |
 | F3  | Forgot password flow            | Fatin  | ⬜ Not started | `resetPasswordForEmail` + reset form          |
@@ -39,6 +39,14 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | S4  | Admin: notices management       | Shafin | ⬜ Not started | Feeds Home page                               |
 | S5  | Admin: audit log viewer         | Shafin | ⬜ Not started | Read-only table                               |
 
+### Infrastructure (done by Moinul alongside the sprint)
+
+| Task | Owner  | Status  | Notes                                                                    |
+| ---- | ------ | ------- | ------------------------------------------------------------------------ |
+| I1   | Own Supabase project | Moinul | ✅ Done | Old DB lived in inaccessible Lovable Cloud → new free project `jmpavfglhtmcraxfiock`, all migrations + fixes in `consolidated_setup.sql`, `.env` repointed |
+| I2   | Deployed to Vercel | Moinul | ✅ Done | **https://niterclearanceportal.vercel.app/** · preset *Other* + env `NITRO_PRESET=vercel`; auto-redeploys every push to `main` |
+| I3   | NITER branding | Moinul | ✅ Done | Favicon replaced |
+
 ### Stretch / deferred
 
 | Task                        | Owner  | Status         | Notes                                                                                 |
@@ -46,7 +54,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | Bulk approve in queue       | pool   | ⬜ Deferred    | Needs M1                                                                              |
 | Email notifications         | pool   | ⬜ Deferred    | Supabase Edge Function                                                                |
 | Bangla/English toggle       | pool   | ⬜ Deferred    |                                                                                       |
-| **Firebase auth migration** | Moinul | ⬜ Final phase | Decision after v1 ships; options: Firebase-only-auth hybrid vs full Firestore rewrite |
+| **Firebase auth migration** | Moinul | ⬜ Deferred | Likely unnecessary now — we run our own free Supabase project; revisit only if a hard requirement appears |
 
 ## Work history
 
@@ -64,10 +72,20 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   document preview and remarks-required rejection; escalation + audit SQL migration ready.
   tsc, eslint and vite build all green. Awaiting merge → then apply migration in Supabase
   dashboard → live testing.
+- **Database moved to our own Supabase project:** discovered the old DB lived in Lovable
+  Cloud (inaccessible to us). Created free project `jmpavfglhtmcraxfiock`, applied
+  `consolidated_setup.sql` (all 5 migrations + creates the missing `clearance-docs`
+  bucket + modern `owner_id` storage policies), disabled email confirmation, `.env`
+  repointed via PR #3. Live DB verified: 8 departments seeded.
+- **Live on Vercel:** https://niterclearanceportal.vercel.app/ — Framework preset *Other*
+  + env `NITRO_PRESET=vercel`; every push to `main` auto-redeploys, PRs get preview URLs.
+  Favicon swapped for the NITER logo (PR #5).
+- **Next:** seed a test staff account (`staff@niter.portal` recipe in PR #2 description),
+  then run the full approval loop end-to-end on the live site.
 
 ## Remaining summary
 
-- **Critical path:** staff queue (M1) — until it lands, approvals can't happen and certificate flow can't be tested for real.
+- **Critical path cleared:** the approval loop (M1–M3) is merged and live — end-to-end testing with a seeded staff account is all that remains before F1/S1 can be verified against real data.
 - **Independent work:** Fatin and Shafin can start immediately without waiting.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → certificate PDF downloads with scannable QR → admin can manage users and see reports.
 
