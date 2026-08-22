@@ -69,9 +69,12 @@ export function PortalHeader() {
                   <Bell className="size-4" />
                 </Link>
               </Button>
-              <span className="hidden text-sm text-muted-foreground sm:inline">
-                {profile?.user_code ?? "Account"}
-              </span>
+              <Link 
+  to="/profile" 
+  className="hidden text-sm text-muted-foreground hover:text-foreground transition-colors sm:inline font-medium"
+>
+  {profile?.user_code ?? "Account"}
+</Link>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="size-4" /> Sign out
               </Button>
