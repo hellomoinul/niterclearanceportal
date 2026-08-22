@@ -18,6 +18,7 @@ import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedApplyRouteImport } from './routes/_authenticated/apply'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
+import { Route as AuthenticatedSectionCodeRouteImport } from './routes/_authenticated/section.$code'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -63,6 +64,12 @@ const VerifyCodeRoute = VerifyCodeRouteImport.update({
   path: '/$code',
   getParentRoute: () => VerifyRoute,
 } as any)
+const AuthenticatedSectionCodeRoute =
+  AuthenticatedSectionCodeRouteImport.update({
+    id: '/section/$code',
+    path: '/section/$code',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/apply': typeof AuthenticatedApplyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/section/$code': typeof AuthenticatedSectionCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +91,7 @@ export interface FileRoutesByTo {
   '/apply': typeof AuthenticatedApplyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/section/$code': typeof AuthenticatedSectionCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +104,7 @@ export interface FileRoutesById {
   '/_authenticated/apply': typeof AuthenticatedApplyRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/_authenticated/section/$code': typeof AuthenticatedSectionCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/apply'
     | '/dashboard'
     | '/verify/$code'
+    | '/section/$code'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/apply'
     | '/dashboard'
     | '/verify/$code'
+    | '/section/$code'
   id:
     | '__root__'
     | '/'
@@ -128,6 +140,7 @@ export interface FileRouteTypes {
     | '/_authenticated/apply'
     | '/_authenticated/dashboard'
     | '/verify/$code'
+    | '/_authenticated/section/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -204,17 +217,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyCodeRouteImport
       parentRoute: typeof VerifyRoute
     }
+    '/_authenticated/section/$code': {
+      id: '/_authenticated/section/$code'
+      path: '/section/$code'
+      fullPath: '/section/$code'
+      preLoaderRoute: typeof AuthenticatedSectionCodeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedApplyRoute: typeof AuthenticatedApplyRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedSectionCodeRoute: typeof AuthenticatedSectionCodeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApplyRoute: AuthenticatedApplyRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedSectionCodeRoute: AuthenticatedSectionCodeRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
