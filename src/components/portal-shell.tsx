@@ -2,9 +2,11 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell, GraduationCap, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LanguageToggle } from "@/components/language-toggle";
 
 const publicLinks = [
   { to: "/", label: "Home" },
@@ -15,6 +17,7 @@ const publicLinks = [
 
 export function PortalHeader() {
   const { session, profile, isStaff, isAdmin, signOut } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -28,8 +31,8 @@ export function PortalHeader() {
 
   const appLinks = session
     ? [
-        { to: "/dashboard", label: "Dashboard" },
-        ...(isStaff || isAdmin ? [{ to: "/queue", label: "Department queue" }] : []),
+        { to: "/dashboard", label: t("nav.dashboard") },
+        ...(isStaff || isAdmin ? [{ to: "/queue", label: t("nav.queue") }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];
@@ -73,12 +76,13 @@ export function PortalHeader() {
                 {profile?.user_code ?? "Account"}
               </span>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="size-4" /> Sign out
+                <LogOut className="size-4" /> {t("nav.signOut")}
               </Button>
+              <LanguageToggle />
             </>
           ) : (
             <Button asChild size="sm">
-              <Link to="/auth">Sign in</Link>
+              <Link to="/auth">{t("nav.signIn")}</Link>
             </Button>
           )}
           <Button

@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { ExternalLink, FileText, Inbox } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PortalShell } from "@/components/portal-shell";
@@ -18,6 +19,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { DOCS_BUCKET } from "@/lib/portal";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/queue")({
   ssr: false,
@@ -77,12 +79,15 @@ interface DepartmentInfo {
 
 function QueuePage() {
   const { user, isStaff, isAdmin, loading } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"pending" | "rejected">("pending");
   const [deptCode, setDeptCode] = useState<string>("all");
   const [remarks, setRemarks] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   useEffect(() => {
     if (!loading && user && !isStaff && !isAdmin) {
@@ -270,6 +275,26 @@ function QueuePage() {
     toast.success(decision === "approved" ? "Approved" : "Rejected with remarks");
   }
 
+  async function bulkApprove() {
+    if (!user || selectedIds.size === 0) return;
+    setBulkBusy(true);
+    const ids = [...selectedIds];
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("department_reviews")
+      .update({ status: "approved", reviewed_by: user.id, reviewed_at: now })
+      .in("id", ids);
+    setBulkBusy(false);
+    if (error) {
+      toast.error("Bulk approve failed", { description: error.message });
+      return;
+    }
+    setSelectedIds(new Set());
+    await queryClient.invalidateQueries({ queryKey: ["queue-reviews"] });
+    await queryClient.invalidateQueries({ queryKey: ["queue-documents"] });
+    toast.success(`Approved ${ids.length} student${ids.length === 1 ? "" : "s"}`);
+  }
+
   const deptsLoaded = isAdmin ? allDepartments !== undefined : staffDepartments !== undefined;
 
   if (loading || !deptsLoaded) {
@@ -301,10 +326,10 @@ function QueuePage() {
     <PortalShell>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Department queue</h1>
+          <h1 className="text-2xl font-semibold">{t("queue.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · {pendingCount}{" "}
-            awaiting review
+            {isAdmin ? t("queue.allOffices") : departments!.map((d) => d.name).join(", ")} ·{" "}
+            {pendingCount} {t("queue.awaitingReview")}
           </p>
         </div>
         {isAdmin && (
@@ -324,10 +349,21 @@ function QueuePage() {
         )}
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="mt-6">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => {
+          setTab(v as typeof tab);
+          setSelectedIds(new Set());
+        }}
+        className="mt-6"
+      >
         <TabsList>
-          <TabsTrigger value="pending">Pending ({pendingCount})</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected ({rejectedCount})</TabsTrigger>
+          <TabsTrigger value="pending">
+            {t("queue.pending")} ({pendingCount})
+          </TabsTrigger>
+          <TabsTrigger value="rejected">
+            {t("queue.rejected")} ({rejectedCount})
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -337,23 +373,46 @@ function QueuePage() {
         <div className="card-surface mt-6 p-8 text-center">
           <Inbox className="mx-auto size-7 text-primary" aria-hidden />
           <h2 className="mt-3 text-lg font-semibold">
-            {tab === "pending" ? "Nothing awaiting review" : "No rejections outstanding"}
+            {tab === "pending" ? t("queue.nothingPending") : t("queue.nothingRejected")}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            {tab === "pending"
-              ? "New clearance requests for your office will appear here."
-              : "Students you rejected will reappear here while they prepare their fixes."}
+            {tab === "pending" ? t("queue.pendingHint") : t("queue.rejectedHint")}
           </p>
         </div>
       ) : (
         <div className="mt-6 space-y-4">
+          {tab === "pending" && visible.length > 0 && (
+            <div className="flex items-center gap-2 px-1">
+              <Checkbox
+                checked={selectedIds.size === visible.length}
+                onCheckedChange={(checked) =>
+                  setSelectedIds(checked ? new Set(visible.map((r) => r.id)) : new Set())
+                }
+              />
+              <span className="text-sm text-muted-foreground">Select all ({visible.length})</span>
+            </div>
+          )}
           {visible.map((review) => {
             const student = review.clearance_applications?.profiles;
             const docs = docsByReview[review.id] ?? [];
             return (
               <article key={review.id} className="card-surface p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
+                  <div className="flex items-start gap-3">
+                    {tab === "pending" && (
+                      <Checkbox
+                        className="mt-1"
+                        checked={selectedIds.has(review.id)}
+                        onCheckedChange={(checked) =>
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            if (checked) next.add(review.id);
+                            else next.delete(review.id);
+                            return next;
+                          })
+                        }
+                      />
+                    )}
                     <h2 className="text-base font-semibold">
                       {student?.full_name ?? "Unknown student"}
                       <span className="ml-2 text-sm font-normal text-muted-foreground">
@@ -445,6 +504,24 @@ function QueuePage() {
               </article>
             );
           })}
+        </div>
+      )}
+
+      {selectedIds.size > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-6 py-3 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <div className="mx-auto flex max-w-3xl items-center justify-between">
+            <span className="text-sm font-medium">{selectedIds.size} selected</span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setSelectedIds(new Set())}>
+                Clear
+              </Button>
+              <Button size="sm" disabled={bulkBusy} onClick={bulkApprove}>
+                {bulkBusy
+                  ? "Approving…"
+                  : `Approve ${selectedIds.size === 1 ? "student" : "students"}`}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </PortalShell>
