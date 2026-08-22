@@ -2,11 +2,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell, GraduationCap, LogOut, Menu, Settings } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LanguageToggle } from "@/components/language-toggle";
 
 const publicLinks = [
   { to: "/", label: "Home" },
@@ -17,7 +15,6 @@ const publicLinks = [
 
 export function PortalHeader() {
   const { session, profile, isStaff, isAdmin, signOut } = useAuth();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -31,8 +28,8 @@ export function PortalHeader() {
 
   const appLinks = session
     ? [
-        { to: "/dashboard", label: t("nav.dashboard") },
-        ...(isStaff || isAdmin ? [{ to: "/queue", label: t("nav.queue") }] : []),
+        { to: "/dashboard", label: "Dashboard" },
+        ...(isStaff || isAdmin ? [{ to: "/queue", label: "Department queue" }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];
@@ -83,13 +80,12 @@ export function PortalHeader() {
                 </Link>
               </span>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="size-4" /> {t("nav.signOut")}
+                <LogOut className="size-4" /> Sign out
               </Button>
-              <LanguageToggle />
             </>
           ) : (
             <Button asChild size="sm">
-              <Link to="/auth">{t("nav.signIn")}</Link>
+              <Link to="/auth">Sign in</Link>
             </Button>
           )}
           <Button
@@ -127,7 +123,10 @@ export function PortalFooter() {
     <footer className="mt-16 border-t border-border bg-surface">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <p>National Institute of Textile Engineering and Research, Savar, Dhaka.</p>
-        <p>Digital Clearance Management System</p>
+        <p>
+          © {new Date().getFullYear()} National Institute of Textile Engineering and Research. All
+          rights reserved.
+        </p>
       </div>
     </footer>
   );
