@@ -78,7 +78,9 @@ export function PortalHeader() {
                 </Link>
               </Button>
               <span className="hidden text-sm text-muted-foreground sm:inline">
-                {profile?.user_code ?? "Account"}
+                <Link to="/profile" className="hover:text-foreground transition-colors">
+                  {profile?.user_code ?? "Account"}
+                </Link>
               </span>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="size-4" /> {t("nav.signOut")}
