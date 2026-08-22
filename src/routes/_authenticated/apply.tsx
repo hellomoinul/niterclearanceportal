@@ -81,8 +81,8 @@ function ApplyPage() {
     <PortalShell className="max-w-3xl">
       <h1 className="text-2xl font-semibold">Clearance application</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Confirm your details below. Once submitted, each office will request its own document in your
-        dashboard.
+        Confirm your details below. Once submitted, each office will request its own document in
+        your dashboard.
       </p>
 
       <form className="card-surface mt-8 space-y-8 p-6" onSubmit={handleSubmit}>
@@ -99,11 +99,20 @@ function ApplyPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="registrationNo">Registration number</Label>
-              <Input id="registrationNo" name="registrationNo" defaultValue={profile?.registration_no ?? ""} />
+              <Input
+                id="registrationNo"
+                name="registrationNo"
+                defaultValue={profile?.registration_no ?? ""}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="personalEmail">Personal email</Label>
-              <Input id="personalEmail" name="personalEmail" type="email" defaultValue={profile?.personal_email ?? ""} />
+              <Input
+                id="personalEmail"
+                name="personalEmail"
+                type="email"
+                defaultValue={profile?.personal_email ?? ""}
+              />
             </div>
           </div>
         </section>
@@ -113,19 +122,35 @@ function ApplyPage() {
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="guardianName">Guardian name</Label>
-              <Input id="guardianName" name="guardianName" defaultValue={profile?.guardian_name ?? ""} />
+              <Input
+                id="guardianName"
+                name="guardianName"
+                defaultValue={profile?.guardian_name ?? ""}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="guardianPhone">Guardian phone</Label>
-              <Input id="guardianPhone" name="guardianPhone" defaultValue={profile?.guardian_phone ?? ""} />
+              <Input
+                id="guardianPhone"
+                name="guardianPhone"
+                defaultValue={profile?.guardian_phone ?? ""}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="presentAddress">Present address</Label>
-              <Textarea id="presentAddress" name="presentAddress" defaultValue={profile?.present_address ?? ""} />
+              <Textarea
+                id="presentAddress"
+                name="presentAddress"
+                defaultValue={profile?.present_address ?? ""}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="permanentAddress">Permanent address</Label>
-              <Textarea id="permanentAddress" name="permanentAddress" defaultValue={profile?.permanent_address ?? ""} />
+              <Textarea
+                id="permanentAddress"
+                name="permanentAddress"
+                defaultValue={profile?.permanent_address ?? ""}
+              />
             </div>
           </div>
         </section>
@@ -143,7 +168,11 @@ function ApplyPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="expectedGraduation">Expected graduation</Label>
-              <Input id="expectedGraduation" name="expectedGraduation" placeholder="December 2025" />
+              <Input
+                id="expectedGraduation"
+                name="expectedGraduation"
+                placeholder="December 2025"
+              />
             </div>
           </div>
         </section>
