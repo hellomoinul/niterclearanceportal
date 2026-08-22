@@ -77,10 +77,10 @@ function DashboardPage() {
   });
 
   useEffect(() => {
-    if (!loading && !profile && (isStaff || isAdmin)) {
+    if (!loading && (isStaff || isAdmin)) {
       navigate({ to: "/queue", replace: true });
     }
-  }, [loading, profile, isStaff, isAdmin, navigate]);
+  }, [loading, isStaff, isAdmin, navigate]);
 
   const approved = (reviews ?? []).filter((r) => r.status === "approved").length;
   const total = reviews?.length ?? 0;
