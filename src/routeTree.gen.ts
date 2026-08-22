@@ -10,33 +10,159 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as AuthenticatedApplyRouteImport } from './routes/_authenticated/apply'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
+import { Route as AuthenticatedSectionCodeRouteImport } from './routes/_authenticated/section.$code'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyRoute = VerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedApplyRoute = AuthenticatedApplyRouteImport.update({
+  id: '/apply',
+  path: '/apply',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const VerifyCodeRoute = VerifyCodeRouteImport.update({
+  id: '/$code',
+  path: '/$code',
+  getParentRoute: () => VerifyRoute,
+} as any)
+const AuthenticatedSectionCodeRoute =
+  AuthenticatedSectionCodeRouteImport.update({
+    id: '/section/$code',
+    path: '/section/$code',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/faq': typeof FaqRoute
+  '/verify': typeof VerifyRouteWithChildren
+  '/apply': typeof AuthenticatedApplyRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/verify/$code': typeof VerifyCodeRoute
+  '/section/$code': typeof AuthenticatedSectionCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/faq': typeof FaqRoute
+  '/verify': typeof VerifyRouteWithChildren
+  '/apply': typeof AuthenticatedApplyRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/verify/$code': typeof VerifyCodeRoute
+  '/section/$code': typeof AuthenticatedSectionCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/faq': typeof FaqRoute
+  '/verify': typeof VerifyRouteWithChildren
+  '/_authenticated/apply': typeof AuthenticatedApplyRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/verify/$code': typeof VerifyCodeRoute
+  '/_authenticated/section/$code': typeof AuthenticatedSectionCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/faq'
+    | '/verify'
+    | '/apply'
+    | '/dashboard'
+    | '/notifications'
+    | '/verify/$code'
+    | '/section/$code'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/faq'
+    | '/verify'
+    | '/apply'
+    | '/dashboard'
+    | '/notifications'
+    | '/verify/$code'
+    | '/section/$code'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/about'
+    | '/auth'
+    | '/faq'
+    | '/verify'
+    | '/_authenticated/apply'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/notifications'
+    | '/verify/$code'
+    | '/_authenticated/section/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
+  FaqRoute: typeof FaqRoute
+  VerifyRoute: typeof VerifyRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +174,114 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify': {
+      id: '/verify'
+      path: '/verify'
+      fullPath: '/verify'
+      preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/apply': {
+      id: '/_authenticated/apply'
+      path: '/apply'
+      fullPath: '/apply'
+      preLoaderRoute: typeof AuthenticatedApplyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/verify/$code': {
+      id: '/verify/$code'
+      path: '/$code'
+      fullPath: '/verify/$code'
+      preLoaderRoute: typeof VerifyCodeRouteImport
+      parentRoute: typeof VerifyRoute
+    }
+    '/_authenticated/section/$code': {
+      id: '/_authenticated/section/$code'
+      path: '/section/$code'
+      fullPath: '/section/$code'
+      preLoaderRoute: typeof AuthenticatedSectionCodeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedApplyRoute: typeof AuthenticatedApplyRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedSectionCodeRoute: typeof AuthenticatedSectionCodeRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedApplyRoute: AuthenticatedApplyRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedSectionCodeRoute: AuthenticatedSectionCodeRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface VerifyRouteChildren {
+  VerifyCodeRoute: typeof VerifyCodeRoute
+}
+
+const VerifyRouteChildren: VerifyRouteChildren = {
+  VerifyCodeRoute: VerifyCodeRoute,
+}
+
+const VerifyRouteWithChildren =
+  VerifyRoute._addFileChildren(VerifyRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
+  FaqRoute: FaqRoute,
+  VerifyRoute: VerifyRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
