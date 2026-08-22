@@ -50,6 +50,6 @@
 
 ## 📋 Stretch pool (whoever finishes their section first)
 
-- [ ] Bulk approve in queue (after Moinul's queue lands)
-- [ ] Email notifications (Supabase Edge Function)
-- [ ] Bangla / English language toggle
+- [x] **Bulk approve in queue** — Moinul (PR #9/10)
+- [x] **Bangla / English toggle** — Moinul (PR #10)
+- [ ] **Email notifications** — Moinul (PR #10 — code done, needs Resend account + dashboard setup)
