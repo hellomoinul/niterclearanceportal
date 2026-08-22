@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, GraduationCap, LogOut, Menu } from "lucide-react";
+import { Bell, GraduationCap, LogOut, Menu, Settings } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LanguageToggle } from "@/components/language-toggle";
 
 const publicLinks = [
   { to: "/", label: "Home" },
@@ -15,6 +17,7 @@ const publicLinks = [
 
 export function PortalHeader() {
   const { session, profile, isStaff, isAdmin, signOut } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -28,8 +31,8 @@ export function PortalHeader() {
 
   const appLinks = session
     ? [
-        { to: "/dashboard", label: "Dashboard" },
-        ...(isStaff || isAdmin ? [{ to: "/queue", label: "Department queue" }] : []),
+        { to: "/dashboard", label: t("nav.dashboard") },
+        ...(isStaff || isAdmin ? [{ to: "/queue", label: t("nav.queue") }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];
@@ -69,19 +72,22 @@ export function PortalHeader() {
                   <Bell className="size-4" />
                 </Link>
               </Button>
-              <Link 
-  to="/profile" 
-  className="hidden text-sm text-muted-foreground hover:text-foreground transition-colors sm:inline font-medium"
->
-  {profile?.user_code ?? "Account"}
-</Link>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="size-4" /> Sign out
+              <Button asChild variant="ghost" size="icon" aria-label="Settings">
+                <Link to="/settings">
+                  <Settings className="size-4" />
+                </Link>
               </Button>
+              <span className="hidden text-sm text-muted-foreground sm:inline">
+                {profile?.user_code ?? "Account"}
+              </span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="size-4" /> {t("nav.signOut")}
+              </Button>
+              <LanguageToggle />
             </>
           ) : (
             <Button asChild size="sm">
-              <Link to="/auth">Sign in</Link>
+              <Link to="/auth">{t("nav.signIn")}</Link>
             </Button>
           )}
           <Button

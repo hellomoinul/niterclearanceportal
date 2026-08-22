@@ -50,6 +50,6 @@
 
 ## 📋 Stretch pool (whoever finishes their section first)
 
-- [ ] Bulk approve in queue (after Moinul's queue lands)
-- [ ] Email notifications (Supabase Edge Function)
-- [ ] Bangla / English language toggle
+- [x] **Bulk approve in queue** — Moinul (PR #9/10)
+- [x] **Bangla / English toggle** — Moinul (PR #10)
+- [x] **Email notifications** — Moinul (PR #10 + migrations). Edge Function + Resend + Database Webhook live. Triggers: admin on submission, staff on review creation, student on approve/reject. Settings page for email entry. Dashboard role redirect.
