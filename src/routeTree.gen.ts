@@ -17,6 +17,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedApplyRouteImport } from './routes/_authenticated/apply'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as AuthenticatedSectionCodeRouteImport } from './routes/_authenticated/section.$code'
 
@@ -59,6 +60,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const VerifyCodeRoute = VerifyCodeRouteImport.update({
   id: '/$code',
   path: '/$code',
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/section/$code': typeof AuthenticatedSectionCodeRoute
 }
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
   '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/section/$code': typeof AuthenticatedSectionCodeRoute
 }
@@ -103,6 +112,7 @@ export interface FileRoutesById {
   '/verify': typeof VerifyRouteWithChildren
   '/_authenticated/apply': typeof AuthenticatedApplyRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/_authenticated/section/$code': typeof AuthenticatedSectionCodeRoute
 }
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/apply'
     | '/dashboard'
+    | '/notifications'
     | '/verify/$code'
     | '/section/$code'
   fileRoutesByTo: FileRoutesByTo
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/apply'
     | '/dashboard'
+    | '/notifications'
     | '/verify/$code'
     | '/section/$code'
   id:
@@ -139,6 +151,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/_authenticated/apply'
     | '/_authenticated/dashboard'
+    | '/_authenticated/notifications'
     | '/verify/$code'
     | '/_authenticated/section/$code'
   fileRoutesById: FileRoutesById
@@ -210,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/verify/$code': {
       id: '/verify/$code'
       path: '/$code'
@@ -230,12 +250,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedApplyRoute: typeof AuthenticatedApplyRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedSectionCodeRoute: typeof AuthenticatedSectionCodeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApplyRoute: AuthenticatedApplyRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedSectionCodeRoute: AuthenticatedSectionCodeRoute,
 }
 
