@@ -26,9 +26,9 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 | #   | Task                            | Owner  | Status         | Notes                                         |
 | --- | ------------------------------- | ------ | -------------- | --------------------------------------------- |
-| M1  | Staff queue `/queue`            | Moinul | ⬜ Not started | **Critical path** — blocks end-to-end testing |
-| M2  | Escalation logic migration      | Moinul | ⬜ Not started | attempts++ on reject; escalate at 3           |
-| M3  | Audit trail writes              | Moinul | ⬜ Not started | On every approve/reject                       |
+| M1 | Staff queue `/queue` | Moinul | 🚧 In progress | Built + lint/typecheck/build green — PR open, live after merge |
+| M2 | Escalation logic migration | Moinul | 🚧 In progress | `20260822120000_escalation_audit.sql` written — must be applied via Supabase SQL editor after merge |
+| M3 | Audit trail writes | Moinul | 🚧 In progress | Same migration as M2 — auto-logs every status change |
 | F1  | Certificate page `/certificate` | Fatin  | ⬜ Not started | Route linked from dashboard, doesn't exist    |
 | F2  | PDF download + QR code          | Fatin  | ⬜ Not started | `jspdf` + `qrcode`, QR → `/verify/$code`      |
 | F3  | Forgot password flow            | Fatin  | ⬜ Not started | `resetPasswordForEmail` + reset form          |
@@ -60,6 +60,10 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   switched team to npm, rewrote README/AGENTS docs, enforced LF line endings repo-wide.
   Build also exposed a pre-existing bug (broken imports in `src/lib/portal.ts`) — fixed.
   Verified: lint ✓ · production build ✓ · dev server ✓ · prod server boots ✓
+- **Approval loop built (M1–M3):** staff queue page (`/queue`) with pending/rejected tabs,
+  document preview and remarks-required rejection; escalation + audit SQL migration ready.
+  tsc, eslint and vite build all green. Awaiting merge → then apply migration in Supabase
+  dashboard → live testing.
 
 ## Remaining summary
 
