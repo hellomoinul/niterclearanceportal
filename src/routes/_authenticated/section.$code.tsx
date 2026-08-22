@@ -158,7 +158,9 @@ function SectionPage() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h1 className="text-2xl font-semibold">{review.department.name}</h1>
-                <p className="mt-1 text-sm text-muted-foreground">{review.department.requirement}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {review.department.requirement}
+                </p>
               </div>
               <StatusBadge status={review.status} />
             </div>
@@ -185,8 +187,8 @@ function SectionPage() {
             <form className="card-surface mt-6 space-y-4 p-6" onSubmit={handleUpload}>
               <h2 className="text-base font-semibold">Upload proof document</h2>
               <p className="text-sm text-muted-foreground">
-                {review.department.document_hint ?? "Attach the document this office asked for."} JPG,
-                PNG or PDF up to {Math.round(MAX_FILE_BYTES / (1024 * 1024))} MB.
+                {review.department.document_hint ?? "Attach the document this office asked for."}{" "}
+                JPG, PNG or PDF up to {Math.round(MAX_FILE_BYTES / (1024 * 1024))} MB.
               </p>
               <div className="space-y-2">
                 <Label htmlFor="file">Document</Label>
