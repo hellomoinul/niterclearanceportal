@@ -211,6 +211,8 @@ export type Database = {
           id: string;
           rejection_reason: string | null;
           review_id: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
           status: Database["public"]["Enums"]["review_status"];
           uploaded_at: string;
           uploaded_by: string;
@@ -223,6 +225,8 @@ export type Database = {
           id?: string;
           rejection_reason?: string | null;
           review_id: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
           status?: Database["public"]["Enums"]["review_status"];
           uploaded_at?: string;
           uploaded_by: string;
@@ -235,6 +239,8 @@ export type Database = {
           id?: string;
           rejection_reason?: string | null;
           review_id?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
           status?: Database["public"]["Enums"]["review_status"];
           uploaded_at?: string;
           uploaded_by?: string;
@@ -399,6 +405,10 @@ export type Database = {
       owns_application: {
         Args: { _application_id: string; _user_id: string };
         Returns: boolean;
+      };
+      reviewer_display_name: {
+        Args: { _review_id: string };
+        Returns: string;
       };
       staff_in_department: {
         Args: { _department_id: string; _user_id: string };
