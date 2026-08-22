@@ -1,8 +1,8 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 22 Aug 2026 · **Overall progress: ~65%**
+**Last updated:** 22 Aug 2026 · **Overall progress: ~70%**
 
-Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Missing: staff cannot act on applications, no certificate PDF, no admin panel.
+Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can now approve/reject with remarks, escalation fires at 3 rejections, and every decision is audit-logged. Still missing: certificate PDF and admin panel.
 
 ## Status board
 
@@ -26,9 +26,9 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 | #   | Task                            | Owner  | Status         | Notes                                         |
 | --- | ------------------------------- | ------ | -------------- | --------------------------------------------- |
-| M1 | Staff queue `/queue` | Moinul | ✅ Done | Merged (PR #2) and live — staff see own office, admins get filter, remarks-required rejection |
-| M2 | Escalation logic migration | Moinul | ✅ Done | Applied to live DB — auto-escalates at 3 rejections, notifies Head + admins |
-| M3 | Audit trail writes | Moinul | ✅ Done | Applied to live DB — every status change auto-logged with actor + remark |
+| M1 | Staff queue `/queue` | Moinul | ✅ Done | Merged, deployed, E2E verified — staff approve/reject with remarks, student sees green card + notification |
+| M2 | Escalation logic migration | Moinul | ✅ Done | E2E verified — auto-escalates at 3 rejections, notifies Head + admins via bell icon |
+| M3 | Audit trail writes | Moinul | ✅ Done | E2E verified — every approve/reject logged to audit_log with actor + remark |
 | F1  | Certificate page `/certificate` | Fatin  | ⬜ Not started | Route linked from dashboard, doesn't exist    |
 | F2  | PDF download + QR code          | Fatin  | ⬜ Not started | `jspdf` + `qrcode`, QR → `/verify/$code`      |
 | F3  | Forgot password flow            | Fatin  | ⬜ Not started | `resetPasswordForEmail` + reset form          |
@@ -80,13 +80,20 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 - **Live on Vercel:** https://niterclearanceportal.vercel.app/ — Framework preset *Other*
   + env `NITRO_PRESET=vercel`; every push to `main` auto-redeploys, PRs get preview URLs.
   Favicon swapped for the NITER logo (PR #5).
-- **Next:** seed a test staff account (`staff@niter.portal` recipe in PR #2 description),
-  then run the full approval loop end-to-end on the live site.
+- **E2E verified (M1–M3):** staff approve/reject → student green card + notification fires;
+  escalation at 3 rejections → admin bell icon gets alert; every decision audit-logged.
+  Live on Vercel, tested with real accounts.
+
+- **Bug fixes during E2E:** PostgREST embed in queue query returned 400 (profiles linked
+  through auth.users, invisible to the API) — split into two queries, merged client-side
+  (PR #7). AFTER triggers for notifications + audit_log were missing from the new DB —
+  recreated (PR #8).
 
 ## Remaining summary
 
-- **Critical path cleared:** the approval loop (M1–M3) is merged and live — end-to-end testing with a seeded staff account is all that remains before F1/S1 can be verified against real data.
+- **Critical path cleared:** approval loop (M1–M3) is fully verified on the live site — Fatin and Shafin can start immediately.
 - **Independent work:** Fatin and Shafin can start immediately without waiting.
+- **What's next:** Fatin builds the certificate page + PDF/QR (F1–F4), Shafin builds the admin panel (S1–S5). Moinul is free to pick up stretch items or help with bugs.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → certificate PDF downloads with scannable QR → admin can manage users and see reports.
 
 ## How to update this file
