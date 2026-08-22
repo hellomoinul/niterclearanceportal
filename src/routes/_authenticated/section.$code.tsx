@@ -78,6 +78,18 @@ function SectionPage() {
     },
   });
 
+  const { data: reviewerName } = useQuery({
+    enabled: !!review?.id && !!review?.reviewed_by,
+    queryKey: ["reviewer-name", review?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("reviewer_display_name", {
+        _review_id: review!.id,
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!review || !user) return;
@@ -178,9 +190,11 @@ function SectionPage() {
               </p>
             ) : null}
 
-            <p className="mt-4 text-sm text-muted-foreground">
-              Re-upload attempts used: {review.attempts} of 3
-            </p>
+            {review.status !== "approved" ? (
+              <p className="mt-4 text-sm text-muted-foreground">
+                Re-upload attempts used: {review.attempts} of 3
+              </p>
+            ) : null}
           </div>
 
           {review.status !== "approved" ? (
@@ -204,33 +218,57 @@ function SectionPage() {
             <h2 className="text-base font-semibold">Uploaded documents</h2>
             {documents && documents.length > 0 ? (
               <ul className="mt-4 divide-y divide-border">
-                {documents.map((doc) => (
-                  <li key={doc.id} className="flex items-center justify-between gap-3 py-3">
-                    <div className="min-w-0">
-                      <button
-                        type="button"
-                        onClick={() => openDocument(doc.file_path)}
-                        className="truncate text-sm font-medium text-primary underline-offset-4 hover:underline"
-                      >
-                        {doc.file_name}
-                      </button>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(doc.uploaded_at).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <StatusBadge status={doc.status} />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Delete document"
-                        onClick={() => removeDocument(doc.id, doc.file_path)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  </li>
-                ))}
+                {documents.map((doc) => {
+                  const uploadedAfterApproval =
+                    review.status === "approved" &&
+                    review.reviewed_at != null &&
+                    new Date(doc.uploaded_at) > new Date(review.reviewed_at);
+                  const reviewedAt =
+                    doc.reviewed_at ?? (uploadedAfterApproval ? null : review.reviewed_at);
+                  return (
+                    <li key={doc.id} className="py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => openDocument(doc.file_path)}
+                            className="truncate text-sm font-medium text-primary underline-offset-4 hover:underline"
+                          >
+                            {doc.file_name}
+                          </button>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(doc.uploaded_at).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <StatusBadge status={doc.status} />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Delete document"
+                            onClick={() => removeDocument(doc.id, doc.file_path)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {doc.status === "approved" && !uploadedAfterApproval ? (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Approved by {reviewerName ?? "the office"}
+                          {reviewedAt ? ` · ${new Date(reviewedAt).toLocaleString()}` : ""}
+                        </p>
+                      ) : uploadedAfterApproval ? (
+                        <p className="mt-1 text-xs italic text-muted-foreground">
+                          Uploaded after approval — not included in the review.
+                        </p>
+                      ) : doc.status === "rejected" && doc.rejection_reason ? (
+                        <p className="mt-1 text-xs text-status-rejected">
+                          Rejected: {doc.rejection_reason}
+                        </p>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p className="mt-3 text-sm text-muted-foreground">Nothing uploaded yet.</p>
