@@ -62,7 +62,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 - [x] **Profile page `/profile` (F4)** — merged via PR #11. Fixed by Moinul (PortalShell + back button + nav link)
 - [x] **Certificate page `/certificate` (F1)** — merged via PR #18; conditional link on dashboard (enabled when 8/8 approved). Dashboard conflict resolved with brand refresh.
-- [ ] **PDF download + QR code (F2)** — generate client-side (`jspdf` + `qrcode` packages), QR links to the existing `/verify/$code` page
+- [x] **PDF download + QR code (F2)** — generate client-side (`jspdf` + `qrcode` packages), QR links to the existing `/verify/$code` page
 - [ ] **Forgot password (F3)** — Supabase `resetPasswordForEmail` + reset form
 - [ ] **Student timeline/history (F5)** — every past rejection, resubmission and approval in order (on dashboard or profile)
 - [ ] **Printable certificate view (F6)** — print-friendly route/CSS so students can submit a physical copy
@@ -73,11 +73,11 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 ## 🟡 Shafin — Admin panel & staff queue upgrades (10 tasks)
 
-- [ ] **User management (S1)** — registrar creates staff/admin accounts, assigns roles & departments (`user_roles`, `staff_departments`)
-- [ ] **Workflow config (S2)** — required departments per program, batch deadlines
-- [ ] **Batch reports (S3)** — cleared vs pending per program/batch (`recharts` already installed)
-- [ ] **Notices management (S4)** — public notices shown on Home
-- [ ] **Audit log viewer (S5)** — read-only table of `audit_log`
+- [x] **User management (S1)** — registrar creates staff/admin accounts, assigns roles & departments (`user_roles`, `staff_departments`)
+- [x] **Workflow config (S2)** — required departments per program, batch deadlines
+- [x] **Batch reports (S3)** — cleared vs pending per program/batch (`recharts` already installed)
+- [x] **Notices management (S4)** — public notices shown on Home
+- [x] **Audit log viewer (S5)** — read-only table of `audit_log`
 - [ ] **Override staff decision (S6)** — admin can overturn an approve/reject; always written to `audit_log`
 - [ ] **Department config UI (S7)** — enable/disable offices per program without code changes
 - [ ] **Queue search / filter / pagination (S8)** — find students fast at 300+ scale (inside `queue.tsx`)
@@ -100,10 +100,10 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
 | Moinul | 10 — core + stretch + infra | 10/10 + 14 bug fixes | **0** — support mode |
-| Fatin | 10 — 4 original + 6 gap fixes | 2/10 | **8** — PDF/QR (F2) + forgot password (F3) first, then F5–F10 |
-| Shafin | 10 — 5 original + 5 gap fixes | 0/10 | **10** — originals (S1–S5) first, then S6–S10 |
+| Fatin | 10 — 4 original + 6 gap fixes | 3/10 | **7** — forgot password (F3) first, then F5–F10 |
+| Shafin | 10 — 5 original + 5 gap fixes | 5/10 | **5** — S6–S10 (override, dept config, queue search, rejection history, bulk summary) |
 
-**Blocked on:** Shafin needs to create `src/routes/_authenticated/admin/` folder. Fatin now has certificate page; needs to work on PDF/QR (F2) and forgot password (F3) next, then gap fixes (F5–F10).
+**Blocked on:** Fatin needs forgot password (F3) next, then gap fixes (F5–F10). Shafin has admin panel (S1–S5) built; needs S6–S10 (override, dept config, queue search, rejection history, bulk summary) next.
 
-**Backlog total: 30 tasks · 12 done · 18 remaining** (F1 merged 23 Aug).
+**Backlog total: 30 tasks · 20 done · 10 remaining** (F1 + F2 merged 23 Aug, S1–S5 merged 23 Aug).
 **Extra work done by Moinul (not in backlog):** 14 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ, admin queue polish. PRs #12–#25 all merged; PR #28 open. Brand refresh applied across 19 files. UCAM pink→blue gradient adopted. Email delivery workaround active (Resend free tier → forward to owner Gmail).
