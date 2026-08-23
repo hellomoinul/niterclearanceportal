@@ -4,7 +4,7 @@
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live.
 
-**What's left:** After the UI-gap audit (23 Aug) the backlog was redistributed evenly (10/10/10): Fatin owns certificate pipeline + 6 student-facing gap fixes; Shafin owns admin panel + 5 staff-queue gap fixes; Moinul is done and in support mode. Fatin/Shafin finish their original tasks first. Moinul also completed4 bug fixes (PR #12 pending merge): i18n removal, doc-status cascade, section page UX, footer copyright.
+**What's left:** After the UI-gap audit (23 Aug) the backlog was redistributed evenly (10/10/10): Fatin owns certificate pipeline + 6 student-facing gap fixes; Shafin owns admin panel + 5 staff-queue gap fixes; Moinul is done and in support mode. Fatin/Shafin finish their original tasks first. Moinul completed 6 bug fixes across PRs #12–#15 (i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix). Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
 
 ## Status board
 
@@ -160,10 +160,26 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   by existing `trg_notify_admin_on_application` + `trg_notify_staff_on_review`. Live, ready
   for E2E test.
 
+- **Resubmit loop E2E fixed and verified (PR #14):** `handleUpload()` in
+  `section.$code.tsx` checked a *cached* `review.status` — so the rejected→pending flip
+  silently skipped and the resubmit trigger never fired. Fix: fetch fresh DB status before
+  flipping, toast on failure. Full loop verified live: reject → student email ✓ → re-upload →
+  auto-flip → admin email ✓.
+
+- **Email delivery limitation diagnosed:** Resend free tier only delivers to the account
+  owner email (`akash.moinulhasan@gmail.com`). Admin/staff emails (`mhakash22@niter.edu.bd`,
+  `moinulcse03.du.niter@gmail.com`) were silently dropped. Temporary workaround deployed in
+  the Edge Function: all notification emails forward to the owner address with the intended
+  recipient in subject (`[user_code] title`) and body ("Intended for:" line). Proper fix
+  deferred — requires `niter.edu.bd` domain verification on Resend.
+
+- **Footer + housekeeping (PR #15):** footer text updated, `supabase/.temp/` added to
+  `.gitignore`.
+
 ## Remaining summary
 
 - **Backlog rescoped to 30 evenly-split tasks** (11 done): Moinul 10/10 · Fatin 1/10 · Shafin 0/10.
-- **Moinul's work: 100% complete + bug fixes** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 4 bug fixes completed (PR #12): i18n removal, doc-status cascade, section page UX, footer copyright. Support mode.
+- **Moinul's work: 100% complete + bug fixes** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 6 bug fixes completed (PRs #12–#15): i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix. Email delivery workaround active (Resend free tier → forward to owner Gmail). Support mode.
 - **Fatin's work: 1 of 10 done** — Profile page (F4) merged. Remaining: originals F1–F3 first (certificate, PDF/QR, forgot password), then gap fixes F5–F10.
 - **Shafin's work: 0 of 10 done** — Remaining: originals S1–S5 first (entire admin panel; `src/routes/_authenticated/admin/` doesn't exist yet), then gap fixes S6–S10.
 - **Order of attack:** Fatin/Shafin finish their original tasks before starting the new gap fixes.
