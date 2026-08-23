@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 23 Aug 2026 · **Overall progress: ~80%** (admin queue polish applied 23 Aug)
+**Last updated:** 23 Aug 2026 · **Overall progress: ~87%** (Fatin F2 + Shafin admin panel merged 23 Aug)
 
-Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout.
+Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout. Admin panel built: user management, workflow config, batch reports, notices, audit log viewer.
 
-**What's left:** Fatin at 2/10 (F1 + F4 done). Shafin at 0/10 — no admin folder created yet. Moinul completed 14 bug fixes + brand refresh + CI guard + UCAM gradient adoption. Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
+**What's left:** Fatin at 3/10 (F1 + F4 + F2 done). Shafin at 5/10 (S1–S5 done, admin panel built). Moinul completed 14 bug fixes + brand refresh + CI guard + UCAM gradient adoption. Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
 
 ## Status board
 
@@ -32,7 +32,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | M2 | Escalation logic migration | Moinul | ✅ Done | E2E verified — auto-escalates at 3 rejections, notifies Head + admins via bell icon |
 | M3 | Audit trail writes | Moinul | ✅ Done | E2E verified — every approve/reject logged to audit_log with actor + remark |
 | F1  | Certificate page `/certificate` | Fatin  | ✅ Done | Merged via PR #18; conditional link on dashboard (enabled when 8/8 approved) |
-| F2  | PDF download + QR code          | Fatin  | ⬜ Not started | `jspdf` + `qrcode`, QR → `/verify/$code`      |
+| F2  | PDF download + QR code          | Fatin  | ✅ Done | PR #26: jspdf + qrcode, dynamic QR, A4 scaling, signature image |
 | F3  | Forgot password flow            | Fatin  | ⬜ Not started | `resetPasswordForEmail` + reset form          |
 | F4  | Profile page (read-only)        | Fatin  | ✅ Done | Merged via PR #11; layout fixed by Moinul (PortalShell + back button + nav link) |
 | F5  | Student timeline/history        | Fatin  | ⬜ Not started | Every past rejection/resubmission/approval in order |
@@ -41,11 +41,11 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | F8  | Confirmation dialogs (student)  | Fatin  | ⬜ Not started | Confirm before deleting uploaded documents       |
 | F9  | Global error states             | Fatin  | ⬜ Not started | Network drop / upload fail / session expiry      |
 | F10 | Registrar queue                 | Fatin  | ⬜ Not started | "Ready for final processing" — cleared students  |
-| S1  | Admin: user management          | Shafin | ⬜ Not started | Roles + staff department assignment              |
-| S2  | Admin: workflow config          | Shafin | ⬜ Not started | Departments per program, batch deadlines         |
-| S3  | Admin: batch reports            | Shafin | ⬜ Not started | `recharts` installed                             |
-| S4  | Admin: notices management       | Shafin | ⬜ Not started | Feeds Home page                                  |
-| S5  | Admin: audit log viewer         | Shafin | ⬜ Not started | Read-only table                                  |
+| S1  | Admin: user management          | Shafin | ✅ Done | PR #27: `admin/users.tsx` — roles + staff department assignment |
+| S2  | Admin: workflow config          | Shafin | ✅ Done | PR #27: `admin/workflow.tsx` — departments per program, batch deadlines |
+| S3  | Admin: batch reports            | Shafin | ✅ Done | PR #27: `admin/reports.tsx` — `recharts` charts |
+| S4  | Admin: notices management       | Shafin | ✅ Done | PR #27: `admin/notices.tsx` — feeds Home page |
+| S5  | Admin: audit log viewer         | Shafin | ✅ Done | PR #27: `admin/audit.tsx` — read-only table |
 | S6  | Override staff decision         | Shafin | ⬜ Not started | Admin overturn + mandatory audit_log entry       |
 | S7  | Department config UI            | Shafin | ⬜ Not started | Enable/disable offices per program, no code edit |
 | S8  | Queue search/filter/pagination  | Shafin | ⬜ Not started | Scale to 300+ students (inside `queue.tsx`)      |
@@ -229,13 +229,23 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   tab count matches visible rows. PageHeader `description` prop accepts nullable DB columns.
   tsc clean. PR open, not yet merged.
 
+- **Fatin's certificate PDF + QR (PR #26):** `certificate.tsx` rewritten (+164/-46).
+  Added `jspdf` + `qrcode` packages. Certificate now downloadable as client-side PDF with
+  A4 scaling. Dynamic QR code linking to `/verify/$code`. Signature image added to
+  `public/`. Task F2 complete.
+
+- **Shafin's admin panel (PR #27):** entire `src/routes/_authenticated/admin/` folder
+  created with 7 new files (+501 lines). Tasks S1–S5 complete: user management
+  (`users.tsx`), workflow config (`workflow.tsx`), batch reports with recharts
+  (`reports.tsx`), notices management (`notices.tsx`), audit log viewer (`audit.tsx`).
+
 ## Remaining summary
 
-- **Backlog: 30 tasks · 12 done · 18 remaining.** Moinul 10/10 + 14 bug fixes + brand refresh + UCAM gradient + CI. Fatin 2/10 (F1 + F4). Shafin 0/10.
+- **Backlog: 30 tasks · 20 done · 10 remaining.** Moinul 10/10 + 14 bug fixes. Fatin 3/10. Shafin 5/10.
 - **Moinul's work: 100% complete + bug fixes + UCAM gradient + CI** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 14 bug fixes (PRs #12–#25 merged, #28 open): i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ, admin queue polish. Brand refresh applied (PR #17). Route tree guard GitHub Action (PR #19). Email delivery workaround active (Resend free tier → forward to owner Gmail). Support mode.
-- **Fatin's work: 2 of 10 done** — Profile page (F4) + Certificate page (F1) merged. Remaining: PDF/QR (F2), forgot password (F3), then gap fixes F5–F10.
-- **Shafin's work: 0 of 10 done** — No admin folder created yet. Remaining: originals S1–S5 first (entire admin panel), then gap fixes S6–S10.
-- **Order of attack:** Fatin/Shafin finish their original tasks before starting the new gap fixes.
+- **Fatin's work: 3 of 10 done** — Profile page (F4) + Certificate page (F1) + PDF/QR (F2) merged. Remaining: forgot password (F3), then gap fixes F5–F10.
+- **Shafin's work: 5 of 10 done** — Admin panel built (S1–S5): user management, workflow config, batch reports, notices, audit log viewer. Remaining: S6–S10 (override, dept config, queue search, rejection history, bulk summary).
+- **Order of attack:** Fatin needs forgot password (F3) next, then gap fixes (F5–F10). Shafin needs S6–S10 (override, dept config, queue search, rejection history, bulk summary) next.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → certificate PDF downloads with scannable QR → registrar sees cleared students ready for pickup → admin manages users, overrides decisions (audited), and reads batch reports.
 
 ## How to update this file
