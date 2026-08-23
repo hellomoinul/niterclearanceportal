@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 23 Aug 2026 · **Overall progress: ~80%** (UCAM gradient + contrast fixes + multi-fix applied 23 Aug)
+**Last updated:** 23 Aug 2026 · **Overall progress: ~80%** (admin queue polish applied 23 Aug)
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout.
 
-**What's left:** Fatin at 2/10 (F1 + F4 done). Shafin at 0/10 — no admin folder created yet. Moinul completed 13 bug fixes + brand refresh + CI guard + UCAM gradient adoption. Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
+**What's left:** Fatin at 2/10 (F1 + F4 done). Shafin at 0/10 — no admin folder created yet. Moinul completed 14 bug fixes + brand refresh + CI guard + UCAM gradient adoption. Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
 
 ## Status board
 
@@ -222,10 +222,17 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   Shafin's panel. FAQ split: students see apply/upload/cert questions; staff/admin see
   review/bulk-approve/escalation/queue-filtering questions. Description adapts per role.
 
+- **Admin queue polish (PR #28, `moinul/queue-round3`):** full-width banner fix (same
+  flex-wrapper bug as notifications #24), admin office filter moved below tabs. Office/
+  department name shown on every queue card. Thesis title removed from queue cards (program
+  + batch only). Zero-document pending students hidden entirely from admin queue — pending
+  tab count matches visible rows. PageHeader `description` prop accepts nullable DB columns.
+  tsc clean. PR open, not yet merged.
+
 ## Remaining summary
 
-- **Backlog: 30 tasks · 12 done · 18 remaining.** Moinul 10/10 + 13 bug fixes + brand refresh + UCAM gradient + CI. Fatin 2/10 (F1 + F4). Shafin 0/10.
-- **Moinul's work: 100% complete + bug fixes + UCAM gradient + CI** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 13 bug fixes (PRs #12–#25): i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ. Brand refresh applied (PR #17). Route tree guard GitHub Action (PR #19). Email delivery workaround active (Resend free tier → forward to owner Gmail). Support mode.
+- **Backlog: 30 tasks · 12 done · 18 remaining.** Moinul 10/10 + 14 bug fixes + brand refresh + UCAM gradient + CI. Fatin 2/10 (F1 + F4). Shafin 0/10.
+- **Moinul's work: 100% complete + bug fixes + UCAM gradient + CI** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 14 bug fixes (PRs #12–#25 merged, #28 open): i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ, admin queue polish. Brand refresh applied (PR #17). Route tree guard GitHub Action (PR #19). Email delivery workaround active (Resend free tier → forward to owner Gmail). Support mode.
 - **Fatin's work: 2 of 10 done** — Profile page (F4) + Certificate page (F1) merged. Remaining: PDF/QR (F2), forgot password (F3), then gap fixes F5–F10.
 - **Shafin's work: 0 of 10 done** — No admin folder created yet. Remaining: originals S1–S5 first (entire admin panel), then gap fixes S6–S10.
 - **Order of attack:** Fatin/Shafin finish their original tasks before starting the new gap fixes.
