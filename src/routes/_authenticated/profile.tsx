@@ -12,17 +12,17 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 function ProfilePage() {
-  const { profile, isStaff, isAdmin } = useAuth();
+  const { profile, isRegistrar, isAdmin } = useAuth();
 
   return (
     <PortalShell className="max-w-3xl">
       <PageHeader
         title="Student Profile"
         back={{
-          to: isStaff || isAdmin ? "/queue" : "/dashboard",
-          label: `Back to ${isStaff || isAdmin ? "queue" : "dashboard"}`,
+          to: isRegistrar || isAdmin ? "/queue" : "/dashboard",
+          label: `Back to ${isRegistrar || isAdmin ? "queue" : "dashboard"}`,
         }}
-        breadcrumbs={[{ label: isStaff || isAdmin ? "Queue" : "Dashboard", to: isStaff || isAdmin ? "/queue" : "/dashboard" }]}
+        breadcrumbs={[{ label: isRegistrar || isAdmin ? "Queue" : "Dashboard", to: isRegistrar || isAdmin ? "/queue" : "/dashboard" }]}
       />
 
       <Card>
