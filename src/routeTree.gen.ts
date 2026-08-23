@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as UpdatePasswordRouteImport } from './routes/update-password'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedApplyRouteImport } from './routes/_authenticated/apply'
@@ -52,6 +54,16 @@ const AuthRoute = AuthRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpdatePasswordRoute = UpdatePasswordRouteImport.update({
+  id: '/update-password',
+  path: '/update-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VerifyRoute = VerifyRouteImport.update({
@@ -140,6 +152,8 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
@@ -161,6 +175,8 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
   '/certificate': typeof AuthenticatedCertificateRoute
@@ -183,6 +199,8 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/apply': typeof AuthenticatedApplyRoute
@@ -206,6 +224,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/faq'
+    | '/forgot-password'
+    | '/update-password'
     | '/verify'
     | '/admin'
     | '/apply'
@@ -227,6 +247,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/faq'
+    | '/forgot-password'
+    | '/update-password'
     | '/verify'
     | '/apply'
     | '/certificate'
@@ -248,6 +270,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/faq'
+    | '/forgot-password'
+    | '/update-password'
     | '/verify'
     | '/_authenticated/admin'
     | '/_authenticated/apply'
@@ -271,6 +295,8 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   FaqRoute: typeof FaqRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  UpdatePasswordRoute: typeof UpdatePasswordRoute
   VerifyRoute: typeof VerifyRouteWithChildren
 }
 
@@ -309,6 +335,20 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/update-password': {
+      id: '/update-password'
+      path: '/update-password'
+      fullPath: '/update-password'
+      preLoaderRoute: typeof UpdatePasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/verify': {
@@ -483,6 +523,8 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   FaqRoute: FaqRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  UpdatePasswordRoute: UpdatePasswordRoute,
   VerifyRoute: VerifyRouteWithChildren,
 }
 export const routeTree = rootRouteImport
