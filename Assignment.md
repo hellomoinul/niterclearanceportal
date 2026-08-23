@@ -56,7 +56,12 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **Role-based nav + FAQ (PR #25)** — staff/admin no longer see Dashboard link (redirect bounced them to queue). Admin link kept visible pending Shafin's panel. FAQ split: student questions (apply, upload, cert) vs staff/admin questions (review, bulk approve, escalation, queue filtering).
 - [x] **Admin queue polish (PR #28, `moinul/queue-round3`)** — full-width banner fix (same flex-wrapper bug as notifications), admin office filter moved below tabs. Office name shown on every card. Thesis title removed from queue cards. Zero-document pending students hidden from admin queue entirely. PageHeader description prop fixed to accept nullable DB columns.
 
-**Status: ALL DONE. Moinul is in support mode — free to help Fatin/Shafin or fix bugs.**
+*Security & integrity fixes (post-verification, 23 Aug):*
+- [ ] **Admin route guard** — no access control on `/admin/*` routes; any logged-in user (including students) can reach audit log page. Fix: `beforeLoad` role check on admin layout route, redirect non-admins.
+- [ ] **Status-forgery patch** — students can UPDATE own `clearance_applications.status` to `'cleared'` via API (column not restricted in RLS policy), unlocking certificate PDF view. Same pattern on `documents.status`. Fix: revoke blanket student UPDATE, replace with column-safe path (BEFORE UPDATE trigger rejects `status`/`cleared_at` changes by non-admins).
+- [ ] **Admin panel honesty pass** — all five `/admin` pages are non-functional (workflow→localStorage, users→console.log, reports→hardcoded data, audit→wrong column names, notices→table doesn't exist). Replace with clear "Coming soon" states or proper stubs so nobody mistakes scaffolding for features.
+
+**Status: Moinul in support mode — security fixes next, then available to help Fatin/Shafin.**
 
 ## 🟢 Fatin — Certificate pipeline & account features (10 tasks)
 
@@ -76,9 +81,10 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **User management (S1)** — registrar creates staff/admin accounts, assigns roles & departments (`user_roles`, `staff_departments`)
 - [x] **Workflow config (S2)** — required departments per program, batch deadlines
 - [x] **Batch reports (S3)** — cleared vs pending per program/batch (`recharts` already installed)
-- [x] **Notices management (S4)** — public notices shown on Home
+- [x] **Notices management (S4)** — public notices shown on Home ⚠️ *S4 code writes to `notices` table that doesn't exist in any migration — see Shafin fix below*
 - [x] **Audit log viewer (S5)** — read-only table of `audit_log`
 - [ ] **Override staff decision (S6)** — admin can overturn an approve/reject; always written to `audit_log`
+- [ ] **S4 fix: rebuild notices** — current S4 code queries `notices` table that doesn't exist in any migration (`as any` cast hid the error). Must create: `notices` table migration + RLS (admin INSERT, public SELECT) + wire home page to read from DB instead of hardcoded array.
 - [ ] **Department config UI (S7)** — enable/disable offices per program without code changes
 - [ ] **Queue search / filter / pagination (S8)** — find students fast at 300+ scale (inside `queue.tsx`)
 - [ ] **Rejection history panel (S9)** — show each student's past rejections/remarks beside the current one in the queue
@@ -99,11 +105,11 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
-| Moinul | 10 — core + stretch + infra | 10/10 + 14 bug fixes | **0** — support mode |
+| Moinul | 10 — core + stretch + infra | 10/10 + 14 bug fixes | **3** security/honesty fixes in progress (admin guard, status-forgery, admin panel honesty) |
 | Fatin | 10 — 4 original + 6 gap fixes | 3/10 | **7** — forgot password (F3) first, then F5–F10 |
-| Shafin | 10 — 5 original + 5 gap fixes | 5/10 | **5** — S6–S10 (override, dept config, queue search, rejection history, bulk summary) |
+| Shafin | 10 — 5 original + 5 gap fixes + 1 rebuild | 5/10 | **6** — S4 rebuild (notices table), then S6–S10 |
 
-**Blocked on:** Fatin needs forgot password (F3) next, then gap fixes (F5–F10). Shafin has admin panel (S1–S5) built; needs S6–S10 (override, dept config, queue search, rejection history, bulk summary) next.
+**Blocked on:** Fatin needs forgot password (F3) next, then gap fixes (F5–F10). Shafin has admin panel (S1–S5) built but S4 needs DB rebuild; needs S4-fix + S6–S10 next. Moinul working on security patches (admin guard, status-forgery, admin honesty pass).
 
-**Backlog total: 30 tasks · 20 done · 10 remaining** (F1 + F2 merged 23 Aug, S1–S5 merged 23 Aug).
-**Extra work done by Moinul (not in backlog):** 14 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ, admin queue polish. PRs #12–#25 all merged; PR #28 open. Brand refresh applied across 19 files. UCAM pink→blue gradient adopted. Email delivery workaround active (Resend free tier → forward to owner Gmail).
+**Backlog total: 31 tasks · 20 done · 11 remaining** (S4 adds 1 rebuild task; Moinul security fixes are extra backlog beyond original 31).
+**Extra work done by Moinul (not in backlog):** 14 bug fixes + 3 security/integrity fixes in progress. PRs #12–#28 merged; security fixes pending. Email delivery workaround active (Resend free tier → forward to owner Gmail). System gap verification completed 23 Aug — identified 5 critical + 7 high-priority issues across security, RLS, data integrity, and admin panel honesty.
