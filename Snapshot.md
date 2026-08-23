@@ -4,7 +4,7 @@
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live.
 
-**What's left:** After the UI-gap audit (23 Aug) the backlog was redistributed evenly (10/10/10): Fatin owns certificate pipeline + 6 student-facing gap fixes; Shafin owns admin panel + 5 staff-queue gap fixes; Moinul is done and in support mode. Fatin/Shafin finish their original tasks first.
+**What's left:** After the UI-gap audit (23 Aug) the backlog was redistributed evenly (10/10/10): Fatin owns certificate pipeline + 6 student-facing gap fixes; Shafin owns admin panel + 5 staff-queue gap fixes; Moinul is done and in support mode. Fatin/Shafin finish their original tasks first. Moinul also completed4 bug fixes (PR #12 pending merge): i18n removal, doc-status cascade, section page UX, footer copyright.
 
 ## Status board
 
@@ -139,10 +139,31 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   project (auth + Postgres together). Firebase would split identity onto a second platform
   with no free database at our scale. No reason to revisit.
 
+- **Bug fixes (UI review, 23 Aug):** three issues found during UI review, plus a cosmetic
+  fix — all resolved in PR #12 (`moinul/bug-fix-2026-08-23`):
+  1. **Raw translation keys showing** (`nav.dashboard`, `nav.signOut`) — removed i18n
+     entirely; English-only site. Deleted `src/i18n.ts`, `src/locales/`, LanguageToggle
+     component; uninstalled `i18next`, `i18next-browser-languagedetector`, `react-i18next`.
+  2. **Document status contradicted review status** — approve/reject now cascades to
+     linked documents in `decide()` and `bulkApprove()`. New DB columns (`reviewed_by`,
+     `reviewed_at`) on `documents` table. New RPC `reviewer_display_name()` (students can't
+     read staff profiles via RLS). One-time data repair fixed existing contradictions
+     (verified: 3 approved docs, 1 rejected doc, 0 mismatches).
+  3. **Section page UX** — reviewer name + timestamp shown on approved docs; "Re-upload
+     attempts used" hidden when approved; "Uploaded after approval" notice for late uploads;
+     rejection reason shown on rejected docs.
+  4. **Footer copyright** — dynamic year via `new Date().getFullYear()`.
+
+- **Resubmit notifications (23 Aug):** `trg_notify_on_resubmit` trigger on
+  `department_reviews` UPDATE — notifies dept staff + all admins when a rejected student
+  re-uploads documents (review flips back to pending). First-time submission already covered
+  by existing `trg_notify_admin_on_application` + `trg_notify_staff_on_review`. Live, ready
+  for E2E test.
+
 ## Remaining summary
 
 - **Backlog rescoped to 30 evenly-split tasks** (11 done): Moinul 10/10 · Fatin 1/10 · Shafin 0/10.
-- **Moinul's work: 100% complete** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. Support mode.
+- **Moinul's work: 100% complete + bug fixes** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 4 bug fixes completed (PR #12): i18n removal, doc-status cascade, section page UX, footer copyright. Support mode.
 - **Fatin's work: 1 of 10 done** — Profile page (F4) merged. Remaining: originals F1–F3 first (certificate, PDF/QR, forgot password), then gap fixes F5–F10.
 - **Shafin's work: 0 of 10 done** — Remaining: originals S1–S5 first (entire admin panel; `src/routes/_authenticated/admin/` doesn't exist yet), then gap fixes S6–S10.
 - **Order of attack:** Fatin/Shafin finish their original tasks before starting the new gap fixes.

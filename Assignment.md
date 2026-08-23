@@ -20,7 +20,7 @@
 
 ---
 
-## 🔵 Moinul — Core approval loop + infrastructure + stretch pool
+## 🔵 Moinul — Core approval loop + infrastructure + stretch pool + bug fixes
 
 - [x] **Staff queue `/queue`** — route missing but the dashboard already links to it.
   - Pending students list filtered to the logged-in staff member's department(s)
@@ -30,7 +30,7 @@
 - [x] **Audit trail writes** — insert into `audit_log` on every approve/reject (actor, action, timestamp)
 - [x] **Bulk approve in queue** — checkboxes + Select all + bottom action bar
 - [x] **Email notifications** — Edge Function + Resend + Database Webhook. Triggers: admin on submission, staff on review creation, student on approve/reject
-- [x] **Bangla/English toggle** — i18n infrastructure + toggle in header
+- [x] **Bangla/English toggle** — i18n infrastructure + toggle in header *(later removed — decided English-only)*
 - [x] **Settings page `/settings`** — admin/staff enter their email for notifications
 - [x] **Notification pipeline** — 3 DB triggers + Edge Function + Webhook → email via Resend
 - [x] **Profile page fix** — wrapped in PortalShell, back button role-aware, nav link added
@@ -39,6 +39,13 @@
 (`jmpavfglhtmcraxfiock` — Lovable Cloud was inaccessible), app deployed to Vercel
 (<https://niterclearanceportal.vercel.app/>, auto-deploys `main`), NITER favicon.
 Dashboard redirect for admin/staff. Git conflict resolution.
+
+*Bug fixes (23 Aug — UI review):*
+- [x] **Remove i18n entirely** — English-only site. Deleted locale files, LanguageToggle, uninstalled i18n packages. Hardcoded English in portal-shell + queue.
+- [x] **Document status cascade** — approve/reject now cascades to linked documents. New DB columns (`reviewed_by`, `reviewed_at`), new RPC (`reviewer_display_name`), one-time data repair for existing contradictions.
+- [x] **Section page UX** — reviewer name + timestamp, hide attempts when approved, "uploaded after approval" notice, rejection reason on rejected docs.
+- [x] **Footer copyright** — dynamic year via `new Date().getFullYear()`.
+- [x] **Resubmit notifications** — new trigger `trg_notify_on_resubmit` on `department_reviews` UPDATE. Notifies dept staff + all admins when a rejected student re-uploads documents (review flips back to pending).
 
 **Status: ALL DONE. Moinul is in support mode — free to help Fatin/Shafin or fix bugs.**
 
@@ -71,7 +78,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 ## 📋 Stretch pool (whoever finishes their section first)
 
 - [x] **Bulk approve in queue** — Moinul (PR #9/10)
-- [x] **Bangla / English toggle** — Moinul (PR #10)
+- [x] ~~Bangla / English toggle~~ — Moinul (PR #10). **Removed 23 Aug** — team decided English-only site. i18n infrastructure deleted.
 - [x] **Email notifications** — Moinul (PR #10 + migrations). Edge Function + Resend + Database Webhook live. Triggers: admin on submission, staff on review creation, student on approve/reject. Settings page for email entry. Dashboard role redirect.
 - [x] **Notification pipeline** — Moinul. 3 DB triggers + Edge Function + Webhook. All notifications fire emails.
 - [x] **Settings page** — Moinul. `/settings` route for email entry.
@@ -83,10 +90,11 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
-| Moinul | 10 — core + stretch + infra | 10/10 | **0** — support mode |
+| Moinul | 10 — core + stretch + infra | 10/10 + 4 bug fixes | **0** — support mode |
 | Fatin | 10 — 4 original + 6 gap fixes | 1/10 | **9** — originals (F1–F3) first, then F5–F10 |
 | Shafin | 10 — 5 original + 5 gap fixes | 0/10 | **10** — originals (S1–S5) first, then S6–S10 |
 
 **Blocked on:** Shafin needs to create `src/routes/_authenticated/admin/` folder. Fatin needs to create `src/routes/_authenticated/certificate.tsx`. Both start with their original tasks, then pick up the gap fixes (F5–F10 / S6–S10).
 
 **Backlog total: 30 tasks · 11 done · 19 remaining** (redistributed evenly 23 Aug after the UI-gap audit).
+**Extra work done by Moinul (not in backlog):** 4 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright. PR #12 pending merge.
