@@ -79,7 +79,7 @@ function HomePage() {
         <p className="text-xs font-semibold tracking-[0.18em] uppercase opacity-80">
           National Institute of Textile Engineering and Research
         </p>
-        <h1 className="mt-4 max-w-2xl text-3xl font-semibold font-display sm:text-4xl">
+        <h1 className="mt-4 max-w-2xl text-3xl font-semibold font-display text-white sm:text-4xl">
           Final-year clearance, without walking to eight offices
         </h1>
         <p className="mt-4 max-w-xl text-sm opacity-90 sm:text-base">
@@ -97,7 +97,7 @@ function HomePage() {
             asChild
             size="lg"
             variant="outline"
-            className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
+            className="bg-white/70 border-[#07172B]/30 text-[#07172B] hover:bg-white/90"
           >
             <Link to="/verify">
               <ShieldCheck className="size-4" /> Verify a certificate

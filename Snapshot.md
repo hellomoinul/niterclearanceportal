@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 23 Aug 2026 · **Overall progress: ~80%** (brand refresh + Fatin progress + CI guard added 23 Aug)
+**Last updated:** 23 Aug 2026 · **Overall progress: ~80%** (UCAM gradient + contrast fixes + multi-fix applied 23 Aug)
 
-Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. **Brand design system applied** — NITER crest logo, navy/teal gradient identity, Playfair Display + Inter typography, PageHeader banners across all routes.
+Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout.
 
-**What's left:** Fatin at 2/10 (F1 + F4 done). Shafin at 0/10 — no admin folder created yet. Moinul completed 8 bug fixes + brand refresh + CI guard. Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
+**What's left:** Fatin at 2/10 (F1 + F4 done). Shafin at 0/10 — no admin folder created yet. Moinul completed 13 bug fixes + brand refresh + CI guard + UCAM gradient adoption. Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
 
 ## Status board
 
@@ -59,7 +59,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | I1   | Own Supabase project | Moinul | ✅ Done | Old DB lived in inaccessible Lovable Cloud → new free project `jmpavfglhtmcraxfiock`, all migrations + fixes in `consolidated_setup.sql`, `.env` repointed |
 | I2   | Deployed to Vercel | Moinul | ✅ Done | **https://niterclearanceportal.vercel.app/** · preset *Other* + env `NITRO_PRESET=vercel`; auto-redeploys every push to `main` |
 | I3   | NITER branding | Moinul | ✅ Done | Favicon replaced, then full brand refresh applied |
-| I4   | Brand design system | Moinul | ✅ Done | Navy/teal/mint/gold palette, Playfair Display + Inter, gradient buttons, crest logo, dark footer, PageHeader banners, 12px cards. PR #17 |
+| I4   | Brand design system | Moinul | ✅ Done | UCAM pink→blue gradient (#fbc1ff→#4e65ff), Playfair Display + Inter, crest logo, dark navy footer, PageHeader banners, 12px cards. PRs #17, #22, #23, #24 |
 | I5   | Route tree guard | Moinul | ✅ Done | GitHub Action auto-warns when routeTree.gen.ts committed in PRs. Posts fix commands, auto-deletes when resolved. PR #19 |
 
 ### Stretch / deferred
@@ -195,10 +195,37 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   Warning auto-deletes when the file is removed from the PR. Tested end-to-end with
   throwaway PR #20.
 
+- **Back link readability (PR #21):** moved standalone ghost back button into PageHeader
+  as an optional `back` prop (white/85 ink on dark banner). Fixes unreadable dark-on-dark
+  text on all 8 department pages + profile page. Removed unused ArrowLeft/Button/Link
+  imports from both route files.
+
+- **UCAM gradient adoption (PR #22):** switched hero + button gradients from navy→teal to
+  UCAM pink→blue (#fbc1ff → #4e65ff), matching the visual language students encounter on
+  the UCAM ERP login page. All banner text switched from white to dark ink (#07172B).
+  Header/footer chrome stays dark navy. Mint/gold accents untouched.
+
+- **WCAG contrast fixes (PR #23):** audited live gradient with contrast math — found four
+  failing combos (breadcrumbs /60 at 3.3:1, description /70 at 4.1:1, hero outline CTA at
+  3.97:1, default button hover at 2.98:1). Fixed: breadcrumbs → solid ink + hover:underline,
+  description → /95 (~6.8:1), hero CTA → bg-white/70 (~10.4:1), button hover → lightened
+  stops #fdcfff/#6b82ff (5.36:1). All combos now ≥4.5:1 AA.
+
+- **White headings + registrar removal + notifications (PR #24):** h1 headings on gradient
+  surfaces → white (smaller text stays dark ink). Login label updated to "Student / Staff
+  ID/Admin". All "registrar" references replaced with "admin" across auth, faq, queue,
+  certificate, verify (6 locations). Notifications full-bleed gradient restored; "Mark all
+  read" button placed below the banner.
+
+- **Role-based nav + FAQ (PR #25):** staff/admin no longer see Dashboard nav link (redirect
+  bounced them to queue — two labels, one destination). Admin link kept visible pending
+  Shafin's panel. FAQ split: students see apply/upload/cert questions; staff/admin see
+  review/bulk-approve/escalation/queue-filtering questions. Description adapts per role.
+
 ## Remaining summary
 
-- **Backlog: 30 tasks · 12 done · 18 remaining.** Moinul 10/10 + 8 bug fixes + brand refresh + CI. Fatin 2/10 (F1 + F4). Shafin 0/10.
-- **Moinul's work: 100% complete + bug fixes + brand refresh + CI** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 8 bug fixes (PRs #12–#15): i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix. Brand design system applied (PR #17). Route tree guard GitHub Action (PR #19). Email delivery workaround active (Resend free tier → forward to owner Gmail). Support mode.
+- **Backlog: 30 tasks · 12 done · 18 remaining.** Moinul 10/10 + 13 bug fixes + brand refresh + UCAM gradient + CI. Fatin 2/10 (F1 + F4). Shafin 0/10.
+- **Moinul's work: 100% complete + bug fixes + UCAM gradient + CI** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 13 bug fixes (PRs #12–#25): i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ. Brand refresh applied (PR #17). Route tree guard GitHub Action (PR #19). Email delivery workaround active (Resend free tier → forward to owner Gmail). Support mode.
 - **Fatin's work: 2 of 10 done** — Profile page (F4) + Certificate page (F1) merged. Remaining: PDF/QR (F2), forgot password (F3), then gap fixes F5–F10.
 - **Shafin's work: 0 of 10 done** — No admin folder created yet. Remaining: originals S1–S5 first (entire admin panel), then gap fixes S6–S10.
 - **Order of attack:** Fatin/Shafin finish their original tasks before starting the new gap fixes.
