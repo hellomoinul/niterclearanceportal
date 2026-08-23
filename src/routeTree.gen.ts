@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedApplyRouteImport } from './routes/_authenticated/apply'
 import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -23,6 +24,10 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedQueueRouteImport } from './routes/_authenticated/queue'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminWorkflowRouteImport } from './routes/_authenticated/admin/workflow'
 import { Route as AuthenticatedSectionCodeRouteImport } from './routes/_authenticated/section.$code'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +58,11 @@ const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
   path: '/verify',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedApplyRoute = AuthenticatedApplyRouteImport.update({
   id: '/apply',
@@ -96,6 +106,28 @@ const VerifyCodeRoute = VerifyCodeRouteImport.update({
   path: '/$code',
   getParentRoute: () => VerifyRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminWorkflowRoute =
+  AuthenticatedAdminWorkflowRouteImport.update({
+    id: '/workflow',
+    path: '/workflow',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedSectionCodeRoute =
   AuthenticatedSectionCodeRouteImport.update({
     id: '/section/$code',
@@ -109,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
   '/verify': typeof VerifyRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -117,7 +150,11 @@ export interface FileRoutesByFullPath {
   '/queue': typeof AuthenticatedQueueRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
   '/section/$code': typeof AuthenticatedSectionCodeRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,7 +170,11 @@ export interface FileRoutesByTo {
   '/queue': typeof AuthenticatedQueueRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
   '/section/$code': typeof AuthenticatedSectionCodeRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +184,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
   '/verify': typeof VerifyRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/apply': typeof AuthenticatedApplyRoute
   '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -151,7 +193,11 @@ export interface FileRoutesById {
   '/_authenticated/queue': typeof AuthenticatedQueueRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
   '/_authenticated/section/$code': typeof AuthenticatedSectionCodeRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +207,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/faq'
     | '/verify'
+    | '/admin'
     | '/apply'
     | '/certificate'
     | '/dashboard'
@@ -169,7 +216,11 @@ export interface FileRouteTypes {
     | '/queue'
     | '/settings'
     | '/verify/$code'
+    | '/admin/reports'
+    | '/admin/users'
+    | '/admin/workflow'
     | '/section/$code'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -185,7 +236,11 @@ export interface FileRouteTypes {
     | '/queue'
     | '/settings'
     | '/verify/$code'
+    | '/admin/reports'
+    | '/admin/users'
+    | '/admin/workflow'
     | '/section/$code'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -194,6 +249,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/faq'
     | '/verify'
+    | '/_authenticated/admin'
     | '/_authenticated/apply'
     | '/_authenticated/certificate'
     | '/_authenticated/dashboard'
@@ -202,7 +258,11 @@ export interface FileRouteTypes {
     | '/_authenticated/queue'
     | '/_authenticated/settings'
     | '/verify/$code'
+    | '/_authenticated/admin/reports'
+    | '/_authenticated/admin/users'
+    | '/_authenticated/admin/workflow'
     | '/_authenticated/section/$code'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -257,6 +317,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/verify'
       preLoaderRoute: typeof VerifyRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/apply': {
       id: '/_authenticated/apply'
@@ -314,6 +381,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyCodeRouteImport
       parentRoute: typeof VerifyRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/workflow': {
+      id: '/_authenticated/admin/workflow'
+      path: '/workflow'
+      fullPath: '/admin/workflow'
+      preLoaderRoute: typeof AuthenticatedAdminWorkflowRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/section/$code': {
       id: '/_authenticated/section/$code'
       path: '/section/$code'
@@ -324,7 +419,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAdminWorkflowRoute: typeof AuthenticatedAdminWorkflowRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
+    AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+    AuthenticatedAdminWorkflowRoute: AuthenticatedAdminWorkflowRoute,
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedApplyRoute: typeof AuthenticatedApplyRoute
   AuthenticatedCertificateRoute: typeof AuthenticatedCertificateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -336,6 +452,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedApplyRoute: AuthenticatedApplyRoute,
   AuthenticatedCertificateRoute: AuthenticatedCertificateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
