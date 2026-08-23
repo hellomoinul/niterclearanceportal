@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
 
-export const Route = createFileRoute('/_authenticated/admin/workflow')({
+export const Route = createFileRoute('/_authenticated/admin/users')({
   component: workflowconfig,
 });
 
