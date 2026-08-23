@@ -342,7 +342,7 @@ export type Database = {
         };
         Relationships: [];
       };
-      staff_departments: {
+      registrar_departments: {
         Row: {
           department_id: string;
           id: string;
@@ -360,7 +360,7 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "staff_departments_department_id_fkey";
+            foreignKeyName: "registrar_departments_department_id_fkey";
             columns: ["department_id"];
             isOneToOne: false;
             referencedRelation: "departments";
@@ -410,13 +410,13 @@ export type Database = {
         Args: { _review_id: string };
         Returns: string;
       };
-      staff_in_department: {
+      registrar_in_department: {
         Args: { _department_id: string; _user_id: string };
         Returns: boolean;
       };
     };
     Enums: {
-      app_role: "student" | "staff" | "admin";
+      app_role: "student" | "registrar" | "admin";
       application_status: "draft" | "in_review" | "cleared";
       review_status: "pending" | "approved" | "rejected";
     };
@@ -540,7 +540,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["student", "staff", "admin"],
+      app_role: ["student", "registrar", "admin"],
       application_status: ["draft", "in_review", "cleared"],
       review_status: ["pending", "approved", "rejected"],
     },

@@ -65,6 +65,20 @@ tasks:
     paths: ["supabase/migrations/*", "supabase/consolidated_setup.sql"]
     hint: "DB trigger blocks Head approval until other 7 offices approved"
 
+  - id: M8
+    title: "Staff → Registrar full rename"
+    owner: Moinul
+    order: 135
+    paths: ["supabase/migrations/*", "src/**/*.tsx", "src/**/*.ts"]
+    hint: "Enum value, table, function, RLS policies, all client references"
+
+  - id: M9
+    title: "Accounts Queue hard rule"
+    owner: Moinul
+    order: 136
+    paths: ["src/routes/_authenticated/queue.tsx", "src/components/portal-shell.tsx"]
+    hint: "Registrar always sees Accounts queue (DB + client fallback)"
+
   # Fatin — certificate pipeline (F1–F4)
   - id: F1
     title: "Certificate page `/certificate`"
