@@ -1,22 +1,37 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 
 interface Breadcrumb {
   label: string;
   to?: string;
 }
 
+interface BackLink {
+  to: string;
+  label: string;
+}
+
 export function PageHeader({
   title,
   description,
   breadcrumbs,
+  back,
 }: {
   title: string;
   description?: string;
   breadcrumbs?: Breadcrumb[];
+  back?: BackLink;
 }) {
   return (
     <section className="hero-surface -mx-4 -mt-8 mb-8 rounded-b-xl px-6 py-8 sm:px-10 sm:py-10">
+      {back && (
+        <Link
+          to={back.to}
+          className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-white/85 transition-colors hover:text-white"
+        >
+          <ArrowLeft className="size-4" /> {back.label}
+        </Link>
+      )}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav className="mb-3 flex items-center gap-1.5 text-sm text-white/60">
           {breadcrumbs.map((crumb, i) => (
