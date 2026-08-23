@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 2026-08-23 · **Overall progress: ~52%**
+**Last updated:** 2026-08-23 · **Overall progress: ~51%**
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout. Admin panel built (S1–S5): user management, workflow config, batch reports, notices, audit log viewer.
 
-**What's left:** Moinul at 8/12 (M1 + M2 + M3 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 4/10 (F1 + F2 + F4 + F8 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
+**What's left:** Moinul at 9/14 (M1 + M2 + M3 + M8 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 4/10 (F1 + F2 + F4 + F8 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
 
 ## Status board
 
@@ -100,6 +100,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 - **Admin: notices management (S4):** completed via PR #27.
 - **Admin: audit log viewer (S5):** completed via PR #27.
 - **Confirmation dialogs (student) (F8):** completed via PR #31.
+- **Staff → Registrar full rename (M8):** completed via PR #32.
 
 ### 2026-08-22
 
@@ -115,8 +116,8 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 ## Remaining summary
 
-- **Backlog: 33 tasks · 17 done · 16 remaining.** Moinul 8/12. Fatin 4/10. Shafin 5/11.
-- **Moinul's work: 8/12 done** — remaining: M4, M5, M6, M7. Next: Security: admin route guard.
+- **Backlog: 35 tasks · 18 done · 17 remaining.** Moinul 9/14. Fatin 4/10. Shafin 5/11.
+- **Moinul's work: 9/14 done** — remaining: M4, M5, M6, M7, M9. Next: Security: admin route guard.
 - **Fatin's work: 4/10 done** — remaining: F3, F5, F6, F7, F9, F10. Next: Forgot password flow.
 - **Shafin's work: 5/11 done** — remaining: S6, S7, S8, S9, S10, S11. Next: Override staff decision.
 - **Order of attack:** Moinul → Security: admin route guard; Fatin → Forgot password flow; Shafin → Override staff decision.
