@@ -80,7 +80,7 @@ function VerifyResult() {
             <p className="mt-2 text-sm text-muted-foreground">
               No NITER clearance certificate matches the code{" "}
               <span className="font-mono">{code}</span>. Check for typing errors, or contact the
-              registrar office.
+              admin office.
             </p>
           </>
         )}

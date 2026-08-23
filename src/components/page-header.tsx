@@ -27,30 +27,30 @@ export function PageHeader({
       {back && (
         <Link
           to={back.to}
-          className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-white/85 transition-colors hover:text-white"
+          className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#07172B]/85 transition-colors hover:text-[#07172B]"
         >
           <ArrowLeft className="size-4" /> {back.label}
         </Link>
       )}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="mb-3 flex items-center gap-1.5 text-sm text-white/60">
+        <nav className="mb-3 flex items-center gap-1.5 text-sm font-medium text-[#07172B]">
           {breadcrumbs.map((crumb, i) => (
             <span key={i} className="flex items-center gap-1.5">
               {i > 0 && <ChevronRight className="size-3" />}
               {crumb.to ? (
-                <Link to={crumb.to} className="transition-colors hover:text-white/90">
+                <Link to={crumb.to} className="underline-offset-2 hover:underline">
                   {crumb.label}
                 </Link>
               ) : (
-                <span className="text-white/80">{crumb.label}</span>
+                <span className="text-[#07172B]/80">{crumb.label}</span>
               )}
             </span>
           ))}
         </nav>
       )}
-      <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">{title}</h1>
       {description && (
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/70">{description}</p>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#07172B]/95">{description}</p>
       )}
     </section>
   );
