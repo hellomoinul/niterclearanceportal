@@ -94,7 +94,6 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 - **Certificate page `/certificate` (F1):** completed via PR #18.
 - **PDF download + QR code (F2):** completed via PR #26.
-- **Printable certificate view (F6):** completed via PR #29 (unified print + download PDF generation).
 - **Admin: user management (S1):** completed via PR #27.
 - **Admin: workflow config (S2):** completed via PR #27.
 - **Admin: batch reports (S3):** completed via PR #27.
@@ -104,12 +103,11 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 - **Forgot password flow (F3):** completed via PR #36.
 - **Staff → Registrar full rename (M8):** completed via PR #33.
 - **Accounts Queue hard rule (M9):** completed via PR #32.
-- **Security: admin route guard (M4):** completed via PR #34.
+- **Security: admin route guard (M4):** completed via PR #40.
 - **Security: status-forgery patch (M5):** completed via PR #34.
 - **Security: admin honesty pass (M6):** completed via PR #34.
 - **Security: head-ordering trigger (M7):** completed via PR #34.
-- **Auth email upgrade + login hotfix (F3 completion):** completed via PRs #35/#36.
-- **Auth + home UI polish:** completed via PRs #37/#38/#39.
+- **Printable certificate view (F6):** completed via PR #40.
 
 ### 2026-08-22
 
