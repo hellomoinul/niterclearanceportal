@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedApplyRouteImport } from './routes/_authenticated/apply'
+import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -58,6 +59,12 @@ const AuthenticatedApplyRoute = AuthenticatedApplyRouteImport.update({
   path: '/apply',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCertificateRoute =
+  AuthenticatedCertificateRouteImport.update({
+    id: '/certificate',
+    path: '/certificate',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -103,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
+  '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -118,6 +126,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
+  '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -135,6 +144,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/verify': typeof VerifyRouteWithChildren
   '/_authenticated/apply': typeof AuthenticatedApplyRoute
+  '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/verify'
     | '/apply'
+    | '/certificate'
     | '/dashboard'
     | '/notifications'
     | '/profile'
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/verify'
     | '/apply'
+    | '/certificate'
     | '/dashboard'
     | '/notifications'
     | '/profile'
@@ -183,6 +195,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/verify'
     | '/_authenticated/apply'
+    | '/_authenticated/certificate'
     | '/_authenticated/dashboard'
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedApplyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/certificate': {
+      id: '/_authenticated/certificate'
+      path: '/certificate'
+      fullPath: '/certificate'
+      preLoaderRoute: typeof AuthenticatedCertificateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -306,6 +326,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedApplyRoute: typeof AuthenticatedApplyRoute
+  AuthenticatedCertificateRoute: typeof AuthenticatedCertificateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -316,6 +337,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApplyRoute: AuthenticatedApplyRoute,
+  AuthenticatedCertificateRoute: AuthenticatedCertificateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
