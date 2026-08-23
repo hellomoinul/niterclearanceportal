@@ -219,19 +219,22 @@ function QueuePage() {
   }, [documents]);
 
   const visible = useMemo(() => {
-    const list = (reviews ?? []).filter((r) =>
-      r.status === "pending"
+    const list = (reviews ?? []).filter((r) => {
+      const matchesTab = r.status === "pending"
         ? tab === "pending"
         : r.status === "rejected"
           ? tab === "rejected"
-          : false,
-    );
+          : false;
+      if (!matchesTab) return false;
+      if (r.status === "pending" && (docsByReview[r.id] ?? []).length === 0) return false;
+      return true;
+    });
     return list.sort((a, b) =>
       (a.clearance_applications?.profiles?.user_code ?? "").localeCompare(
         b.clearance_applications?.profiles?.user_code ?? "",
       ),
     );
-  }, [reviews, tab]);
+  }, [reviews, tab, docsByReview]);
 
   async function openDocument(path: string) {
     const { data, error } = await supabase.storage.from(DOCS_BUCKET).createSignedUrl(path, 300);
@@ -356,33 +359,18 @@ function QueuePage() {
     );
   }
 
-  const pendingCount = (reviews ?? []).filter((r) => r.status === "pending").length;
+  const pendingCount = (reviews ?? []).filter(
+    (r) => r.status === "pending" && (docsByReview[r.id] ?? []).length > 0,
+  ).length;
   const rejectedCount = (reviews ?? []).filter((r) => r.status === "rejected").length;
 
   return (
     <PortalShell>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <PageHeader
-          title="Department queue"
-          description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
-          breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
-        />
-        {isAdmin && (
-          <Select value={deptCode} onValueChange={setDeptCode}>
-            <SelectTrigger className="w-56">
-              <SelectValue placeholder="Office" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All offices</SelectItem>
-              {(allDepartments ?? []).map((d) => (
-                <SelectItem key={d.code} value={d.code}>
-                  {d.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
+      <PageHeader
+        title="Department queue"
+        description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
+        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
+      />
 
       <Tabs
         value={tab}
@@ -397,6 +385,24 @@ function QueuePage() {
           <TabsTrigger value="rejected">Rejected ({rejectedCount})</TabsTrigger>
         </TabsList>
       </Tabs>
+
+      {isAdmin && (
+        <div className="mt-4 flex justify-end">
+          <Select value={deptCode} onValueChange={setDeptCode}>
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder="Office" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All offices</SelectItem>
+              {(allDepartments ?? []).map((d) => (
+                <SelectItem key={d.code} value={d.code}>
+                  {d.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {isLoading ? (
         <p className="mt-8 text-sm text-muted-foreground">Loading requests…</p>
@@ -446,20 +452,24 @@ function QueuePage() {
                         }
                       />
                     )}
-                    <h2 className="text-base font-semibold">
-                      {student?.full_name ?? "Unknown student"}
-                      <span className="ml-2 text-sm font-normal text-muted-foreground">
-                        ID {student?.user_code ?? "—"}
-                      </span>
-                    </h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {[student?.program, student?.batch ? `Batch ${student.batch}` : null]
-                        .filter(Boolean)
-                        .join(" · ") || "—"}
-                      {review.clearance_applications?.thesis_title
-                        ? ` · Thesis: ${review.clearance_applications.thesis_title}`
-                        : ""}
-                    </p>
+                    <div>
+                      <h2 className="text-base font-semibold">
+                        {student?.full_name ?? "Unknown student"}
+                        <span className="ml-2 text-sm font-normal text-muted-foreground">
+                          ID {student?.user_code ?? "—"}
+                        </span>
+                      </h2>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {[student?.program, student?.batch ? `Batch ${student.batch}` : null]
+                          .filter(Boolean)
+                          .join(" · ") || "—"}
+                      </p>
+                      {review.departments?.name && (
+                        <p className="mt-0.5 text-xs font-medium text-muted-foreground">
+                          Office: {review.departments.name}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <StatusBadge status={review.status} />
                 </div>
