@@ -51,7 +51,7 @@ function AboutPage() {
       <div className="card-surface mt-6 p-6">
         <h2 className="text-lg font-semibold">How decisions are recorded</h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          Every approval or rejection is stored with the staff member's identity and a timestamp in
+          Every approval or rejection is stored with the reviewing officer's identity and a timestamp in
           an audit log. If an office rejects a section, only that section reopens — the rest of your
           application keeps its approvals. After three rejected re-uploads, the case is escalated to
           the Department Head automatically.

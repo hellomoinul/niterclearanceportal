@@ -78,7 +78,7 @@ interface DepartmentInfo {
 }
 
 function QueuePage() {
-  const { user, isStaff, isAdmin, loading } = useAuth();
+  const { user, isRegistrar, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"pending" | "rejected">("pending");
@@ -89,17 +89,17 @@ function QueuePage() {
   const [bulkBusy, setBulkBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user && !isStaff && !isAdmin) {
+    if (!loading && user && !isRegistrar && !isAdmin) {
       navigate({ to: "/dashboard", replace: true });
     }
-  }, [loading, user, isStaff, isAdmin, navigate]);
+  }, [loading, user, isRegistrar, isAdmin, navigate]);
 
-  const { data: staffDepartments } = useQuery({
+  const { data: registrarDepts } = useQuery({
     enabled: !!user && !isAdmin,
-    queryKey: ["staff-departments", user?.id],
+    queryKey: ["registrar-departments", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("staff_departments")
+        .from("registrar_departments")
         .select("department_id, departments(code, name)")
         .eq("user_id", user!.id);
       if (error) throw error;
@@ -128,7 +128,7 @@ function QueuePage() {
     },
   });
 
-  const departments = isAdmin ? allDepartments : staffDepartments;
+  const departments = isAdmin ? allDepartments : registrarDepts;
 
   const scopedDeptIds = useMemo(() => {
     const list = departments ?? [];
@@ -335,7 +335,7 @@ function QueuePage() {
     toast.success(`Approved ${ids.length} student${ids.length === 1 ? "" : "s"}`);
   }
 
-  const deptsLoaded = isAdmin ? allDepartments !== undefined : staffDepartments !== undefined;
+  const deptsLoaded = isAdmin ? allDepartments !== undefined : registrarDepts !== undefined;
 
   if (loading || !deptsLoaded) {
     return (
@@ -351,7 +351,7 @@ function QueuePage() {
         <div className="card-surface mt-10 p-8 text-center">
           <h1 className="text-lg font-semibold">No office assigned</h1>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Your account is staff but no department office has been linked to it yet. Ask the
+            Your account has no department office assigned. Ask the
             admin office to assign you under Admin → Users.
           </p>
         </div>
