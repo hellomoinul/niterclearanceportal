@@ -106,11 +106,11 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
-| Moinul | 12 — core + stretch + infra | 8/12 + 14 bug fixes | 4 |
+| Moinul | 14 — core + stretch + infra | 9/14 + 14 bug fixes | 5 |
 | Fatin | 10 — 4 original + 6 gap fixes | 4/10 | 6 |
 | Shafin | 11 — 5 original + 5 gap fixes + 1 rebuild | 5/11 | 6 |
 
-**Blocked on:** Fatin needs Forgot password flow next. Shafin needs Override staff decision next. Moinul working on M4, M5, M6, M7.
+**Blocked on:** Fatin needs Forgot password flow next. Shafin needs Override staff decision next. Moinul working on M4, M5, M6, M7, M9.
 
-**Backlog total: 33 tasks · 17 done · 16 remaining** (30 original + 1 rebuild + 4 security).
+**Backlog total: 35 tasks · 18 done · 17 remaining** (30 original + 1 rebuild + 4 security).
 **Extra work done by Moinul (not in backlog):** 14 bug fixes (PRs #12–#28 all merged). Email delivery workaround active (Resend free tier → forward to owner Gmail). System gap verification completed 23 Aug — identified 5 critical + 7 high-priority issues across security, RLS, data integrity, and admin panel honesty.
