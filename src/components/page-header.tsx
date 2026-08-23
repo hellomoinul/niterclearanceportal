@@ -48,7 +48,7 @@ export function PageHeader({
           ))}
         </nav>
       )}
-      <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">{title}</h1>
       {description && (
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#07172B]/95">{description}</p>
       )}
