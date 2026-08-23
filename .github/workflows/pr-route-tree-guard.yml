@@ -1,0 +1,63 @@
+name: Route tree guard
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Warn if generated route tree is committed
+        uses: actions/github-script@v7
+        env:
+          MARKER: "<!-- route-tree-guard -->"
+        with:
+          script: |
+            const marker = process.env.MARKER;
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+            const offenders = files.filter(f => f.filename === 'src/routeTree.gen.ts');
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+            const existing = comments.data.find(c => c.user.type === 'Bot' && c.body.includes(marker));
+
+            if (offenders.length === 0) {
+              if (existing) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                });
+              }
+              return;
+            }
+
+            const body = `${marker}\n## ⚠️ Generated file committed\n\nThis PR includes \`src/routeTree.gen.ts\` — an auto-generated file that rebuilds itself on every dev server run. Committing it causes merge conflicts for everyone.\n\nPlease remove it from this PR:\n\n\`\`\`bash\ngit restore --staged src/routeTree.gen.ts\ngit commit -m "remove generated route tree"\ngit push\n\`\`\`\nAfter you push, this warning will disappear automatically.`;
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body,
+              });
+            }
