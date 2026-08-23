@@ -44,12 +44,12 @@ function NotificationsPage() {
 
   return (
     <PortalShell className="max-w-3xl">
-      <div className="flex items-center justify-between gap-4">
-        <PageHeader
-          title="Notifications"
-          description="Every clearance decision and remark sent to your account."
-          breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
-        />
+      <PageHeader
+        title="Notifications"
+        description="Every clearance decision and remark sent to your account."
+        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
+      />
+      <div className="mb-6 flex justify-end">
         <Button variant="outline" size="sm" onClick={markAllRead}>
           Mark all read
         </Button>
