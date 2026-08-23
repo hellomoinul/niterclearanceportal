@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { Button } from '@/components/ui/button'
-import { Download, Loader2 } from 'lucide-react'
+import { Download, Loader2, Printer } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 import QRCode from 'qrcode'
@@ -16,7 +16,6 @@ function CertificatePage() {
   const [application, setApplication] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   
-  // State variables for F2
   const [isGenerating, setIsGenerating] = useState(false)
   const [qrCodeUrl, setQrCodeUrl] = useState('')
   const certificateRef = useRef<HTMLDivElement>(null)
@@ -69,8 +68,8 @@ function CertificatePage() {
     loadData()
   }, [])
 
-  // The function that powers the Download Button
-  const handleDownloadPDF = async () => {
+  // Unified function for both Downloading and Printing
+  const handleGenerateDocument = async (action: 'download' | 'print') => {
     if (!certificateRef.current) return
     setIsGenerating(true)
     
@@ -87,31 +86,36 @@ function CertificatePage() {
       // 2. Create an A4 Landscape PDF
       const pdf = new jsPDF('l', 'mm', 'a4')
       
-      // 3. Smart Scaling Math (Fits image inside the page perfectly without cropping)
+      // 3. Smart Scaling Math
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pdfHeight = pdf.internal.pageSize.getHeight()
-      
       const canvasRatio = canvas.width / canvas.height
       
       let finalWidth = pdfWidth
       let finalHeight = pdfWidth / canvasRatio
       
-      // If scaling by width makes it too tall, scale by height instead
       if (finalHeight > pdfHeight) {
         finalHeight = pdfHeight
         finalWidth = pdfHeight * canvasRatio
       }
       
-      // Perfectly center the scaled image on the A4 page
       const xOffset = (pdfWidth - finalWidth) / 2
       const yOffset = (pdfHeight - finalHeight) / 2
       
-      // 4. Inject image and save
+      // 4. Inject image
       pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight)
-      pdf.save(`Clearance_Certificate_${profile?.user_code || 'NITER'}.pdf`)
+      
+      // 5. Handle Action (Download vs Print)
+      if (action === 'download') {
+        pdf.save(`Clearance_Certificate_${profile?.user_code || 'NITER'}.pdf`)
+      } else if (action === 'print') {
+        pdf.autoPrint() // Tells the PDF to open the print dialog immediately
+        window.open(pdf.output('bloburl'), '_blank') // Opens in a new safe tab
+      }
+      
     } catch (error: any) {
-      console.error("Error generating PDF:", error)
-      alert(`PDF Generation Failed: ${error.message || "Check the console for details."}`)
+      console.error("Error generating document:", error)
+      alert(`Generation Failed: ${error.message || "Check the console for details."}`)
     } finally {
       setIsGenerating(false)
     }
@@ -129,21 +133,37 @@ function CertificatePage() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 flex flex-col items-center">
-      <div className="flex w-full max-w-[1000px] justify-between items-center mb-6 gap-4">
+      
+      {/* Header section with print:hidden so it doesn't show on manual browser prints */}
+      <div className="flex flex-col sm:flex-row w-full max-w-[1000px] justify-between items-center mb-6 gap-4 print:hidden">
         <h1 className="text-3xl font-bold">Clearance Certificate</h1>
         
-        {/* Dynamic Download Button */}
-        <Button 
-          onClick={handleDownloadPDF} 
-          disabled={!isCleared || isGenerating} 
-          variant="default"
-        >
-          {isGenerating ? (
-            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
-          ) : (
-            <><Download className="mr-2 h-4 w-4" /> Download PDF</>
-          )}
-        </Button>
+        <div className="flex gap-3 w-full sm:w-auto">
+          {/* Print Button */}
+          <Button 
+            onClick={() => handleGenerateDocument('print')} 
+            disabled={!isCleared || isGenerating} 
+            variant="outline"
+            className="flex-1 sm:flex-none"
+          >
+            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Printer className="mr-2 h-4 w-4" />}
+            Print Certificate
+          </Button>
+
+          {/* Download Button */}
+          <Button 
+            onClick={() => handleGenerateDocument('download')} 
+            disabled={!isCleared || isGenerating} 
+            variant="default"
+            className="flex-1 sm:flex-none"
+          >
+            {isGenerating ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
+            ) : (
+              <><Download className="mr-2 h-4 w-4" /> Download PDF</>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* We wrap the certificate in an A4 aspect-ratio div so it fills the PDF perfectly */}
