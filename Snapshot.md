@@ -100,7 +100,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 - **Admin: notices management (S4):** completed via PR #27.
 - **Admin: audit log viewer (S5):** completed via PR #27.
 - **Confirmation dialogs (student) (F8):** completed via PR #31.
-- **Staff → Registrar full rename (M8):** completed via PR #32.
+- **Staff → Registrar full rename (M8):** completed via PR #33.
 - **Accounts Queue hard rule (M9):** completed via PR #32.
 - **Security: admin route guard (M4):** completed via PR #34.
 - **Security: status-forgery patch (M5):** completed via PR #34.
