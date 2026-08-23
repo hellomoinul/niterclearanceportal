@@ -1,7 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
@@ -18,15 +16,12 @@ function ProfilePage() {
 
   return (
     <PortalShell className="max-w-3xl">
-      <div className="flex items-center gap-4 mb-2">
-        <Button asChild variant="outline" size="icon">
-          <Link to={isStaff || isAdmin ? "/queue" : "/dashboard"} aria-label="Go back">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
       <PageHeader
         title="Student Profile"
+        back={{
+          to: isStaff || isAdmin ? "/queue" : "/dashboard",
+          label: `Back to ${isStaff || isAdmin ? "queue" : "dashboard"}`,
+        }}
         breadcrumbs={[{ label: isStaff || isAdmin ? "Queue" : "Dashboard", to: isStaff || isAdmin ? "/queue" : "/dashboard" }]}
       />
 
