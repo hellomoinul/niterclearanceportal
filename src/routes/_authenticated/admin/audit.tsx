@@ -41,7 +41,7 @@ export default function auditlogviewer() {
           <thead>
             <tr className="bg-gray-100 text-left text-sm uppercase tracking-wider">
               <th className="border-b p-3">timestamp</th>
-              <th className="border-b p-3">actor (user/staff id)</th>
+              <th className="border-b p-3">actor (user/registrar id)</th>
               <th className="border-b p-3">action</th>
               <th className="border-b p-3">target / remarks</th>
             </tr>

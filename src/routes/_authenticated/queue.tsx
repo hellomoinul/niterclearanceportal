@@ -78,7 +78,7 @@ interface DepartmentInfo {
 }
 
 function QueuePage() {
-  const { user, isStaff, isAdmin, loading } = useAuth();
+  const { user, isRegistrar, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"pending" | "rejected">("pending");
@@ -89,21 +89,21 @@ function QueuePage() {
   const [bulkBusy, setBulkBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user && !isStaff && !isAdmin) {
+    if (!loading && user && !isRegistrar && !isAdmin) {
       navigate({ to: "/dashboard", replace: true });
     }
-  }, [loading, user, isStaff, isAdmin, navigate]);
+  }, [loading, user, isRegistrar, isAdmin, navigate]);
 
-  const { data: staffDepartments } = useQuery({
+  const { data: registrarDepts } = useQuery({
     enabled: !!user && !isAdmin,
-    queryKey: ["staff-departments", user?.id],
+    queryKey: ["registrar-departments", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("staff_departments")
+        .from("registrar_departments")
         .select("department_id, departments(code, name)")
         .eq("user_id", user!.id);
       if (error) throw error;
-      return (data ?? [])
+      const depts = (data ?? [])
         .map((row) => ({
           id: row.department_id,
           code: row.departments?.code,
@@ -112,6 +112,18 @@ function QueuePage() {
         .filter((d): d is DepartmentInfo & { id: string; code: string; name: string } =>
           Boolean(d.id && d.code && d.name),
         );
+      // Hard-rule fallback: registrar always sees accounts even with no explicit assignment
+      if (depts.length === 0) {
+        const { data: accountsDept } = await supabase
+          .from("departments")
+          .select("id, code, name")
+          .eq("code", "accounts")
+          .single();
+        if (accountsDept) {
+          depts.push({ id: accountsDept.id, code: accountsDept.code, name: accountsDept.name });
+        }
+      }
+      return depts;
     },
   });
 
@@ -128,7 +140,7 @@ function QueuePage() {
     },
   });
 
-  const departments = isAdmin ? allDepartments : staffDepartments;
+  const departments = isAdmin ? allDepartments : registrarDepts;
 
   const scopedDeptIds = useMemo(() => {
     const list = departments ?? [];
@@ -335,7 +347,7 @@ function QueuePage() {
     toast.success(`Approved ${ids.length} student${ids.length === 1 ? "" : "s"}`);
   }
 
-  const deptsLoaded = isAdmin ? allDepartments !== undefined : staffDepartments !== undefined;
+  const deptsLoaded = isAdmin ? allDepartments !== undefined : registrarDepts !== undefined;
 
   if (loading || !deptsLoaded) {
     return (
@@ -351,7 +363,7 @@ function QueuePage() {
         <div className="card-surface mt-10 p-8 text-center">
           <h1 className="text-lg font-semibold">No office assigned</h1>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Your account is staff but no department office has been linked to it yet. Ask the
+            Your account has no department office assigned. Ask the
             admin office to assign you under Admin → Users.
           </p>
         </div>
@@ -367,7 +379,7 @@ function QueuePage() {
   return (
     <PortalShell>
       <PageHeader
-        title="Department queue"
+        title={isAdmin ? "Department queue" : "Accounts queue"}
         description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
         breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
       />
