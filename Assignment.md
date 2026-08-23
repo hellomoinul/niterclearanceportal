@@ -46,6 +46,9 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **Section page UX** — reviewer name + timestamp, hide attempts when approved, "uploaded after approval" notice, rejection reason on rejected docs.
 - [x] **Footer copyright** — dynamic year via `new Date().getFullYear()`.
 - [x] **Resubmit notifications** — new trigger `trg_notify_on_resubmit` on `department_reviews` UPDATE. Notifies dept staff + all admins when a rejected student re-uploads documents (review flips back to pending).
+- [x] **Re-upload flip fix (PR #14)** — `section.$code.tsx` handleUpload used cached `review.status`, so flip silently skipped and resubmit trigger never fired. Fix: fetch fresh DB status before flipping, toast on failure. E2E verified.
+- [x] **Email delivery workaround (PR #14)** — Resend free tier only delivers to account owner email. All notifications now forward to `akash.moinulhasan@gmail.com` with intended recipient in subject/body. Proper fix deferred (requires `niter.edu.bd` domain verification on Resend).
+- [x] **Footer text + housekeeping (PR #15)** — footer text updated, `supabase/.temp/` added to `.gitignore`.
 
 **Status: ALL DONE. Moinul is in support mode — free to help Fatin/Shafin or fix bugs.**
 
@@ -90,11 +93,11 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
-| Moinul | 10 — core + stretch + infra | 10/10 + 4 bug fixes | **0** — support mode |
+| Moinul | 10 — core + stretch + infra | 10/10 + 6 bug fixes | **0** — support mode |
 | Fatin | 10 — 4 original + 6 gap fixes | 1/10 | **9** — originals (F1–F3) first, then F5–F10 |
 | Shafin | 10 — 5 original + 5 gap fixes | 0/10 | **10** — originals (S1–S5) first, then S6–S10 |
 
 **Blocked on:** Shafin needs to create `src/routes/_authenticated/admin/` folder. Fatin needs to create `src/routes/_authenticated/certificate.tsx`. Both start with their original tasks, then pick up the gap fixes (F5–F10 / S6–S10).
 
 **Backlog total: 30 tasks · 11 done · 19 remaining** (redistributed evenly 23 Aug after the UI-gap audit).
-**Extra work done by Moinul (not in backlog):** 4 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright. PR #12 pending merge.
+**Extra work done by Moinul (not in backlog):** 6 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix. PRs #12–#15 all merged. Email delivery workaround active (Resend free tier → forward to owner Gmail).
