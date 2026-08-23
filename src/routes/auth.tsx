@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -71,10 +78,19 @@ function AuthPage() {
     const userCode = String(form.get("userCode") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
+    const confirmPassword = String(form.get("confirmPassword") ?? "").trim();
     const fullName = String(form.get("fullName") ?? "").trim();
     const program = String(form.get("program") ?? "").trim();
-    const batch = String(form.get("batch") ?? "").trim();
+    const session = String(form.get("session") ?? "").trim();
     const phone = String(form.get("phone") ?? "").trim();
+
+    if (password !== confirmPassword) {
+      setBusy(false);
+      toast.error("Passwords do not match", {
+        description: "Please enter the same password in both fields.",
+      });
+      return;
+    }
 
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
@@ -98,7 +114,7 @@ function AuthPage() {
       personal_email: email,
       full_name: fullName,
       program,
-      batch,
+      batch: session,
       phone,
     });
     await supabase.from("user_roles").insert({ user_id: userId, role: "student" });
@@ -133,12 +149,12 @@ function AuthPage() {
 
           <TabsContent value="signin" className="mt-5">
             <p className="text-sm text-muted-foreground">
-              Use your UCAM ID or registered email. Used by students, registrars, and admins.
+              Universal sign in page for Students, Admin, Registrar.
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="signin-id">Student / Registrar ID or Email</Label>
-                <Input id="signin-id" name="userCode" required placeholder="e.g. CS 2203077 or you@email.com" />
+                <Label htmlFor="signin-id">Student/Admin/Registrar - ID or Email</Label>
+                <Input id="signin-id" name="userCode" required placeholder="CS 2103021" />
               </div>
               
               {/* --- NEW FORGOT PASSWORD SECTION START --- */}
@@ -171,23 +187,52 @@ function AuthPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="reg-id">Student ID</Label>
-                  <Input id="reg-id" name="userCode" required placeholder="2103021" />
+                  <Input id="reg-id" name="userCode" required placeholder="CS 2103021" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-name">Full name</Label>
-                  <Input id="reg-name" name="fullName" required />
+                  <Input id="reg-name" name="fullName" required placeholder="CAPITAL BLOCK LETTER" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-email">Email</Label>
-                  <Input id="reg-email" name="email" type="email" required placeholder="you@niter.edu.bd" />
+                  <Input id="reg-email" name="email" type="email" required placeholder="you@email.com" />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="reg-program">Program</Label>
-                  <Input id="reg-program" name="program" placeholder="Textile Engineering" />
+                  <Select
+                    name="program"
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TE">TE – Textile Engineering</SelectItem>
+                      <SelectItem value="IPE">IPE – Industrial & Production Engineering</SelectItem>
+                      <SelectItem value="FDAE">FDAE – Fashion Design & Apparel Engineering</SelectItem>
+                      <SelectItem value="CSE">CSE – Computer Science & Engineering</SelectItem>
+                      <SelectItem value="EEE">EEE – Electrical & Electronic Engineering</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-batch">Batch / session</Label>
-                  <Input id="reg-batch" name="batch" placeholder="2021" />
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="reg-session">Academic year</Label>
+                  <Select
+                    name="session"
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select academic year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[...Array(10).keys()].map((i) => {
+                        const year = 2021 + i;
+                        return (
+                          <SelectItem key={year} value={`${year}-${(year + 1) % 100}`}>
+                            {year}-{(year + 1) % 100}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-phone">Phone</Label>
@@ -195,7 +240,26 @@ function AuthPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-password">Password</Label>
-                  <Input id="reg-password" name="password" type="password" required minLength={8} />
+                  <Input
+                    id="reg-password"
+                    name="password"
+                    type="password"
+                    required
+                    minLength={8}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-confirm-password">Confirm password</Label>
+                  <Input
+                    id="reg-confirm-password"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    minLength={8}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Passwords must match
+                  </p>
                 </div>
               </div>
               <Button type="submit" className="w-full" disabled={busy}>
