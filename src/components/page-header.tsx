@@ -18,7 +18,7 @@ export function PageHeader({
   back,
 }: {
   title: string;
-  description?: string;
+  description?: string | null;
   breadcrumbs?: Breadcrumb[];
   back?: BackLink;
 }) {
