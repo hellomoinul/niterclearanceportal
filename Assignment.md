@@ -45,6 +45,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **Document status cascade** — approve/reject now cascades to linked documents. New DB columns (`reviewed_by`, `reviewed_at`), new RPC (`reviewer_display_name`), one-time data repair for existing contradictions.
 - [x] **Section page UX** — reviewer name + timestamp, hide attempts when approved, "uploaded after approval" notice, rejection reason on rejected docs.
 - [x] **Footer copyright** — dynamic year via `new Date().getFullYear()`.
+- [x] **Resubmit notifications** — new trigger `trg_notify_on_resubmit` on `department_reviews` UPDATE. Notifies dept staff + all admins when a rejected student re-uploads documents (review flips back to pending).
 
 **Status: ALL DONE. Moinul is in support mode — free to help Fatin/Shafin or fix bugs.**
 

@@ -154,6 +154,12 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
      rejection reason shown on rejected docs.
   4. **Footer copyright** — dynamic year via `new Date().getFullYear()`.
 
+- **Resubmit notifications (23 Aug):** `trg_notify_on_resubmit` trigger on
+  `department_reviews` UPDATE — notifies dept staff + all admins when a rejected student
+  re-uploads documents (review flips back to pending). First-time submission already covered
+  by existing `trg_notify_admin_on_application` + `trg_notify_staff_on_review`. Live, ready
+  for E2E test.
+
 ## Remaining summary
 
 - **Backlog rescoped to 30 evenly-split tasks** (11 done): Moinul 10/10 · Fatin 1/10 · Shafin 0/10.
