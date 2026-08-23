@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
+import { useAuth } from "@/lib/auth";
 import {
   Accordion,
   AccordionContent,
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/faq")({
   component: FaqPage,
 });
 
-const faqs = [
+const studentFaqs = [
   {
     q: "Do I have to apply separately to each office?",
     a: "No. One application is sent to every required office at the same time. You only interact with an individual office if it rejects your section.",
@@ -54,12 +55,42 @@ const faqs = [
   },
 ];
 
+const staffFaqs = [
+  {
+    q: "How do I review pending students?",
+    a: "Go to Department Queue. You'll see pending and rejected students filtered to the department(s) assigned to your account. Click a student to see their uploaded documents and take action.",
+  },
+  {
+    q: "How do bulk approve and rejection remarks work?",
+    a: "Select multiple pending students with the checkboxes, then click 'Approve selected' in the bottom action bar. For rejections, a remark is required — this ensures the student knows exactly what to fix.",
+  },
+  {
+    q: "What happens when I reject a section?",
+    a: "The student is notified immediately and the section reopens for re-upload. They have three attempts per office. After that the case escalates automatically to the Department Head.",
+  },
+  {
+    q: "What does 'escalated' mean?",
+    a: "When a student exceeds three re-upload attempts, the case is marked escalated. The Department Head handles it from there so you are not stuck in a rejection loop.",
+  },
+  {
+    q: "How is the department queue filtered?",
+    a: "The queue shows only students whose application includes your assigned department. If no students appear, either nobody has applied yet or all pending items are with a different department.",
+  },
+];
+
 function FaqPage() {
+  const { isStaff, isAdmin } = useAuth();
+  const faqs = isStaff || isAdmin ? staffFaqs : studentFaqs;
+
   return (
     <PortalShell className="max-w-3xl">
       <PageHeader
         title="Frequently asked questions"
-        description="Common questions about applying for and tracking NITER final-year clearance."
+        description={
+          isStaff || isAdmin
+            ? "How the clearance queue and review process work."
+            : "Common questions about applying for and tracking NITER final-year clearance."
+        }
       />
       <div className="card-surface mt-6 px-6 py-2">
         <Accordion type="single" collapsible>
