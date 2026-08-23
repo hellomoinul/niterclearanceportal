@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ExternalLink, FileQuestion, FileText, Inbox } from "lucide-react";
+import { ExternalLink, FileText, Inbox } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -219,19 +219,22 @@ function QueuePage() {
   }, [documents]);
 
   const visible = useMemo(() => {
-    const list = (reviews ?? []).filter((r) =>
-      r.status === "pending"
+    const list = (reviews ?? []).filter((r) => {
+      const matchesTab = r.status === "pending"
         ? tab === "pending"
         : r.status === "rejected"
           ? tab === "rejected"
-          : false,
-    );
+          : false;
+      if (!matchesTab) return false;
+      if (r.status === "pending" && (docsByReview[r.id] ?? []).length === 0) return false;
+      return true;
+    });
     return list.sort((a, b) =>
       (a.clearance_applications?.profiles?.user_code ?? "").localeCompare(
         b.clearance_applications?.profiles?.user_code ?? "",
       ),
     );
-  }, [reviews, tab]);
+  }, [reviews, tab, docsByReview]);
 
   async function openDocument(path: string) {
     const { data, error } = await supabase.storage.from(DOCS_BUCKET).createSignedUrl(path, 300);
@@ -356,7 +359,9 @@ function QueuePage() {
     );
   }
 
-  const pendingCount = (reviews ?? []).filter((r) => r.status === "pending").length;
+  const pendingCount = (reviews ?? []).filter(
+    (r) => r.status === "pending" && (docsByReview[r.id] ?? []).length > 0,
+  ).length;
   const rejectedCount = (reviews ?? []).filter((r) => r.status === "rejected").length;
 
   return (
@@ -415,20 +420,17 @@ function QueuePage() {
         </div>
       ) : (
         <div className="mt-6 space-y-4">
-          {tab === "pending" && visible.length > 0 && (() => {
-            const readyIds = visible.filter(r => (docsByReview[r.id] ?? []).length > 0).map(r => r.id);
-            return (
-              <div className="flex items-center gap-2 px-1">
-                <Checkbox
-                  checked={readyIds.length > 0 && selectedIds.size === readyIds.length}
-                  onCheckedChange={(checked) =>
-                    setSelectedIds(checked ? new Set(readyIds) : new Set())
-                  }
-                />
-                <span className="text-sm text-muted-foreground">Select all ({readyIds.length})</span>
-              </div>
-            );
-          })()}
+          {tab === "pending" && visible.length > 0 && (
+            <div className="flex items-center gap-2 px-1">
+              <Checkbox
+                checked={selectedIds.size === visible.length}
+                onCheckedChange={(checked) =>
+                  setSelectedIds(checked ? new Set(visible.map((r) => r.id)) : new Set())
+                }
+              />
+              <span className="text-sm text-muted-foreground">Select all ({visible.length})</span>
+            </div>
+          )}
           {visible.map((review) => {
             const student = review.clearance_applications?.profiles;
             const docs = docsByReview[review.id] ?? [];
@@ -440,7 +442,6 @@ function QueuePage() {
                       <Checkbox
                         className="mt-1"
                         checked={selectedIds.has(review.id)}
-                        disabled={docs.length === 0}
                         onCheckedChange={(checked) =>
                           setSelectedIds((prev) => {
                             const next = new Set(prev);
@@ -462,9 +463,6 @@ function QueuePage() {
                         {[student?.program, student?.batch ? `Batch ${student.batch}` : null]
                           .filter(Boolean)
                           .join(" · ") || "—"}
-                        {review.clearance_applications?.thesis_title
-                          ? ` · Thesis: ${review.clearance_applications.thesis_title}`
-                          : ""}
                       </p>
                       {review.departments?.name && (
                         <p className="mt-0.5 text-xs font-medium text-muted-foreground">
@@ -473,14 +471,7 @@ function QueuePage() {
                       )}
                     </div>
                   </div>
-                  {review.status === "pending" && docs.length === 0 ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-                      <FileQuestion className="size-3.5" aria-hidden />
-                      Awaiting documents
-                    </span>
-                  ) : (
-                    <StatusBadge status={review.status} />
-                  )}
+                  <StatusBadge status={review.status} />
                 </div>
 
                 {review.status === "rejected" && (
@@ -545,8 +536,7 @@ function QueuePage() {
                       </Button>
                       <Button
                         size="sm"
-                        disabled={busyId === review.id || docs.length === 0}
-                        title={docs.length === 0 ? "No documents uploaded yet" : undefined}
+                        disabled={busyId === review.id}
                         onClick={() => decide(review, "approved")}
                       >
                         {busyId === review.id ? "Saving…" : "Approve"}
