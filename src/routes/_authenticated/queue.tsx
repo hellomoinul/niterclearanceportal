@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ExternalLink, FileText, Inbox } from "lucide-react";
+import { ExternalLink, FileQuestion, FileText, Inbox } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -361,28 +361,11 @@ function QueuePage() {
 
   return (
     <PortalShell>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <PageHeader
-          title="Department queue"
-          description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
-          breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
-        />
-        {isAdmin && (
-          <Select value={deptCode} onValueChange={setDeptCode}>
-            <SelectTrigger className="w-56">
-              <SelectValue placeholder="Office" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All offices</SelectItem>
-              {(allDepartments ?? []).map((d) => (
-                <SelectItem key={d.code} value={d.code}>
-                  {d.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
+      <PageHeader
+        title="Department queue"
+        description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
+        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
+      />
 
       <Tabs
         value={tab}
@@ -397,6 +380,24 @@ function QueuePage() {
           <TabsTrigger value="rejected">Rejected ({rejectedCount})</TabsTrigger>
         </TabsList>
       </Tabs>
+
+      {isAdmin && (
+        <div className="mt-4 flex justify-end">
+          <Select value={deptCode} onValueChange={setDeptCode}>
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder="Office" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All offices</SelectItem>
+              {(allDepartments ?? []).map((d) => (
+                <SelectItem key={d.code} value={d.code}>
+                  {d.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {isLoading ? (
         <p className="mt-8 text-sm text-muted-foreground">Loading requests…</p>
@@ -414,17 +415,20 @@ function QueuePage() {
         </div>
       ) : (
         <div className="mt-6 space-y-4">
-          {tab === "pending" && visible.length > 0 && (
-            <div className="flex items-center gap-2 px-1">
-              <Checkbox
-                checked={selectedIds.size === visible.length}
-                onCheckedChange={(checked) =>
-                  setSelectedIds(checked ? new Set(visible.map((r) => r.id)) : new Set())
-                }
-              />
-              <span className="text-sm text-muted-foreground">Select all ({visible.length})</span>
-            </div>
-          )}
+          {tab === "pending" && visible.length > 0 && (() => {
+            const readyIds = visible.filter(r => (docsByReview[r.id] ?? []).length > 0).map(r => r.id);
+            return (
+              <div className="flex items-center gap-2 px-1">
+                <Checkbox
+                  checked={readyIds.length > 0 && selectedIds.size === readyIds.length}
+                  onCheckedChange={(checked) =>
+                    setSelectedIds(checked ? new Set(readyIds) : new Set())
+                  }
+                />
+                <span className="text-sm text-muted-foreground">Select all ({readyIds.length})</span>
+              </div>
+            );
+          })()}
           {visible.map((review) => {
             const student = review.clearance_applications?.profiles;
             const docs = docsByReview[review.id] ?? [];
@@ -436,6 +440,7 @@ function QueuePage() {
                       <Checkbox
                         className="mt-1"
                         checked={selectedIds.has(review.id)}
+                        disabled={docs.length === 0}
                         onCheckedChange={(checked) =>
                           setSelectedIds((prev) => {
                             const next = new Set(prev);
@@ -446,22 +451,36 @@ function QueuePage() {
                         }
                       />
                     )}
-                    <h2 className="text-base font-semibold">
-                      {student?.full_name ?? "Unknown student"}
-                      <span className="ml-2 text-sm font-normal text-muted-foreground">
-                        ID {student?.user_code ?? "—"}
-                      </span>
-                    </h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {[student?.program, student?.batch ? `Batch ${student.batch}` : null]
-                        .filter(Boolean)
-                        .join(" · ") || "—"}
-                      {review.clearance_applications?.thesis_title
-                        ? ` · Thesis: ${review.clearance_applications.thesis_title}`
-                        : ""}
-                    </p>
+                    <div>
+                      <h2 className="text-base font-semibold">
+                        {student?.full_name ?? "Unknown student"}
+                        <span className="ml-2 text-sm font-normal text-muted-foreground">
+                          ID {student?.user_code ?? "—"}
+                        </span>
+                      </h2>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {[student?.program, student?.batch ? `Batch ${student.batch}` : null]
+                          .filter(Boolean)
+                          .join(" · ") || "—"}
+                        {review.clearance_applications?.thesis_title
+                          ? ` · Thesis: ${review.clearance_applications.thesis_title}`
+                          : ""}
+                      </p>
+                      {review.departments?.name && (
+                        <p className="mt-0.5 text-xs font-medium text-muted-foreground">
+                          Office: {review.departments.name}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <StatusBadge status={review.status} />
+                  {review.status === "pending" && docs.length === 0 ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                      <FileQuestion className="size-3.5" aria-hidden />
+                      Awaiting documents
+                    </span>
+                  ) : (
+                    <StatusBadge status={review.status} />
+                  )}
                 </div>
 
                 {review.status === "rejected" && (
@@ -526,7 +545,8 @@ function QueuePage() {
                       </Button>
                       <Button
                         size="sm"
-                        disabled={busyId === review.id}
+                        disabled={busyId === review.id || docs.length === 0}
+                        title={docs.length === 0 ? "No documents uploaded yet" : undefined}
                         onClick={() => decide(review, "approved")}
                       >
                         {busyId === review.id ? "Saving…" : "Approve"}
