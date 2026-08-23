@@ -349,7 +349,7 @@ function QueuePage() {
           <h1 className="text-lg font-semibold">No office assigned</h1>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
             Your account is staff but no department office has been linked to it yet. Ask the
-            registrar office to assign you under Admin → Users.
+            admin office to assign you under Admin → Users.
           </p>
         </div>
       </PortalShell>

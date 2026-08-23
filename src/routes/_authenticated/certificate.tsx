@@ -91,13 +91,13 @@ function CertificatePage() {
               </p>
             </div>
             
-            {/* Registrar Signature Area */}
+            {/* Admin Signature Area */}
             <div className="text-center flex flex-col items-center justify-end h-24">
               {application?.status === 'cleared' ? (
                 // This is a placeholder signature URL that Shafin will eventually replace with the real database URL
                 <img 
                   src="https://upload.wikimedia.org/wikipedia/commons/f/f4/John_Hancock_Signature.svg" 
-                  alt="Registrar Signature" 
+                  alt="Admin Signature" 
                   className="h-12 object-contain mb-2 opacity-80"
                 />
               ) : (
@@ -106,7 +106,7 @@ function CertificatePage() {
                 </div>
               )}
               <div className="border-t border-slate-800 w-40 mb-2 mx-auto"></div>
-              <p className="text-sm font-semibold text-slate-700">Registrar</p>
+              <p className="text-sm font-semibold text-slate-700">Admin</p>
               <p className="text-xs text-muted-foreground">NITER</p>
             </div>
           </div>
