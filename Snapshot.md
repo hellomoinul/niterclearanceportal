@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 23 Aug 2026 · **Overall progress: ~87%** (Fatin F2 + Shafin admin panel merged 23 Aug)
+**Last updated:** 23 Aug 2026 · **Overall progress: ~80%** (system verification completed, security fixes in progress)
 
-Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout. Admin panel built: user management, workflow config, batch reports, notices, audit log viewer.
+Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout. Admin panel built (S1–S5): user management, workflow config, batch reports, notices, audit log viewer.
 
-**What's left:** Fatin at 3/10 (F1 + F4 + F2 done). Shafin at 5/10 (S1–S5 done, admin panel built). Moinul completed 14 bug fixes + brand refresh + CI guard + UCAM gradient adoption. Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
+**What's left:** Fatin at 3/10 (F1 + F4 + F2 done). Shafin at 5/10 (S1–S5 done, but S4 needs DB rebuild). Moinul working on 3 security/integrity patches (admin guard, status-forgery fix, admin honesty pass). Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
 
 ## Status board
 
@@ -44,7 +44,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | S1  | Admin: user management          | Shafin | ✅ Done | PR #27: `admin/users.tsx` — roles + staff department assignment |
 | S2  | Admin: workflow config          | Shafin | ✅ Done | PR #27: `admin/workflow.tsx` — departments per program, batch deadlines |
 | S3  | Admin: batch reports            | Shafin | ✅ Done | PR #27: `admin/reports.tsx` — `recharts` charts |
-| S4  | Admin: notices management       | Shafin | ✅ Done | PR #27: `admin/notices.tsx` — feeds Home page |
+| S4  | Admin: notices management       | Shafin | ⚠️ Broken | PR #27 code queries `notices` table that doesn't exist in any migration — needs rebuild (migration + RLS + home wiring) |
 | S5  | Admin: audit log viewer         | Shafin | ✅ Done | PR #27: `admin/audit.tsx` — read-only table |
 | S6  | Override staff decision         | Shafin | ⬜ Not started | Admin overturn + mandatory audit_log entry       |
 | S7  | Department config UI            | Shafin | ⬜ Not started | Enable/disable offices per program, no code edit |
@@ -227,7 +227,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   department name shown on every queue card. Thesis title removed from queue cards (program
   + batch only). Zero-document pending students hidden entirely from admin queue — pending
   tab count matches visible rows. PageHeader `description` prop accepts nullable DB columns.
-  tsc clean. PR open, not yet merged.
+  tsc clean. PR merged.
 
 - **Fatin's certificate PDF + QR (PR #26):** `certificate.tsx` rewritten (+164/-46).
   Added `jspdf` + `qrcode` packages. Certificate now downloadable as client-side PDF with
@@ -238,15 +238,31 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
   created with 7 new files (+501 lines). Tasks S1–S5 complete: user management
   (`users.tsx`), workflow config (`workflow.tsx`), batch reports with recharts
   (`reports.tsx`), notices management (`notices.tsx`), audit log viewer (`audit.tsx`).
+  ⚠️ Post-merge review found: all five admin pages are non-functional (localStorage/console.log
+  instead of DB, wrong column names on audit page, `notices` table doesn't exist in any
+  migration). See security verification below.
+
+- **System gap verification (23 Aug):** full review against `SYSTEM_FLOW.md` produced a
+  prioritized gap report. Findings:
+  - **Critical (3):** no admin route guard (`admin/route.tsx` placeholder, no `beforeLoad`);
+    students can set own `status='cleared'` via API (column not restricted in RLS UPDATE
+    policy on `clearance_applications`); all five `/admin/*` pages non-functional
+  - **High (7):** no account recovery (F3 not started), no search/sort in queue (S8 pending),
+    approved decisions irreversible from UI (S6 unbuilt), notices table missing (S4 broken),
+    Department Head ordering not enforced at DB level, test data still present, no cert
+    revocation process
+  - **Medium:** password policy gaps, no formal mobile/WCAG audit, Supabase has no BD region
+    (data residency concern if PDPA applies)
 
 ## Remaining summary
 
-- **Backlog: 30 tasks · 20 done · 10 remaining.** Moinul 10/10 + 14 bug fixes. Fatin 3/10. Shafin 5/10.
-- **Moinul's work: 100% complete + bug fixes + UCAM gradient + CI** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 14 bug fixes (PRs #12–#25 merged, #28 open): i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ, admin queue polish. Brand refresh applied (PR #17). Route tree guard GitHub Action (PR #19). Email delivery workaround active (Resend free tier → forward to owner Gmail). Support mode.
+- **Backlog: 31 tasks · 20 done · 11 remaining.** Moinul 10/10 + 14 bug fixes + 3 security patches in progress. Fatin 3/10. Shafin 5/10 + 1 rebuild (S4).
+- **Moinul's work: 100% complete + bug fixes + security patches** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 14 bug fixes (PRs #12–#28 all merged). Now working on 3 security/integrity fixes (admin route guard, status-forgery patch, admin panel honesty pass). Brand refresh (PR #17). Route tree guard (PR #19). Email delivery workaround active. Support mode.
 - **Fatin's work: 3 of 10 done** — Profile page (F4) + Certificate page (F1) + PDF/QR (F2) merged. Remaining: forgot password (F3), then gap fixes F5–F10.
-- **Shafin's work: 5 of 10 done** — Admin panel built (S1–S5): user management, workflow config, batch reports, notices, audit log viewer. Remaining: S6–S10 (override, dept config, queue search, rejection history, bulk summary).
-- **Order of attack:** Fatin needs forgot password (F3) next, then gap fixes (F5–F10). Shafin needs S6–S10 (override, dept config, queue search, rejection history, bulk summary) next.
-- **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → certificate PDF downloads with scannable QR → registrar sees cleared students ready for pickup → admin manages users, overrides decisions (audited), and reads batch reports.
+- **Shafin's work: 5 of 10 done** — Admin panel built (S1–S5), but S4 needs DB rebuild (notices table doesn't exist). Remaining: S4 rebuild, then S6–S10 (override, dept config, queue search, rejection history, bulk summary).
+- **Order of attack:** Moinul → security patches first (admin guard, status-forgery, admin honesty). Fatin → forgot password (F3), then F5–F10. Shafin → S4 rebuild (notices table), then S6–S10.
+- **Post-verification security work (Moinul):** admin route guard blocks non-admin access to `/admin/*`; status-forgery patch closes column-level UPDATE hole on `clearance_applications` and `documents`; admin panel pages marked "Coming soon" or fixed. Head-ordering enforcement (Department Head can't approve before other 7) to be added as DB trigger.
+- **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works with resolution path → admin route guard active → no status-forgery path → certificate PDF downloads with scannable QR → registrar sees cleared students ready for pickup → admin manages users (real, not localStorage), overrides decisions (audited), reads real batch reports, and manages notices that appear on the public home page.
 
 ## How to update this file
 
