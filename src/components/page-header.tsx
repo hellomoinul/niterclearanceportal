@@ -33,12 +33,12 @@ export function PageHeader({
         </Link>
       )}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="mb-3 flex items-center gap-1.5 text-sm text-[#07172B]/60">
+        <nav className="mb-3 flex items-center gap-1.5 text-sm font-medium text-[#07172B]">
           {breadcrumbs.map((crumb, i) => (
             <span key={i} className="flex items-center gap-1.5">
               {i > 0 && <ChevronRight className="size-3" />}
               {crumb.to ? (
-                <Link to={crumb.to} className="transition-colors hover:text-[#07172B]/90">
+                <Link to={crumb.to} className="underline-offset-2 hover:underline">
                   {crumb.label}
                 </Link>
               ) : (
@@ -50,7 +50,7 @@ export function PageHeader({
       )}
       <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
       {description && (
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#07172B]/70">{description}</p>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#07172B]/95">{description}</p>
       )}
     </section>
   );
