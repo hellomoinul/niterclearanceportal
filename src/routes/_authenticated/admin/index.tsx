@@ -15,12 +15,13 @@ function AdminDashboard() {
 
   useEffect(() => {
     async function load() {
-      const [{ count: students }, { count: cleared }, { count: pending }] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+      const [{ count: cleared }, { count: inReview }, { data: profiles }] = await Promise.all([
         supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'cleared'),
-        supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'in_review'),
+        supabase.from('profiles').select('role'),
       ]);
-      setStats({ students: students ?? 0, cleared: cleared ?? 0, pending: pending ?? 0 });
+      const students = profiles?.filter((p: any) => p.role === 'student').length ?? 0;
+      setStats({ students: students ?? 0, cleared: cleared ?? 0, pending: inReview ?? 0 });
     }
     load();
   }, []);

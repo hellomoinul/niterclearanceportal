@@ -44,10 +44,19 @@ function AuthPage() {
     const userCode = String(form.get("userCode") ?? "");
     const password = String(form.get("password") ?? "");
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: idToEmail(userCode),
-      password,
-    });
+
+    let email: string;
+    if (userCode.includes("@")) {
+      email = userCode.trim();
+    } else {
+      // Lookup real email via RPC; fall back to synthetic for legacy accounts
+      const { data: rpcEmail } = await supabase.rpc("login_email_for_user_code", {
+        p_user_code: userCode.trim(),
+      });
+      email = (typeof rpcEmail === "string" && rpcEmail) || idToEmail(userCode);
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) {
       toast.error("Sign in failed", { description: "Check your ID and password and try again." });
@@ -60,6 +69,7 @@ function AuthPage() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const userCode = String(form.get("userCode") ?? "").trim();
+    const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
     const fullName = String(form.get("fullName") ?? "").trim();
     const program = String(form.get("program") ?? "").trim();
@@ -68,7 +78,7 @@ function AuthPage() {
 
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
-      email: idToEmail(userCode),
+      email,
       password,
       options: { emailRedirectTo: window.location.origin },
     });
@@ -76,7 +86,7 @@ function AuthPage() {
     if (error || !data.user) {
       setBusy(false);
       toast.error("Registration failed", {
-        description: error?.message ?? "This ID may already be registered.",
+        description: error?.message ?? "This email may already be registered.",
       });
       return;
     }
@@ -85,6 +95,7 @@ function AuthPage() {
     const { error: profileError } = await supabase.from("profiles").insert({
       id: userId,
       user_code: userCode,
+      personal_email: email,
       full_name: fullName,
       program,
       batch,
@@ -127,8 +138,8 @@ function AuthPage() {
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="signin-id">Student / Registrar ID / Admin</Label>
-                <Input id="signin-id" name="userCode" required placeholder="e.g. 2103021" />
+                <Label htmlFor="signin-id">Student / Registrar ID or Email</Label>
+                <Input id="signin-id" name="userCode" required placeholder="e.g. 2103021 or you@email.com" />
               </div>
               
               {/* --- NEW FORGOT PASSWORD SECTION START --- */}
@@ -166,6 +177,10 @@ function AuthPage() {
                 <div className="space-y-2">
                   <Label htmlFor="reg-name">Full name</Label>
                   <Input id="reg-name" name="fullName" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-email">Email</Label>
+                  <Input id="reg-email" name="email" type="email" required placeholder="you@niter.edu.bd" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-program">Program</Label>

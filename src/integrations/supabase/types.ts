@@ -410,6 +410,10 @@ export type Database = {
         Args: { _review_id: string };
         Returns: string;
       };
+      login_email_for_user_code: {
+        Args: { p_user_code: string }
+        Returns: string
+      }
       registrar_in_department: {
         Args: { _department_id: string; _user_id: string };
         Returns: boolean;
