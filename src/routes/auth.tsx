@@ -127,7 +127,7 @@ function AuthPage() {
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="signin-id">Student / Staff ID</Label>
+                <Label htmlFor="signin-id">Student / Staff ID/Admin</Label>
                 <Input id="signin-id" name="userCode" required placeholder="e.g. 2103021" />
               </div>
               <div className="space-y-2">
@@ -181,7 +181,7 @@ function AuthPage() {
       </div>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        Staff and registrar accounts are created by the registrar office.
+        Staff and Admin accounts are created by the admin office.
       </p>
     </div>
   );

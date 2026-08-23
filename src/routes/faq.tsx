@@ -46,7 +46,7 @@ const faqs = [
   },
   {
     q: "When do I get my certificate?",
-    a: "The moment the last office approves. The certificate is generated automatically with a unique code and QR link, and the registrar office is notified.",
+    a: "The moment the last office approves. The certificate is generated automatically with a unique code and QR link, and the admin office is notified.",
   },
   {
     q: "How can an employer check my certificate is genuine?",
