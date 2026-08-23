@@ -54,6 +54,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **WCAG contrast fixes (PR #23)** — raised muted tiers (breadcrumbs → solid ink, description → /95), flipped hero outline CTA to bg-white/70, lightened button hover stops. All combos ≥4.5:1 AA.
 - [x] **White headings + registrar removal + notifications (PR #24)** — h1 on gradient surfaces → white. Login label updated to "Student / Staff ID/Admin". All "registrar" references replaced with "admin" across auth, faq, queue, certificate, verify. Notifications full-bleed gradient restored; "Mark all read" placed below banner.
 - [x] **Role-based nav + FAQ (PR #25)** — staff/admin no longer see Dashboard link (redirect bounced them to queue). Admin link kept visible pending Shafin's panel. FAQ split: student questions (apply, upload, cert) vs staff/admin questions (review, bulk approve, escalation, queue filtering).
+- [x] **Admin queue polish (PR #26, local on `moinul/queue-round3`)** — full-width banner fix (same flex-wrapper bug as notifications), admin office filter moved below tabs. Office name shown on every card. Thesis title removed from queue cards. Zero-document pending students hidden from admin queue entirely. PageHeader description prop fixed to accept nullable DB columns.
 
 **Status: ALL DONE. Moinul is in support mode — free to help Fatin/Shafin or fix bugs.**
 
@@ -98,11 +99,11 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
-| Moinul | 10 — core + stretch + infra | 10/10 + 13 bug fixes | **0** — support mode |
+| Moinul | 10 — core + stretch + infra | 10/10 + 14 bug fixes | **0** — support mode |
 | Fatin | 10 — 4 original + 6 gap fixes | 2/10 | **8** — PDF/QR (F2) + forgot password (F3) first, then F5–F10 |
 | Shafin | 10 — 5 original + 5 gap fixes | 0/10 | **10** — originals (S1–S5) first, then S6–S10 |
 
 **Blocked on:** Shafin needs to create `src/routes/_authenticated/admin/` folder. Fatin now has certificate page; needs to work on PDF/QR (F2) and forgot password (F3) next, then gap fixes (F5–F10).
 
 **Backlog total: 30 tasks · 12 done · 18 remaining** (F1 merged 23 Aug).
-**Extra work done by Moinul (not in backlog):** 13 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ. PRs #12–#25 all merged. Brand refresh applied across 19 files. UCAM pink→blue gradient adopted. Email delivery workaround active (Resend free tier → forward to owner Gmail).
+**Extra work done by Moinul (not in backlog):** 14 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix, role-based nav + FAQ, admin queue polish. PRs #12–#25 all merged; PR #26 branch ready locally. Brand refresh applied across 19 files. UCAM pink→blue gradient adopted. Email delivery workaround active (Resend free tier → forward to owner Gmail).
