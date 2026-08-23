@@ -19,6 +19,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { DOCS_BUCKET } from "@/lib/portal";
 import { useAuth } from "@/lib/auth";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/queue")({
   ssr: false,
@@ -361,13 +362,11 @@ function QueuePage() {
   return (
     <PortalShell>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Department queue</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · {pendingCount}{" "}
-            awaiting review
-          </p>
-        </div>
+        <PageHeader
+          title="Department queue"
+          description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
+          breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
+        />
         {isAdmin && (
           <Select value={deptCode} onValueChange={setDeptCode}>
             <SelectTrigger className="w-56">

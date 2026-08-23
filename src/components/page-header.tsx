@@ -1,0 +1,42 @@
+import { Link } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
+
+interface Breadcrumb {
+  label: string;
+  to?: string;
+}
+
+export function PageHeader({
+  title,
+  description,
+  breadcrumbs,
+}: {
+  title: string;
+  description?: string;
+  breadcrumbs?: Breadcrumb[];
+}) {
+  return (
+    <section className="hero-surface -mx-4 -mt-8 mb-8 rounded-b-xl px-6 py-8 sm:px-10 sm:py-10">
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <nav className="mb-3 flex items-center gap-1.5 text-sm text-white/60">
+          {breadcrumbs.map((crumb, i) => (
+            <span key={i} className="flex items-center gap-1.5">
+              {i > 0 && <ChevronRight className="size-3" />}
+              {crumb.to ? (
+                <Link to={crumb.to} className="transition-colors hover:text-white/90">
+                  {crumb.label}
+                </Link>
+              ) : (
+                <span className="text-white/80">{crumb.label}</span>
+              )}
+            </span>
+          ))}
+        </nav>
+      )}
+      <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
+      {description && (
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/70">{description}</p>
+      )}
+    </section>
+  );
+}
