@@ -97,7 +97,7 @@ function HomePage() {
             asChild
             size="lg"
             variant="outline"
-            className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
+            className="border-[#07172B]/40 bg-transparent text-[#07172B] hover:bg-[#07172B]/10"
           >
             <Link to="/verify">
               <ShieldCheck className="size-4" /> Verify a certificate
