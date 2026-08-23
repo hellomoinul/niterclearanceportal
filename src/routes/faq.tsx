@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PortalShell } from "@/components/portal-shell";
+import { PageHeader } from "@/components/page-header";
 import {
   Accordion,
   AccordionContent,
@@ -56,7 +57,10 @@ const faqs = [
 function FaqPage() {
   return (
     <PortalShell className="max-w-3xl">
-      <h1 className="text-2xl font-semibold">Frequently asked questions</h1>
+      <PageHeader
+        title="Frequently asked questions"
+        description="Common questions about applying for and tracking NITER final-year clearance."
+      />
       <div className="card-surface mt-6 px-6 py-2">
         <Accordion type="single" collapsible>
           {faqs.map((item, index) => (

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { PortalShell } from "@/components/portal-shell";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -17,14 +18,17 @@ function ProfilePage() {
 
   return (
     <PortalShell className="max-w-3xl">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-2">
         <Button asChild variant="outline" size="icon">
           <Link to={isStaff || isAdmin ? "/queue" : "/dashboard"} aria-label="Go back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold">Student Profile</h1>
       </div>
+      <PageHeader
+        title="Student Profile"
+        breadcrumbs={[{ label: isStaff || isAdmin ? "Queue" : "Dashboard", to: isStaff || isAdmin ? "/queue" : "/dashboard" }]}
+      />
 
       <Card>
         <CardHeader>

@@ -79,7 +79,7 @@ function HomePage() {
         <p className="text-xs font-semibold tracking-[0.18em] uppercase opacity-80">
           National Institute of Textile Engineering and Research
         </p>
-        <h1 className="mt-4 max-w-2xl text-3xl font-semibold sm:text-4xl">
+        <h1 className="mt-4 max-w-2xl text-3xl font-semibold font-display sm:text-4xl">
           Final-year clearance, without walking to eight offices
         </h1>
         <p className="mt-4 max-w-xl text-sm opacity-90 sm:text-base">
