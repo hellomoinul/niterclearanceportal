@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/lib/auth";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -88,23 +89,21 @@ function DashboardPage() {
 
   return (
     <PortalShell>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">
-            {profile?.full_name ? `Hello, ${profile.full_name.split(" ")[0]}` : "My clearance"}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {profile?.user_code ? `ID ${profile.user_code}` : "Student"}
-            {profile?.program ? ` · ${profile.program}` : ""}
-            {profile?.batch ? ` · Batch ${profile.batch}` : ""}
-          </p>
-        </div>
-        {(isStaff || isAdmin) && (
+      <PageHeader
+        title={profile?.full_name ? `Hello, ${profile.full_name.split(" ")[0]}` : "My clearance"}
+        description={
+          profile?.user_code
+            ? `${profile.user_code}${profile?.program ? ` · ${profile.program}` : ""}${profile?.batch ? ` · Batch ${profile.batch}` : ""}`
+            : "Student"
+        }
+      />
+      {(isStaff || isAdmin) && (
+        <div className="flex justify-end">
           <Button asChild variant="outline">
             <Link to="/queue">Go to department queue</Link>
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {isLoading ? (
         <p className="mt-8 text-sm text-muted-foreground">Loading your application…</p>

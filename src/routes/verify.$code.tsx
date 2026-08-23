@@ -4,6 +4,7 @@ import { BadgeCheck, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PortalShell } from "@/components/portal-shell";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/verify/$code")({
   head: () => ({
@@ -41,7 +42,12 @@ function VerifyResult() {
 
   return (
     <PortalShell className="max-w-2xl">
-      <div className="card-surface p-6">
+      <PageHeader
+        title="Certificate verification"
+        description={`Checking certificate code: ${code}`}
+        breadcrumbs={[{ label: "Verify", to: "/verify" }]}
+      />
+      <div className="card-surface mt-4 p-6">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Checking certificate…</p>
         ) : data ? (
