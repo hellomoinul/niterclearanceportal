@@ -55,7 +55,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 ## 🟢 Fatin — Certificate pipeline & account features (10 tasks)
 
 - [x] **Profile page `/profile` (F4)** — merged via PR #11. Fixed by Moinul (PortalShell + back button + nav link)
-- [ ] **Certificate page `/certificate` (F1)** — route linked from dashboard, doesn't exist yet
+- [x] **Certificate page `/certificate` (F1)** — merged via PR #18; conditional link on dashboard (enabled when 8/8 approved). Dashboard conflict resolved with brand refresh.
 - [ ] **PDF download + QR code (F2)** — generate client-side (`jspdf` + `qrcode` packages), QR links to the existing `/verify/$code` page
 - [ ] **Forgot password (F3)** — Supabase `resetPasswordForEmail` + reset form
 - [ ] **Student timeline/history (F5)** — every past rejection, resubmission and approval in order (on dashboard or profile)
@@ -94,10 +94,10 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
 | Moinul | 10 — core + stretch + infra | 10/10 + 6 bug fixes | **0** — support mode |
-| Fatin | 10 — 4 original + 6 gap fixes | 1/10 | **9** — originals (F1–F3) first, then F5–F10 |
+| Fatin | 10 — 4 original + 6 gap fixes | 2/10 | **8** — PDF/QR (F2) + forgot password (F3) first, then F5–F10 |
 | Shafin | 10 — 5 original + 5 gap fixes | 0/10 | **10** — originals (S1–S5) first, then S6–S10 |
 
-**Blocked on:** Shafin needs to create `src/routes/_authenticated/admin/` folder. Fatin needs to create `src/routes/_authenticated/certificate.tsx`. Both start with their original tasks, then pick up the gap fixes (F5–F10 / S6–S10).
+**Blocked on:** Shafin needs to create `src/routes/_authenticated/admin/` folder. Fatin now has certificate page; needs to work on PDF/QR (F2) and forgot password (F3) next, then gap fixes (F5–F10).
 
-**Backlog total: 30 tasks · 11 done · 19 remaining** (redistributed evenly 23 Aug after the UI-gap audit).
-**Extra work done by Moinul (not in backlog):** 6 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix. PRs #12–#15 all merged. Email delivery workaround active (Resend free tier → forward to owner Gmail).
+**Backlog total: 30 tasks · 12 done · 18 remaining** (F1 merged 23 Aug).
+**Extra work done by Moinul (not in backlog):** 8 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, brand design system, route tree guard. PRs #12–#19 all merged. Brand refresh applied across 19 files. Email delivery workaround active (Resend free tier → forward to owner Gmail).
