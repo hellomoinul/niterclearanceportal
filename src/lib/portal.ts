@@ -1,4 +1,4 @@
-export type AppRole = "student" | "staff" | "admin";
+export type AppRole = "student" | "registrar" | "admin";
 export type ReviewStatus = "pending" | "approved" | "rejected";
 
 export const ID_DOMAIN = "niter.portal";
@@ -7,7 +7,7 @@ export const DOCS_BUCKET = "clearance-docs";
 export const MAX_FILE_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 
-/** UCAM-style sign in: students and staff type an ID, never an email. */
+/** UCAM-style sign in: students and registrars type an ID, never an email. */
 export function idToEmail(userCode: string) {
   return `${userCode
     .trim()

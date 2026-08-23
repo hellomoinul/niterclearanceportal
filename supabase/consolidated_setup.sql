@@ -11,7 +11,7 @@
 -- SECTION 1 — schema, row-level security, triggers, seed data
 -- ---------------------------------------------------------------------------
 
-CREATE TYPE public.app_role AS ENUM ('student', 'staff', 'admin');
+CREATE TYPE public.app_role AS ENUM ('student', 'registrar', 'admin');
 CREATE TYPE public.review_status AS ENUM ('pending', 'approved', 'rejected');
 CREATE TYPE public.application_status AS ENUM ('draft', 'in_review', 'cleared');
 
@@ -79,28 +79,28 @@ INSERT INTO public.departments (code, name, requirement, document_hint, sort_ord
   ('lab','Lab / Workshop','All equipment returned','Equipment return receipt',7,false),
   ('head','Department Head','Final sign-off after all offices approve','Not required',8,true);
 
-CREATE TABLE public.staff_departments (
+CREATE TABLE public.registrar_departments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   department_id uuid NOT NULL REFERENCES public.departments(id) ON DELETE CASCADE,
   UNIQUE (user_id, department_id)
 );
-GRANT SELECT ON public.staff_departments TO authenticated;
-GRANT ALL ON public.staff_departments TO service_role;
-ALTER TABLE public.staff_departments ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.registrar_departments TO authenticated;
+GRANT ALL ON public.registrar_departments TO service_role;
+ALTER TABLE public.registrar_departments ENABLE ROW LEVEL SECURITY;
 
-CREATE OR REPLACE FUNCTION public.staff_in_department(_user_id uuid, _department_id uuid)
+CREATE OR REPLACE FUNCTION public.registrar_in_department(_user_id uuid, _department_id uuid)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
-  SELECT EXISTS (SELECT 1 FROM public.staff_departments WHERE user_id = _user_id AND department_id = _department_id)
+  SELECT EXISTS (SELECT 1 FROM public.registrar_departments WHERE user_id = _user_id AND department_id = _department_id)
 $$;
 
-CREATE POLICY "staff read own assignments" ON public.staff_departments FOR SELECT TO authenticated
-  USING (user_id = auth.uid() OR public.has_role(auth.uid(), 'admin'));
-CREATE POLICY "admins manage assignments" ON public.staff_departments FOR ALL TO authenticated
+CREATE POLICY "registrar read own assignments" ON public.registrar_departments FOR SELECT TO authenticated
+  USING (user_id = auth.uid());
+CREATE POLICY "admins manage assignments" ON public.registrar_departments FOR ALL TO authenticated
   USING (public.has_role(auth.uid(), 'admin')) WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
 CREATE POLICY "own profile readable" ON public.profiles FOR SELECT TO authenticated
-  USING (id = auth.uid() OR public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'staff'));
+  USING (id = auth.uid() OR public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'registrar'));
 CREATE POLICY "own profile insert" ON public.profiles FOR INSERT TO authenticated WITH CHECK (id = auth.uid());
 CREATE POLICY "own profile update" ON public.profiles FOR UPDATE TO authenticated
   USING (id = auth.uid() OR public.has_role(auth.uid(), 'admin'))
@@ -124,7 +124,7 @@ GRANT SELECT, INSERT, UPDATE ON public.clearance_applications TO authenticated;
 GRANT ALL ON public.clearance_applications TO service_role;
 ALTER TABLE public.clearance_applications ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "students read own application" ON public.clearance_applications FOR SELECT TO authenticated
-  USING (student_id = auth.uid() OR public.has_role(auth.uid(), 'staff') OR public.has_role(auth.uid(), 'admin'));
+  USING (student_id = auth.uid() OR public.has_role(auth.uid(), 'registrar') OR public.has_role(auth.uid(), 'admin'));
 CREATE POLICY "students create own application" ON public.clearance_applications FOR INSERT TO authenticated
   WITH CHECK (student_id = auth.uid());
 CREATE POLICY "students update own application" ON public.clearance_applications FOR UPDATE TO authenticated
@@ -156,12 +156,12 @@ $$;
 CREATE POLICY "reviews readable" ON public.department_reviews FOR SELECT TO authenticated
   USING (
     public.owns_application(auth.uid(), application_id)
-    OR public.staff_in_department(auth.uid(), department_id)
+    OR public.registrar_in_department(auth.uid(), department_id)
     OR public.has_role(auth.uid(), 'admin')
   );
-CREATE POLICY "staff and admin update reviews" ON public.department_reviews FOR UPDATE TO authenticated
-  USING (public.staff_in_department(auth.uid(), department_id) OR public.has_role(auth.uid(), 'admin'))
-  WITH CHECK (public.staff_in_department(auth.uid(), department_id) OR public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "registrar and admin update reviews" ON public.department_reviews FOR UPDATE TO authenticated
+  USING (public.registrar_in_department(auth.uid(), department_id) OR public.has_role(auth.uid(), 'admin'))
+  WITH CHECK (public.registrar_in_department(auth.uid(), department_id) OR public.has_role(auth.uid(), 'admin'));
 
 CREATE TABLE public.documents (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -186,7 +186,7 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS
     JOIN public.clearance_applications a ON a.id = r.application_id
     WHERE r.id = _review_id
       AND (a.student_id = _user_id
-        OR public.staff_in_department(_user_id, r.department_id)
+        OR public.registrar_in_department(_user_id, r.department_id)
         OR public.has_role(_user_id, 'admin'))
   )
 $$;
@@ -333,8 +333,8 @@ ON CONFLICT (id) DO NOTHING;
 CREATE POLICY "students manage own clearance docs" ON storage.objects FOR ALL TO authenticated
   USING (bucket_id = 'clearance-docs' AND owner_id = auth.uid()::text)
   WITH CHECK (bucket_id = 'clearance-docs' AND owner_id = auth.uid()::text);
-CREATE POLICY "staff read clearance docs" ON storage.objects FOR SELECT TO authenticated
-  USING (bucket_id = 'clearance-docs' AND (public.has_role(auth.uid(), 'staff') OR public.has_role(auth.uid(), 'admin')));
+CREATE POLICY "registrar read clearance docs" ON storage.objects FOR SELECT TO authenticated
+  USING (bucket_id = 'clearance-docs' AND (public.has_role(auth.uid(), 'registrar') OR public.has_role(auth.uid(), 'admin')));
 
 -- ---------------------------------------------------------------------------
 -- SECTION 2 — lock down trigger/helper functions
@@ -345,12 +345,12 @@ REVOKE EXECUTE ON FUNCTION public.maybe_issue_certificate() FROM anon, authentic
 REVOKE EXECUTE ON FUNCTION public.notify_review_change() FROM anon, authenticated, PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.touch_updated_at() FROM anon, authenticated, PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) FROM anon, PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.staff_in_department(uuid, uuid) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.registrar_in_department(uuid, uuid) FROM anon, PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.owns_application(uuid, uuid) FROM anon, PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.can_see_review(uuid, uuid) FROM anon, PUBLIC;
 
 GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.staff_in_department(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.registrar_in_department(uuid, uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.owns_application(uuid, uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.can_see_review(uuid, uuid) TO authenticated;
 
@@ -402,7 +402,7 @@ BEGIN
   SELECT coalesce(array_agg(t.user_id), '{}') INTO watchers
   FROM (
     SELECT sd.user_id
-    FROM public.staff_departments sd
+    FROM public.registrar_departments sd
     JOIN public.departments d ON d.id = sd.department_id
     WHERE d.is_final_signoff AND sd.user_id <> auth.uid()
     UNION

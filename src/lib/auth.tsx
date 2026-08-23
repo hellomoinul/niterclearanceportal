@@ -27,7 +27,7 @@ interface AuthValue {
   profile: PortalProfile | null;
   roles: AppRole[];
   isStudent: boolean;
-  isStaff: boolean;
+  isRegistrar: boolean;
   isAdmin: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       roles,
       isStudent: roles.includes("student"),
-      isStaff: roles.includes("staff"),
+      isRegistrar: roles.includes("registrar"),
       isAdmin: roles.includes("admin"),
       refresh,
       signOut,

@@ -55,7 +55,7 @@ const studentFaqs = [
   },
 ];
 
-const staffFaqs = [
+const registrarFaqs = [
   {
     q: "How do I review pending students?",
     a: "Go to Department Queue. You'll see pending and rejected students filtered to the department(s) assigned to your account. Click a student to see their uploaded documents and take action.",
@@ -79,15 +79,15 @@ const staffFaqs = [
 ];
 
 function FaqPage() {
-  const { isStaff, isAdmin } = useAuth();
-  const faqs = isStaff || isAdmin ? staffFaqs : studentFaqs;
+  const { isRegistrar, isAdmin } = useAuth();
+  const faqs = isRegistrar || isAdmin ? registrarFaqs : studentFaqs;
 
   return (
     <PortalShell className="max-w-3xl">
       <PageHeader
         title="Frequently asked questions"
         description={
-          isStaff || isAdmin
+          isRegistrar || isAdmin
             ? "How the clearance queue and review process work."
             : "Common questions about applying for and tracking NITER final-year clearance."
         }

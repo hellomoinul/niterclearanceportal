@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function DashboardPage() {
-  const { user, profile, isStaff, isAdmin, loading } = useAuth();
+  const { user, profile, isRegistrar, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
   const { data: application, isLoading } = useQuery({
@@ -78,10 +78,10 @@ function DashboardPage() {
   });
 
   useEffect(() => {
-    if (!loading && (isStaff || isAdmin)) {
+    if (!loading && (isRegistrar || isAdmin)) {
       navigate({ to: "/queue", replace: true });
     }
-  }, [loading, isStaff, isAdmin, navigate]);
+  }, [loading, isRegistrar, isAdmin, navigate]);
 
   const approved = (reviews ?? []).filter((r) => r.status === "approved").length;
   const total = reviews?.length ?? 0;
@@ -107,7 +107,7 @@ function DashboardPage() {
             View Certificate
           </Button>
         )}
-        {(isStaff || isAdmin) && (
+        {(isRegistrar || isAdmin) && (
           <Button asChild variant="outline">
             <Link to="/queue">Go to department queue</Link>
           </Button>

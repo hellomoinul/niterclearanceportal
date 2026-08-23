@@ -14,7 +14,7 @@ const publicLinks = [
 ] as const;
 
 export function PortalHeader() {
-  const { session, profile, isStaff, isAdmin, signOut } = useAuth();
+  const { session, profile, isRegistrar, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -28,8 +28,8 @@ export function PortalHeader() {
 
   const appLinks = session
     ? [
-        ...(isStaff || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
-        ...(isStaff || isAdmin ? [{ to: "/queue", label: "Department queue" }] : []),
+        ...(isRegistrar || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
+        ...(isRegistrar || isAdmin ? [{ to: "/queue", label: "Department queue" }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];
