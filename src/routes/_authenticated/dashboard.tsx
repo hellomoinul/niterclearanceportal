@@ -97,13 +97,22 @@ function DashboardPage() {
             : "Student"
         }
       />
-      {(isStaff || isAdmin) && (
-        <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        {approved === total && total > 0 ? (
+          <Button asChild variant="default">
+            <Link to="/certificate">View Certificate</Link>
+          </Button>
+        ) : (
+          <Button disabled variant="default">
+            View Certificate
+          </Button>
+        )}
+        {(isStaff || isAdmin) && (
           <Button asChild variant="outline">
             <Link to="/queue">Go to department queue</Link>
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       {isLoading ? (
         <p className="mt-8 text-sm text-muted-foreground">Loading your application…</p>
