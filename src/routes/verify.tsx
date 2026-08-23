@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { PortalShell } from "@/components/portal-shell";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,12 +32,11 @@ function VerifyPage() {
 
   return (
     <PortalShell className="max-w-2xl">
-      <div className="card-surface p-6">
-        <ShieldCheck className="size-6 text-primary" aria-hidden />
-        <h1 className="mt-3 text-2xl font-semibold">Certificate verification</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Enter the certificate code printed on the clearance certificate, or scan its QR code.
-        </p>
+      <PageHeader
+        title="Certificate verification"
+        description="Enter the certificate code printed on the clearance certificate, or scan its QR code."
+      />
+      <div className="card-surface mt-4 p-6">
         <form
           className="mt-6 space-y-4"
           onSubmit={(event) => {

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/apply")({
   head: () => ({
@@ -79,11 +80,11 @@ function ApplyPage() {
 
   return (
     <PortalShell className="max-w-3xl">
-      <h1 className="text-2xl font-semibold">Clearance application</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Confirm your details below. Once submitted, each office will request its own document in
-        your dashboard.
-      </p>
+      <PageHeader
+        title="Clearance application"
+        description="Confirm your details below. Once submitted, each office will request its own document in your dashboard."
+        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
+      />
 
       <form className="card-surface mt-8 space-y-8 p-6" onSubmit={handleSubmit}>
         <section>
