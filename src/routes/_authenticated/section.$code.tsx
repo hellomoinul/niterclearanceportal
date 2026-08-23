@@ -12,6 +12,17 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { DOCS_BUCKET, MAX_FILE_BYTES, validateUpload } from "@/lib/portal";
 import { PageHeader } from "@/components/page-header";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/section/$code")({
   head: () => ({
@@ -256,14 +267,34 @@ function SectionPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <StatusBadge status={doc.status} />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="Delete document"
-                            onClick={() => removeDocument(doc.id, doc.file_path)}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label="Delete document"
+                              >
+                                <Trash2 className="size-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete this document?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently remove your uploaded file from the clearance portal.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => removeDocument(doc.id, doc.file_path)}
+                                  className="bg-red-600 hover:bg-red-700 text-white"
+                                >
+                                  Yes, delete it
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </div>
                       {doc.status === "approved" && !uploadedAfterApproval ? (
