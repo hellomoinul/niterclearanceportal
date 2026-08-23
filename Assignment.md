@@ -49,6 +49,10 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **Re-upload flip fix (PR #14)** — `section.$code.tsx` handleUpload used cached `review.status`, so flip silently skipped and resubmit trigger never fired. Fix: fetch fresh DB status before flipping, toast on failure. E2E verified.
 - [x] **Email delivery workaround (PR #14)** — Resend free tier only delivers to account owner email. All notifications now forward to `akash.moinulhasan@gmail.com` with intended recipient in subject/body. Proper fix deferred (requires `niter.edu.bd` domain verification on Resend).
 - [x] **Footer text + housekeeping (PR #15)** — footer text updated, `supabase/.temp/` added to `.gitignore`.
+- [x] **Back link readability (PR #21)** — moved standalone ghost back button into PageHeader as `back` prop (white/85 ink on dark banner). Fixes all 8 department pages + profile page.
+- [x] **UCAM gradient adoption (PR #22)** — switched hero + button gradients from navy→teal to UCAM pink→blue (#fbc1ff → #4e65ff). All banner text switched to dark ink (#07172B). Header/footer chrome stays dark navy.
+- [x] **WCAG contrast fixes (PR #23)** — raised muted tiers (breadcrumbs → solid ink, description → /95), flipped hero outline CTA to bg-white/70, lightened button hover stops. All combos ≥4.5:1 AA.
+- [x] **White headings + registrar removal + notifications (PR #24)** — h1 on gradient surfaces → white. Login label updated to "Student / Staff ID/Admin". All "registrar" references replaced with "admin" across auth, faq, queue, certificate, verify. Notifications full-bleed gradient restored; "Mark all read" placed below banner.
 
 **Status: ALL DONE. Moinul is in support mode — free to help Fatin/Shafin or fix bugs.**
 
@@ -93,11 +97,11 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
-| Moinul | 10 — core + stretch + infra | 10/10 + 6 bug fixes | **0** — support mode |
+| Moinul | 10 — core + stretch + infra | 10/10 + 12 bug fixes | **0** — support mode |
 | Fatin | 10 — 4 original + 6 gap fixes | 2/10 | **8** — PDF/QR (F2) + forgot password (F3) first, then F5–F10 |
 | Shafin | 10 — 5 original + 5 gap fixes | 0/10 | **10** — originals (S1–S5) first, then S6–S10 |
 
 **Blocked on:** Shafin needs to create `src/routes/_authenticated/admin/` folder. Fatin now has certificate page; needs to work on PDF/QR (F2) and forgot password (F3) next, then gap fixes (F5–F10).
 
 **Backlog total: 30 tasks · 12 done · 18 remaining** (F1 merged 23 Aug).
-**Extra work done by Moinul (not in backlog):** 8 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, brand design system, route tree guard. PRs #12–#19 all merged. Brand refresh applied across 19 files. Email delivery workaround active (Resend free tier → forward to owner Gmail).
+**Extra work done by Moinul (not in backlog):** 12 bug fixes — i18n removal, doc-status cascade, section page UX, footer copyright, resubmit email delivery, upload-flip fix, back link readability, UCAM gradient adoption, WCAG contrast fixes, white headings on gradients, registrar removal, notifications layout fix. PRs #12–#24 all merged. Brand refresh applied across 19 files. UCAM pink→blue gradient adopted. Email delivery workaround active (Resend free tier → forward to owner Gmail).
