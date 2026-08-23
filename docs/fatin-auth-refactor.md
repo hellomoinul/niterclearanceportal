@@ -1,5 +1,10 @@
 # Auth Refactor Guide — For Fatin
 
+> **⚠️ IMPLEMENTED (PR #35)** — This guide is superseded. The actual implementation
+> lives in `src/routes/auth.tsx` (smart login + email at signup), `src/routes/_authenticated/settings.tsx`
+> (recovery email change), and `supabase/migrations/20260823190000_login_email_rpc.sql`.
+> No need to build `/complete-profile` — the register form already collects profile fields inline.
+
 **Problem:** Current login uses synthetic emails (`ID@niter.portal`) derived from NITER IDs. Password reset emails can never be delivered (the domain doesn't exist).
 
 **Goal:** Add real email support so password reset works, while keeping NITER ID login for backward compatibility.
