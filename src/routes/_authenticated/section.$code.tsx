@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Trash2, Upload } from "lucide-react";
+import { Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PortalShell } from "@/components/portal-shell";
@@ -165,12 +165,6 @@ function SectionPage() {
 
   return (
     <PortalShell className="max-w-3xl">
-      <Button asChild variant="ghost" size="sm" className="-ml-2">
-        <Link to="/dashboard">
-          <ArrowLeft className="size-4" /> Back to dashboard
-        </Link>
-      </Button>
-
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">Loading section…</p>
       ) : !review ? (
@@ -185,6 +179,7 @@ function SectionPage() {
           <PageHeader
             title={review.department.name}
             description={review.department.requirement}
+            back={{ to: "/dashboard", label: "Back to dashboard" }}
             breadcrumbs={[
               { label: "Dashboard", to: "/dashboard" },
               { label: "Section" },
