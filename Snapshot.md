@@ -4,7 +4,7 @@
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout. Admin panel built (S1–S5): user management, workflow config, batch reports, notices, audit log viewer.
 
-**What's left:** Fatin at 3/10 (F1 + F4 + F2 done). Shafin at 5/10 (S1–S5 done, but S4 needs DB rebuild). Moinul working on 3 security/integrity patches (admin guard, status-forgery fix, admin honesty pass). Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
+**What's left:** Fatin at 3/10 (F1 + F4 + F2 done). Shafin at 5/10 (S1–S5 done, but S4 + S5 need DB rebuild). Moinul working on 4 security/integrity patches (admin guard, status-forgery, admin honesty, head-ordering trigger). Email delivery workaround active — all notification emails forward to Moinul's Gmail until Resend custom domain is verified.
 
 ## Status board
 
@@ -31,6 +31,10 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | M1 | Staff queue `/queue` | Moinul | ✅ Done | Merged, deployed, E2E verified — staff approve/reject with remarks, student sees green card + notification |
 | M2 | Escalation logic migration | Moinul | ✅ Done | E2E verified — auto-escalates at 3 rejections, notifies Head + admins via bell icon |
 | M3 | Audit trail writes | Moinul | ✅ Done | E2E verified — every approve/reject logged to audit_log with actor + remark |
+| M4 | Security: admin route guard | Moinul | ⬜ Not started | `beforeLoad` role check on `/admin` layout route; redirect non-admins to / |
+| M5 | Security: status-forgery patch | Moinul | ⬜ Not started | BEFORE UPDATE trigger rejects `status`/`cleared_at` changes by non-admins on `clearance_applications` and `documents` |
+| M6 | Security: admin honesty pass | Moinul | ⬜ Not started | Replace 5 non-functional admin pages with "Coming soon" stubs |
+| M7 | Security: head-ordering trigger | Moinul | ⬜ Not started | DB trigger blocks Department Head approval until other 7 offices approved |
 | F1  | Certificate page `/certificate` | Fatin  | ✅ Done | Merged via PR #18; conditional link on dashboard (enabled when 8/8 approved) |
 | F2  | PDF download + QR code          | Fatin  | ✅ Done | PR #26: jspdf + qrcode, dynamic QR, A4 scaling, signature image |
 | F3  | Forgot password flow            | Fatin  | ⬜ Not started | `resetPasswordForEmail` + reset form          |
@@ -44,13 +48,14 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | S1  | Admin: user management          | Shafin | ✅ Done | PR #27: `admin/users.tsx` — roles + staff department assignment |
 | S2  | Admin: workflow config          | Shafin | ✅ Done | PR #27: `admin/workflow.tsx` — departments per program, batch deadlines |
 | S3  | Admin: batch reports            | Shafin | ✅ Done | PR #27: `admin/reports.tsx` — `recharts` charts |
-| S4  | Admin: notices management       | Shafin | ⚠️ Broken | PR #27 code queries `notices` table that doesn't exist in any migration — needs rebuild (migration + RLS + home wiring) |
-| S5  | Admin: audit log viewer         | Shafin | ✅ Done | PR #27: `admin/audit.tsx` — read-only table |
+| S4  | Admin: notices management       | Shafin | ⚠️ Broken | PR #27 code queries `notices` table that doesn't exist — rebuild tracked as S11 |
+| S5  | Admin: audit log viewer         | Shafin | ⚠️ Broken | PR #27: queries wrong columns (`timestamp`/`actor`/`remarks` don't exist in `audit_log`; real: `created_at`/`actor_name`/`details`) |
 | S6  | Override staff decision         | Shafin | ⬜ Not started | Admin overturn + mandatory audit_log entry       |
 | S7  | Department config UI            | Shafin | ⬜ Not started | Enable/disable offices per program, no code edit |
 | S8  | Queue search/filter/pagination  | Shafin | ⬜ Not started | Scale to 300+ students (inside `queue.tsx`)      |
 | S9  | Rejection history panel (staff) | Shafin | ⬜ Not started | Past rejections/remarks per student in queue     |
 | S10 | Bulk approve summary modal      | Shafin | ⬜ Not started | "X approved, Y skipped (reason)" feedback        |
+| S11 | Notices rebuild (S4 fix)        | Shafin | ⬜ Not started | Create `notices` table migration + RLS (admin INSERT, public SELECT) + wire home page to DB |
 
 ### Infrastructure (done by Moinul alongside the sprint)
 
@@ -71,6 +76,17 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | Bangla/English toggle       | Moinul | ✅ Done    | i18n infrastructure + toggle in header (PR #10) |
 | Notification pipeline       | Moinul | ✅ Done    | 3 triggers: admin on submission, staff on review creation, student on approve/reject. All fire emails via Resend. |
 | Profile page fix            | Moinul | ✅ Done    | Wrapped in PortalShell, back button role-aware, user code links to /profile |
+
+### Deferred findings (not assigned — go-live-time decisions)
+
+| Finding | Priority | Notes |
+|---------|----------|-------|
+| Test data purge | Medium | Gibberish thesis titles still in DB before go-live |
+| Password policy hardening | Medium | Client minLength 8 only; no forced change on provisioned staff accounts |
+| Certificate revocation | Medium | No process exists to revoke issued certificates |
+| Escalation resolution screen | Medium | Escalation sends notification but has no UI to resolve/reassign |
+| Formal mobile/WCAG audit | Low | AA contrast pass done (PR #23), responsive layouts exist; no comprehensive audit |
+| **User action items:** Resend custom domain verification + PDPA legal counsel review (Supabase has no Bangladesh region — confirm compliance with institution before go-live) | — | Non-code decisions |
 
 ## Work history
 
@@ -256,13 +272,13 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 ## Remaining summary
 
-- **Backlog: 31 tasks · 20 done · 11 remaining.** Moinul 10/10 + 14 bug fixes + 3 security patches in progress. Fatin 3/10. Shafin 5/10 + 1 rebuild (S4).
-- **Moinul's work: 100% complete + bug fixes + security patches** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 14 bug fixes (PRs #12–#28 all merged). Now working on 3 security/integrity fixes (admin route guard, status-forgery patch, admin panel honesty pass). Brand refresh (PR #17). Route tree guard (PR #19). Email delivery workaround active. Support mode.
+- **Backlog: 35 tasks · 20 done · 15 remaining.** Moinul 10/10 + 14 bug fixes + 4 security fixes (M4–M7). Fatin 3/10. Shafin 5/10 + S11 rebuild.
+- **Moinul's work: 100% complete + bug fixes + security patches** — M1–M3, SP1–SP3, notification pipeline, infrastructure, profile fix all done. 14 bug fixes (PRs #12–#28 all merged). Now working on 4 security/integrity fixes (M4–M7: admin route guard, status-forgery patch, admin panel honesty pass, head-ordering trigger). Brand refresh (PR #17). Route tree guard (PR #19). Email delivery workaround active. Support mode.
 - **Fatin's work: 3 of 10 done** — Profile page (F4) + Certificate page (F1) + PDF/QR (F2) merged. Remaining: forgot password (F3), then gap fixes F5–F10.
-- **Shafin's work: 5 of 10 done** — Admin panel built (S1–S5), but S4 needs DB rebuild (notices table doesn't exist). Remaining: S4 rebuild, then S6–S10 (override, dept config, queue search, rejection history, bulk summary).
-- **Order of attack:** Moinul → security patches first (admin guard, status-forgery, admin honesty). Fatin → forgot password (F3), then F5–F10. Shafin → S4 rebuild (notices table), then S6–S10.
-- **Post-verification security work (Moinul):** admin route guard blocks non-admin access to `/admin/*`; status-forgery patch closes column-level UPDATE hole on `clearance_applications` and `documents`; admin panel pages marked "Coming soon" or fixed. Head-ordering enforcement (Department Head can't approve before other 7) to be added as DB trigger.
-- **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works with resolution path → admin route guard active → no status-forgery path → certificate PDF downloads with scannable QR → registrar sees cleared students ready for pickup → admin manages users (real, not localStorage), overrides decisions (audited), reads real batch reports, and manages notices that appear on the public home page.
+- **Shafin's work: 5 of 10 done** — Admin panel built (S1–S5), but S4 + S5 need DB rebuild. Remaining: S11 (notices rebuild), then S6–S10 (override, dept config, queue search, rejection history, bulk summary).
+- **Order of attack:** Moinul → M4 (admin guard) first, then M5–M7. Fatin → forgot password (F3), then F5–F10. Shafin → S11 (notices rebuild), then S6–S10.
+- **Deferred findings (not assigned):** test data purge, password policy hardening, cert revocation process, escalation resolution screen, formal mobile/WCAG audit — go-live decisions. User action items: Resend domain verification + PDPA counsel review (Supabase has no Bangladesh region).
+- **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works with resolution path → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → registrar sees cleared students ready for pickup → admin manages users (real, not localStorage), overrides decisions (audited), reads real batch reports, and manages notices that appear on the public home page.
 
 ## How to update this file
 
