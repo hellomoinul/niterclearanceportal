@@ -15,7 +15,18 @@ ALTER TYPE public.app_role RENAME VALUE 'staff' TO 'registrar';
 ALTER TABLE public.staff_departments RENAME TO registrar_departments;
 
 -- ──────────────────────────────────────────────────────────────────────────────
--- 3. Drop the old function (must drop before recreating with new name + new body)
+-- 3. Drop policies that depend on staff_in_department BEFORE dropping function
+-- ──────────────────────────────────────────────────────────────────────────────
+-- department_reviews: policies referencing staff_in_department
+DROP POLICY IF EXISTS "reviews readable" ON public.department_reviews;
+DROP POLICY IF EXISTS "staff and admin update reviews" ON public.department_reviews;
+-- registrar_departments: old policies
+DROP POLICY IF EXISTS "staff read own assignments" ON public.registrar_departments;
+-- storage.objects
+DROP POLICY IF EXISTS "staff read clearance docs" ON storage.objects;
+
+-- ──────────────────────────────────────────────────────────────────────────────
+-- 4. Drop the old function (must drop before recreating with new name + new body)
 -- ──────────────────────────────────────────────────────────────────────────────
 DROP FUNCTION IF EXISTS public.staff_in_department(uuid, uuid);
 
