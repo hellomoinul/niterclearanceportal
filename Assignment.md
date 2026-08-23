@@ -55,16 +55,17 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **White headings + registrar removal + notifications (PR #24)** — h1 on gradient surfaces → white. Login label updated to "Student / Staff ID/Admin". All "registrar" references replaced with "admin" across auth, faq, queue, certificate, verify. Notifications full-bleed gradient restored; "Mark all read" placed below banner.
 - [x] **Role-based nav + FAQ (PR #25)** — staff/admin no longer see Dashboard link (redirect bounced them to queue). Admin link kept visible pending Shafin's panel. FAQ split: student questions (apply, upload, cert) vs staff/admin questions (review, bulk approve, escalation, queue filtering).
 - [x] **Admin queue polish (PR #28, `moinul/queue-round3`)** — full-width banner fix (same flex-wrapper bug as notifications), admin office filter moved below tabs. Office name shown on every card. Thesis title removed from queue cards. Zero-document pending students hidden from admin queue entirely. PageHeader description prop fixed to accept nullable DB columns.
+- [x] **Auth + home UI polish (PRs #37–#39, `moinul/signin-copy-polish` / `moinul/auth-form-overhaul`)** — sign-in: removed redundant heading, universal helper copy, real-ID placeholder (`CS 2103021`). Register: program dropdown (TE/IPE/FDAE/CSE/EEE), academic-year select replacing batch input, confirm-password field with cross-validation, updated placeholders. Home hero: removed extra intro paragraph and gradient CTA buttons. Login RPC hotfix shipped alongside (PR #36).
 
 *Security & integrity fixes (post-verification, 23 Aug):*
-- [ ] **Admin route guard** — no access control on `/admin/*` routes; any logged-in user (including students) can reach audit log page. Fix: `beforeLoad` role check on admin layout route, redirect non-admins.
-- [ ] **Status-forgery patch** — students can UPDATE own `clearance_applications.status` to `'cleared'` via API (column not restricted in RLS policy), unlocking certificate PDF view. Same pattern on `documents.status`. Fix: revoke blanket student UPDATE, replace with column-safe path (BEFORE UPDATE trigger rejects `status`/`cleared_at` changes by non-admins).
-- [ ] **Admin panel honesty pass** — all five `/admin` pages are non-functional (workflow→localStorage, users→console.log, reports→hardcoded data, audit→wrong column names, notices→table doesn't exist). Replace with clear "Coming soon" states or proper stubs so nobody mistakes scaffolding for features.
-- [ ] **Head-ordering trigger** — Department Head (`head`) can approve before other 7 offices. Nothing enforces sequential ordering. Fix: BEFORE UPDATE trigger on `office_reviews` blocks `head` approval unless all other 7 reviews for same application are approved.
+- [x] **Admin route guard** — no access control on `/admin/*` routes; any logged-in user (including students) can reach audit log page. Fix: `beforeLoad` role check on admin layout route, redirect non-admins. PR #34.
+- [x] **Status-forgery patch** — students can UPDATE own `clearance_applications.status` to `'cleared'` via API (column not restricted in RLS policy), unlocking certificate PDF view. Same pattern on `documents.status`. Fix: revoke blanket student UPDATE, replace with column-safe path (BEFORE UPDATE trigger rejects `status`/`cleared_at` changes by non-admins). PR #34.
+- [x] **Admin panel honesty pass** — all five `/admin` pages are non-functional (workflow→localStorage, users→console.log, reports→hardcoded data, audit→wrong column names, notices→table doesn't exist). Replace with clear "Coming soon" states or proper stubs so nobody mistakes scaffolding for features. PR #34.
+- [x] **Head-ordering trigger** — Department Head (`head`) can approve before other 7 offices. Nothing enforces sequential ordering. Fix: BEFORE UPDATE trigger on `office_reviews` blocks `head` approval unless all other 7 reviews for same application are approved. PR #34.
 - [x] **Staff → Registrar rename (M8)** — DB enum value, table (`staff_departments` → `registrar_departments`), function with accounts hard-rule, all RLS policies, all client references (`isStaff` → `isRegistrar`). PR #32.
 - [x] **Accounts Queue hard rule (M9)** — registrar always sees "Accounts queue" (DB hard-rule + client fallback). PR #32.
 
-**Status: Moinul in support mode — security fixes next, then available to help Fatin/Shafin.**
+**Status: Moinul in support mode — security fixes shipped (PR #34), registrar rename live (PRs #32/#33), auth email upgrade + hotfix live (PRs #35/#36), UI polish shipped (PRs #37–#39). Available to review PRs and unblock Fatin/Shafin.**
 
 ## 🟢 Fatin — Certificate pipeline & account features (10 tasks)
 
@@ -73,7 +74,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **PDF download + QR code (F2)** — generate client-side (`jspdf` + `qrcode` packages), QR links to the existing `/verify/$code` page
 - [x] **Forgot password (F3)** — Supabase `resetPasswordForEmail` + reset form; real email at signup + smart login + recovery email migration. PR #35.
 - [ ] **Student timeline/history (F5)** — every past rejection, resubmission and approval in order (on dashboard or profile)
-- [ ] **Printable certificate view (F6)** — print-friendly route/CSS so students can submit a physical copy
+- [x] **Printable certificate view (F6)** — unified print + download PDF generation on `/certificate` (jspdf + html2canvas + auto-print, A4 landscape scaling). PR #29.
 - [ ] **Deadline lock screen (F7)** — block new submissions after the batch deadline passes
 - [x] **Confirmation dialogs on student flows (F8)** — confirm before deleting uploaded documents
 - [ ] **Global error states (F9)** — network drop / upload failure / session expiry handled with clear messages
