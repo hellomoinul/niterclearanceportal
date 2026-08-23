@@ -48,10 +48,12 @@ serve(async (req) => {
       );
     }
 
+    const recipientLabel = `${profile.full_name || "User"} <${profile.personal_email}>`;
+
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1a1a2e;">NITER Clearance Portal</h2>
-        <p>Dear ${profile.full_name || "Student"},</p>
+        <p><strong>Intended for:</strong> ${recipientLabel}</p>
         <p><strong>${record.title}</strong></p>
         <p>${record.body || ""}</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
@@ -70,8 +72,8 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: "NITER Clearance <onboarding@resend.dev>",
-        to: profile.personal_email,
-        subject: record.title,
+        to: "akash.moinulhasan@gmail.com",
+        subject: `[${profile.user_code || profile.full_name}] ${record.title}`,
         html,
       }),
     });

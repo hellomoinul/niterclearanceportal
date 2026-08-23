@@ -119,8 +119,23 @@ function SectionPage() {
       file_size: file.size,
       uploaded_by: user.id,
     });
-    if (!error && review.status === "rejected") {
-      await supabase.from("department_reviews").update({ status: "pending" }).eq("id", review.id);
+    if (!error) {
+      const { data: freshReview } = await supabase
+        .from("department_reviews")
+        .select("status")
+        .eq("id", review.id)
+        .single();
+      if (freshReview?.status === "rejected") {
+        const { error: flipError } = await supabase
+          .from("department_reviews")
+          .update({ status: "pending" })
+          .eq("id", review.id);
+        if (flipError) {
+          toast.error("Document saved, but could not reopen review", {
+            description: flipError.message,
+          });
+        }
+      }
     }
     setBusy(false);
     if (error) {
