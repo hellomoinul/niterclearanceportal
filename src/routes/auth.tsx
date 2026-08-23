@@ -130,10 +130,22 @@ function AuthPage() {
                 <Label htmlFor="signin-id">Student / Staff ID/Admin</Label>
                 <Input id="signin-id" name="userCode" required placeholder="e.g. 2103021" />
               </div>
+              
+              {/* --- NEW FORGOT PASSWORD SECTION START --- */}
               <div className="space-y-2">
-                <Label htmlFor="signin-password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="signin-password">Password</Label>
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <Input id="signin-password" name="password" type="password" required />
               </div>
+              {/* --- NEW FORGOT PASSWORD SECTION END --- */}
+
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy ? "Signing in…" : "Sign in"}
               </Button>
