@@ -99,11 +99,24 @@ function DashboardPage() {
             {profile?.batch ? ` · Batch ${profile.batch}` : ""}
           </p>
         </div>
-        {(isStaff || isAdmin) && (
-          <Button asChild variant="outline">
-            <Link to="/queue">Go to department queue</Link>
-          </Button>
-        )}
+        <div className="flex gap-3">
+          {/* Conditionally Disabled View Certificate Button */}
+          {approved === total && total > 0 ? (
+            <Button asChild variant="default">
+              <Link to="/certificate">View Certificate</Link>
+            </Button>
+          ) : (
+            <Button disabled variant="default">
+              View Certificate
+            </Button>
+          )}
+          
+          {(isStaff || isAdmin) && (
+            <Button asChild variant="outline">
+              <Link to="/queue">Go to department queue</Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
