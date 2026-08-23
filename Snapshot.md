@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 2026-08-23 · **Overall progress: ~48%**
+**Last updated:** 2026-08-23 · **Overall progress: ~52%**
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout. Admin panel built (S1–S5): user management, workflow config, batch reports, notices, audit log viewer.
 
-**What's left:** Moinul at 8/12 (M1 + M2 + M3 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 3/10 (F1 + F2 + F4 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
+**What's left:** Moinul at 8/12 (M1 + M2 + M3 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 4/10 (F1 + F2 + F4 + F8 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
 
 ## Status board
 
@@ -42,7 +42,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | F5  | Student timeline/history        | Fatin  | ⬜ Not started | Every past rejection/resubmission/approval in order |
 | F6  | Printable certificate view      | Fatin  | ⬜ Not started | Print-friendly route/CSS for physical copy       |
 | F7  | Deadline lock screen            | Fatin  | ⬜ Not started | Block new submissions after batch deadline       |
-| F8  | Confirmation dialogs (student)  | Fatin  | ⬜ Not started | Confirm before deleting uploaded documents       |
+| F8  | Confirmation dialogs (student)  | Fatin  | ✅ Done | Confirm before deleting uploaded documents       |
 | F9  | Global error states             | Fatin  | ⬜ Not started | Network drop / upload fail / session expiry      |
 | F10 | Registrar queue                 | Fatin  | ⬜ Not started | "Ready for final processing" — cleared students  |
 | S1  | Admin: user management          | Shafin | ✅ Done | PR #27: `admin/users.tsx` — roles + staff department assignment |
@@ -99,6 +99,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 - **Admin: batch reports (S3):** completed via PR #27.
 - **Admin: notices management (S4):** completed via PR #27.
 - **Admin: audit log viewer (S5):** completed via PR #27.
+- **Confirmation dialogs (student) (F8):** completed via PR #31.
 
 ### 2026-08-22
 
@@ -114,9 +115,9 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 ## Remaining summary
 
-- **Backlog: 33 tasks · 16 done · 17 remaining.** Moinul 8/12. Fatin 3/10. Shafin 5/11.
+- **Backlog: 33 tasks · 17 done · 16 remaining.** Moinul 8/12. Fatin 4/10. Shafin 5/11.
 - **Moinul's work: 8/12 done** — remaining: M4, M5, M6, M7. Next: Security: admin route guard.
-- **Fatin's work: 3/10 done** — remaining: F3, F5, F6, F7, F8, F9, F10. Next: Forgot password flow.
+- **Fatin's work: 4/10 done** — remaining: F3, F5, F6, F7, F9, F10. Next: Forgot password flow.
 - **Shafin's work: 5/11 done** — remaining: S6, S7, S8, S9, S10, S11. Next: Override staff decision.
 - **Order of attack:** Moinul → Security: admin route guard; Fatin → Forgot password flow; Shafin → Override staff decision.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → admin manages users, overrides decisions (audited), reads batch reports, and manages notices that appear on the public home page.

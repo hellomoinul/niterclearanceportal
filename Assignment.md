@@ -73,7 +73,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [ ] **Student timeline/history (F5)** — every past rejection, resubmission and approval in order (on dashboard or profile)
 - [ ] **Printable certificate view (F6)** — print-friendly route/CSS so students can submit a physical copy
 - [ ] **Deadline lock screen (F7)** — block new submissions after the batch deadline passes
-- [ ] **Confirmation dialogs on student flows (F8)** — confirm before deleting uploaded documents
+- [x] **Confirmation dialogs on student flows (F8)** — confirm before deleting uploaded documents
 - [ ] **Global error states (F9)** — network drop / upload failure / session expiry handled with clear messages
 - [ ] **Registrar queue (F10)** — "Ready for final processing" list of fully cleared students for pickup/sign-off
 
@@ -107,10 +107,10 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
 | Moinul | 12 — core + stretch + infra | 8/12 + 14 bug fixes | 4 |
-| Fatin | 10 — 4 original + 6 gap fixes | 3/10 | 7 |
+| Fatin | 10 — 4 original + 6 gap fixes | 4/10 | 6 |
 | Shafin | 11 — 5 original + 5 gap fixes + 1 rebuild | 5/11 | 6 |
 
 **Blocked on:** Fatin needs Forgot password flow next. Shafin needs Override staff decision next. Moinul working on M4, M5, M6, M7.
 
-**Backlog total: 33 tasks · 16 done · 17 remaining** (30 original + 1 rebuild + 4 security).
+**Backlog total: 33 tasks · 17 done · 16 remaining** (30 original + 1 rebuild + 4 security).
 **Extra work done by Moinul (not in backlog):** 14 bug fixes (PRs #12–#28 all merged). Email delivery workaround active (Resend free tier → forward to owner Gmail). System gap verification completed 23 Aug — identified 5 critical + 7 high-priority issues across security, RLS, data integrity, and admin panel honesty.
