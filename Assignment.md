@@ -71,7 +71,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **Profile page `/profile` (F4)** — merged via PR #11. Fixed by Moinul (PortalShell + back button + nav link)
 - [x] **Certificate page `/certificate` (F1)** — merged via PR #18; conditional link on dashboard (enabled when 8/8 approved). Dashboard conflict resolved with brand refresh.
 - [x] **PDF download + QR code (F2)** — generate client-side (`jspdf` + `qrcode` packages), QR links to the existing `/verify/$code` page
-- [ ] **Forgot password (F3)** — Supabase `resetPasswordForEmail` + reset form
+- [x] **Forgot password (F3)** — Supabase `resetPasswordForEmail` + reset form; real email at signup + smart login + recovery email migration. PR #35.
 - [ ] **Student timeline/history (F5)** — every past rejection, resubmission and approval in order (on dashboard or profile)
 - [ ] **Printable certificate view (F6)** — print-friendly route/CSS so students can submit a physical copy
 - [ ] **Deadline lock screen (F7)** — block new submissions after the batch deadline passes
@@ -112,7 +112,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 | Fatin | 10 — 4 original + 6 gap fixes | 4/10 | 6 |
 | Shafin | 11 — 5 original + 5 gap fixes + 1 rebuild | 5/11 | 6 |
 
-**Blocked on:** Fatin needs Forgot password flow next. Shafin needs Override staff decision next. Moinul in support mode — available to help Fatin/Shafin.
+**Blocked on:** Moinul merging security patches (PR #34) + auth email (PR #35). Shafin → Override staff decision. Fatin → student timeline, printable certificate, deadline lock.
 
 **Backlog total: 35 tasks · 23 done · 12 remaining** (30 original + 1 rebuild + 4 security).
 **Extra work done by Moinul (not in backlog):** 14 bug fixes (PRs #12–#28 all merged). Email delivery workaround active (Resend free tier → forward to owner Gmail). System gap verification completed 23 Aug — identified 5 critical + 7 high-priority issues across security, RLS, data integrity, and admin panel honesty.
