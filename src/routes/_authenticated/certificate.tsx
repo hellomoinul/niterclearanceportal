@@ -1,9 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/integrations/supabase/client'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Download } from 'lucide-react'
+import { Download, Loader2 } from 'lucide-react'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
+import QRCode from 'qrcode'
 
 export const Route = createFileRoute('/_authenticated/certificate')({
   component: CertificatePage,
@@ -13,12 +15,20 @@ function CertificatePage() {
   const [profile, setProfile] = useState<any>(null)
   const [application, setApplication] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  
+  // State variables for F2
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [qrCodeUrl, setQrCodeUrl] = useState('')
+  const certificateRef = useRef<HTMLDivElement>(null)
+
+  // TODO (Shafin): Replace this local fallback with a fetch to the app_settings table
+  const [signatureUrl, setSignatureUrl] = useState('/signature.png')
 
   useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        // 1. Fetch Profile
+        // Fetch Profile
         const { data: profileData } = await supabase
           .from('profiles')
           .select('*')
@@ -26,92 +36,200 @@ function CertificatePage() {
           .single()
         setProfile(profileData)
 
-        // 2. Fetch Application to check clearance status
+        // Fetch Application
         const { data: appData } = await supabase
           .from('clearance_applications')
           .select('*')
           .eq('student_id', user.id)
           .maybeSingle()
         setApplication(appData)
+
+        // Fetch Certificate Data (for the QR Code)
+        if (appData) {
+          const { data: certData } = await supabase
+            .from('certificates')
+            .select('*')
+            .eq('application_id', appData.id)
+            .maybeSingle()
+          
+          if (certData?.certificate_code) {
+            // Generate QR code pointing to the public verification page
+            const verifyUrl = `${window.location.origin}/verify/${certData.certificate_code}`
+            try {
+              const url = await QRCode.toDataURL(verifyUrl, { width: 100, margin: 0 })
+              setQrCodeUrl(url)
+            } catch (err) {
+              console.error("Failed to generate QR code", err)
+            }
+          }
+        }
       }
       setLoading(false)
     }
     loadData()
   }, [])
 
+  // The function that powers the Download Button
+  const handleDownloadPDF = async () => {
+    if (!certificateRef.current) return
+    setIsGenerating(true)
+    
+    try {
+      // 1. Take a high-res screenshot of the certificate div
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: '#ffffff'
+      })
+      
+      const imgData = canvas.toDataURL('image/png')
+      
+      // 2. Create an A4 Landscape PDF
+      const pdf = new jsPDF('l', 'mm', 'a4')
+      
+      // 3. Smart Scaling Math (Fits image inside the page perfectly without cropping)
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = pdf.internal.pageSize.getHeight()
+      
+      const canvasRatio = canvas.width / canvas.height
+      
+      let finalWidth = pdfWidth
+      let finalHeight = pdfWidth / canvasRatio
+      
+      // If scaling by width makes it too tall, scale by height instead
+      if (finalHeight > pdfHeight) {
+        finalHeight = pdfHeight
+        finalWidth = pdfHeight * canvasRatio
+      }
+      
+      // Perfectly center the scaled image on the A4 page
+      const xOffset = (pdfWidth - finalWidth) / 2
+      const yOffset = (pdfHeight - finalHeight) / 2
+      
+      // 4. Inject image and save
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight)
+      pdf.save(`Clearance_Certificate_${profile?.user_code || 'NITER'}.pdf`)
+    } catch (error: any) {
+      console.error("Error generating PDF:", error)
+      alert(`PDF Generation Failed: ${error.message || "Check the console for details."}`)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   if (loading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading your certificate...</div>
+    return <div className="p-8 text-center text-[#64748b]">Loading your certificate...</div>
   }
 
   if (!profile) {
     return <div className="p-8 text-center text-red-500">Error loading profile data.</div>
   }
 
+  const isCleared = application?.status === 'cleared'
+
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+    <div className="container mx-auto p-4 sm:p-6 flex flex-col items-center">
+      <div className="flex w-full max-w-[1000px] justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Clearance Certificate</h1>
-        <Button disabled variant="default">
-          <Download className="mr-2 h-4 w-4" /> Download PDF
+        
+        {/* Dynamic Download Button */}
+        <Button 
+          onClick={handleDownloadPDF} 
+          disabled={!isCleared || isGenerating} 
+          variant="default"
+        >
+          {isGenerating ? (
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
+          ) : (
+            <><Download className="mr-2 h-4 w-4" /> Download PDF</>
+          )}
         </Button>
       </div>
 
-      {/* Formal Certificate Layout */}
-      <Card className="border-4 border-double border-slate-300 p-8 sm:p-12 mt-8 bg-white">
-        <CardContent className="text-center space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold uppercase tracking-wider text-slate-900">
+      {/* We wrap the certificate in an A4 aspect-ratio div so it fills the PDF perfectly */}
+      <div 
+        ref={certificateRef} 
+        className="w-full max-w-[1000px] aspect-[1.414] bg-[#ffffff] p-4 sm:p-8 flex flex-col shadow-sm"
+      >
+        <div className="border-[6px] border-double border-[#cbd5e1] rounded-2xl p-8 sm:p-12 flex-1 flex flex-col justify-between bg-[#ffffff]">
+          
+          <div className="text-center space-y-2 mt-4">
+            <h2 className="text-2xl sm:text-4xl font-serif font-bold uppercase tracking-wider text-[#0f172a]">
               National Institute of Textile Engineering and Research
             </h2>
-            <p className="text-muted-foreground uppercase tracking-widest text-sm">Nayarhat, Savar, Dhaka</p>
+            <p className="text-[#64748b] uppercase tracking-widest text-sm">Nayarhat, Savar, Dhaka</p>
           </div>
 
-          <div className="py-8">
-            <h3 className="text-xl sm:text-2xl font-serif font-semibold text-slate-800 italic">
+          <div className="text-center">
+            <h3 className="text-xl sm:text-3xl font-serif font-semibold text-[#1e293b] italic">
               Digital Clearance Certificate
             </h3>
           </div>
 
-          <div className="text-lg leading-relaxed text-slate-800 text-left sm:text-center max-w-2xl mx-auto font-serif">
-            This is to certify that <span className="font-bold border-b border-slate-400 px-2">{profile.full_name}</span>, 
-            Student ID <span className="font-bold border-b border-slate-400 px-2">{profile.user_code}</span> of the 
-            <span className="font-bold border-b border-slate-400 px-2"> {profile.program} </span> department, 
-            Batch <span className="font-bold border-b border-slate-400 px-2">{profile.batch}</span>, has successfully completed all necessary departmental and administrative clearance procedures.
+          <div className="text-lg sm:text-xl leading-loose text-[#1e293b] text-center max-w-3xl mx-auto font-serif">
+            This is to certify that 
+            <span className="relative inline-block font-bold px-2 mx-1 pb-1">
+              {profile.full_name}
+              <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
+            </span>, 
+            Student ID 
+            <span className="relative inline-block font-bold px-2 mx-1 pb-1">
+              {profile.user_code}
+              <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
+            </span> of the 
+            <span className="relative inline-block font-bold px-2 mx-1 pb-1">
+              {profile.program}
+              <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
+            </span> department, 
+            Batch 
+            <span className="relative inline-block font-bold px-2 mx-1 pb-1">
+              {profile.batch}
+              <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
+            </span>, 
+            has successfully completed all necessary departmental and administrative clearance procedures.
           </div>
 
-          {/* Signature Areas */}
-          <div className="pt-16 flex justify-between items-end px-4 sm:px-12">
-            {/* Date Area */}
-            <div className="text-center flex flex-col justify-end h-24">
-              <div className="border-t border-slate-800 w-32 mb-2 mx-auto"></div>
-              <p className="text-sm font-semibold text-slate-700">Date Issued</p>
-              <p className="text-xs text-muted-foreground">
-                {application?.status === 'cleared' ? new Date().toLocaleDateString('en-GB') : 'N/A'}
-              </p>
+          {/* Signature & Verification Area */}
+          <div className="flex justify-between items-end px-4 sm:px-12 mb-4">
+            
+            {/* Left Area: QR Code & Date */}
+            <div className="flex flex-col items-center justify-end">
+              {isCleared && qrCodeUrl ? (
+                <img src={qrCodeUrl} alt="Verification QR Code" className="w-28 h-28 mb-3" />
+              ) : (
+                <div className="w-28 h-28 mb-3 border-2 border-dashed border-[#e2e8f0] flex items-center justify-center text-[10px] text-[#64748b] text-center p-1">
+                  QR Pending
+                </div>
+              )}
+              <div className="text-center">
+                <p className="text-xs font-semibold text-[#334155] uppercase tracking-wider">Date Issued</p>
+                <p className="text-sm font-medium text-[#0f172a] mt-1">
+                  {isCleared ? new Date().toLocaleDateString('en-GB') : 'N/A'}
+                </p>
+              </div>
             </div>
             
-            {/* Admin Signature Area */}
-            <div className="text-center flex flex-col items-center justify-end h-24">
-              {application?.status === 'cleared' ? (
-                // This is a placeholder signature URL that Shafin will eventually replace with the real database URL
+            {/* Right Area: Registrar Signature */}
+            <div className="text-center flex flex-col items-center justify-end">
+              {isCleared ? (
                 <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/f/f4/John_Hancock_Signature.svg" 
-                  alt="Admin Signature" 
-                  className="h-12 object-contain mb-2 opacity-80"
+                  src={signatureUrl}
+                  alt="Registrar Signature" 
+                  className="h-20 object-contain mb-2 opacity-80"
                 />
               ) : (
-                <div className="h-12 mb-2 flex items-center text-xs text-muted-foreground italic">
+                <div className="h-20 mb-2 flex items-center text-xs text-[#64748b] italic">
                   Pending Final Approval
                 </div>
               )}
-              <div className="border-t border-slate-800 w-40 mb-2 mx-auto"></div>
-              <p className="text-sm font-semibold text-slate-700">Admin</p>
-              <p className="text-xs text-muted-foreground">NITER</p>
+              <div className="border-t-[1.5px] border-[#1e293b] w-56 mb-2 mx-auto"></div>
+              <p className="text-sm font-bold text-[#1e293b] uppercase tracking-wider">Registrar</p>
+              <p className="text-xs text-[#64748b] tracking-widest mt-1">NITER</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+
+        </div>
+      </div>
     </div>
   )
 }
