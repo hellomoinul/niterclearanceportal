@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   ssr: false,
@@ -54,10 +55,11 @@ function SettingsPage() {
 
   return (
     <PortalShell className="max-w-3xl">
-      <h1 className="text-2xl font-semibold">Settings</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Manage your notification email and profile details.
-      </p>
+      <PageHeader
+        title="Settings"
+        description="Manage your notification email and profile details."
+        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
+      />
 
       <form className="card-surface mt-8 space-y-6 p-6" onSubmit={handleSubmit}>
         <section>

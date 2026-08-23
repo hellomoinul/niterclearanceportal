@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PortalShell } from "@/components/portal-shell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
@@ -44,7 +45,11 @@ function NotificationsPage() {
   return (
     <PortalShell className="max-w-3xl">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Notifications</h1>
+        <PageHeader
+          title="Notifications"
+          description="Every clearance decision and remark sent to your account."
+          breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
+        />
         <Button variant="outline" size="sm" onClick={markAllRead}>
           Mark all read
         </Button>

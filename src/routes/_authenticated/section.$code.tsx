@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { DOCS_BUCKET, MAX_FILE_BYTES, validateUpload } from "@/lib/portal";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/section/$code")({
   head: () => ({
@@ -181,14 +182,17 @@ function SectionPage() {
         </div>
       ) : (
         <>
-          <div className="card-surface mt-6 p-6">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h1 className="text-2xl font-semibold">{review.department.name}</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {review.department.requirement}
-                </p>
-              </div>
+          <PageHeader
+            title={review.department.name}
+            description={review.department.requirement}
+            breadcrumbs={[
+              { label: "Dashboard", to: "/dashboard" },
+              { label: "Section" },
+            ]}
+          />
+          <div className="card-surface mt-2 p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-muted-foreground">Review status</span>
               <StatusBadge status={review.status} />
             </div>
 

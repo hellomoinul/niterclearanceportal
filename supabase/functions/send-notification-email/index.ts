@@ -52,7 +52,7 @@ serve(async (req) => {
 
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #1a1a2e;">NITER Clearance Portal</h2>
+        <h2 style="color: #1C364E; font-family: Georgia, serif;">NITER Clearance Portal</h2>
         <p><strong>Intended for:</strong> ${recipientLabel}</p>
         <p><strong>${record.title}</strong></p>
         <p>${record.body || ""}</p>

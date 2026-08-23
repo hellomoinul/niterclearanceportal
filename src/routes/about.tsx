@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PortalShell } from "@/components/portal-shell";
+import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -30,13 +31,10 @@ const calendar = [
 function AboutPage() {
   return (
     <PortalShell className="max-w-4xl">
-      <h1 className="text-2xl font-semibold">About NITER clearance</h1>
-      <p className="mt-3 text-sm text-muted-foreground">
-        The National Institute of Textile Engineering and Research requires every final-year student
-        to obtain clearance from eight offices before the final transcript and certificate are
-        released. This portal replaces the paper-based, office-to-office process with one digital
-        application reviewed in parallel by all offices.
-      </p>
+      <PageHeader
+        title="About NITER clearance"
+        description="How NITER final-year clearance works: the offices involved, the documents required and the academic calendar deadlines."
+      />
 
       <div className="card-surface mt-8 p-6">
         <h2 className="text-lg font-semibold">Academic calendar</h2>
