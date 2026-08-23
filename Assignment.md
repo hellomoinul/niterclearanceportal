@@ -61,6 +61,8 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [ ] **Status-forgery patch** — students can UPDATE own `clearance_applications.status` to `'cleared'` via API (column not restricted in RLS policy), unlocking certificate PDF view. Same pattern on `documents.status`. Fix: revoke blanket student UPDATE, replace with column-safe path (BEFORE UPDATE trigger rejects `status`/`cleared_at` changes by non-admins).
 - [ ] **Admin panel honesty pass** — all five `/admin` pages are non-functional (workflow→localStorage, users→console.log, reports→hardcoded data, audit→wrong column names, notices→table doesn't exist). Replace with clear "Coming soon" states or proper stubs so nobody mistakes scaffolding for features.
 - [ ] **Head-ordering trigger** — Department Head (`head`) can approve before other 7 offices. Nothing enforces sequential ordering. Fix: BEFORE UPDATE trigger on `office_reviews` blocks `head` approval unless all other 7 reviews for same application are approved.
+- [x] **Staff → Registrar rename (M8)** — DB enum value, table (`staff_departments` → `registrar_departments`), function with accounts hard-rule, all RLS policies, all client references (`isStaff` → `isRegistrar`). PR #32.
+- [x] **Accounts Queue hard rule (M9)** — registrar always sees "Accounts queue" (DB hard-rule + client fallback). PR #32.
 
 **Status: Moinul in support mode — security fixes next, then available to help Fatin/Shafin.**
 
