@@ -106,11 +106,11 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 
 | Member | Tasks assigned | Done | Remaining |
 |---|---|---|---|
-| Moinul | 10 — core + stretch + infra | 10/10 + 14 bug fixes | **4** security fixes (admin guard, status-forgery, admin honesty, head-ordering) |
-| Fatin | 10 — 4 original + 6 gap fixes | 3/10 | **7** — forgot password (F3) first, then F5–F10 |
-| Shafin | 10 — 5 original + 5 gap fixes + 1 rebuild | 5/10 | **6** — S11 rebuild (notices table), then S6–S10 |
+| Moinul | 12 — core + stretch + infra | 8/12 + 14 bug fixes | 4 |
+| Fatin | 10 — 4 original + 6 gap fixes | 3/10 | 7 |
+| Shafin | 11 — 5 original + 5 gap fixes + 1 rebuild | 5/11 | 6 |
 
-**Blocked on:** Fatin needs forgot password (F3) next, then gap fixes (F5–F10). Shafin has admin panel (S1–S5) built but S4 + S5 need DB rebuild; needs S11 + S6–S10 next. Moinul working on security patches (M4–M7: admin guard, status-forgery, admin honesty pass, head-ordering trigger).
+**Blocked on:** Fatin needs Forgot password flow next. Shafin needs Override staff decision next. Moinul working on M4, M5, M6, M7.
 
-**Backlog total: 35 tasks · 20 done · 15 remaining** (30 original + 1 rebuild (S11) + 4 security (M4–M7)).
+**Backlog total: 33 tasks · 16 done · 17 remaining** (30 original + 1 rebuild + 4 security).
 **Extra work done by Moinul (not in backlog):** 14 bug fixes (PRs #12–#28 all merged). Email delivery workaround active (Resend free tier → forward to owner Gmail). System gap verification completed 23 Aug — identified 5 critical + 7 high-priority issues across security, RLS, data integrity, and admin panel honesty.
