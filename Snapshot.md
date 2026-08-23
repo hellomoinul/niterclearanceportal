@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 2026-08-23 · **Overall progress: ~51%**
+**Last updated:** 2026-08-23 · **Overall progress: ~66%**
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout. Admin panel built (S1–S5): user management, workflow config, batch reports, notices, audit log viewer.
 
-**What's left:** Moinul at 9/14 (M1 + M2 + M3 + M8 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 4/10 (F1 + F2 + F4 + F8 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
+**What's left:** Moinul at 14/14 (M1 + M2 + M3 + M4 + M5 + M6 + M7 + M8 + M9 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 4/10 (F1 + F2 + F4 + F8 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
 
 ## Status board
 
@@ -31,10 +31,10 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | M1 | Staff queue `/queue` | Moinul | ✅ Done | Merged, deployed, E2E verified — staff approve/reject with remarks, student sees green card + notification |
 | M2 | Escalation logic migration | Moinul | ✅ Done | E2E verified — auto-escalates at 3 rejections, notifies Head + admins via bell icon |
 | M3 | Audit trail writes | Moinul | ✅ Done | E2E verified — every approve/reject logged to audit_log with actor + remark |
-| M4 | Security: admin route guard | Moinul | ⬜ Not started | `beforeLoad` role check on `/admin` layout route; redirect non-admins to / |
-| M5 | Security: status-forgery patch | Moinul | ⬜ Not started | BEFORE UPDATE trigger rejects `status`/`cleared_at` changes by non-admins on `clearance_applications` and `documents` |
-| M6 | Security: admin honesty pass | Moinul | ⬜ Not started | Replace 5 non-functional admin pages with "Coming soon" stubs |
-| M7 | Security: head-ordering trigger | Moinul | ⬜ Not started | DB trigger blocks Department Head approval until other 7 offices approved |
+| M4 | Security: admin route guard | Moinul | ✅ Done | `beforeLoad` role check on `/admin` layout route; redirect non-admins to / |
+| M5 | Security: status-forgery patch | Moinul | ✅ Done | BEFORE UPDATE trigger rejects `status`/`cleared_at` changes by non-admins on `clearance_applications` and `documents` |
+| M6 | Security: admin honesty pass | Moinul | ✅ Done | Replace 5 non-functional admin pages with "Coming soon" stubs |
+| M7 | Security: head-ordering trigger | Moinul | ✅ Done | DB trigger blocks Department Head approval until other 7 offices approved |
 | F1  | Certificate page `/certificate` | Fatin  | ✅ Done | Merged via PR #18; conditional link on dashboard (enabled when 8/8 approved) |
 | F2  | PDF download + QR code          | Fatin  | ✅ Done | PR #26: jspdf + qrcode, dynamic QR, A4 scaling, signature image |
 | F3  | Forgot password flow            | Fatin  | ⬜ Not started | `resetPasswordForEmail` + reset form          |
@@ -101,6 +101,11 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 - **Admin: audit log viewer (S5):** completed via PR #27.
 - **Confirmation dialogs (student) (F8):** completed via PR #31.
 - **Staff → Registrar full rename (M8):** completed via PR #32.
+- **Accounts Queue hard rule (M9):** completed via PR #32.
+- **Security: admin route guard (M4):** completed via PR #34.
+- **Security: status-forgery patch (M5):** completed via PR #34.
+- **Security: admin honesty pass (M6):** completed via PR #34.
+- **Security: head-ordering trigger (M7):** completed via PR #34.
 
 ### 2026-08-22
 
@@ -116,11 +121,11 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 ## Remaining summary
 
-- **Backlog: 35 tasks · 18 done · 17 remaining.** Moinul 9/14. Fatin 4/10. Shafin 5/11.
-- **Moinul's work: 9/14 done** — remaining: M4, M5, M6, M7, M9. Next: Security: admin route guard.
+- **Backlog: 35 tasks · 23 done · 12 remaining.** Moinul 14/14. Fatin 4/10. Shafin 5/11.
+- **Moinul's work: 14/14 done** — all complete.
 - **Fatin's work: 4/10 done** — remaining: F3, F5, F6, F7, F9, F10. Next: Forgot password flow.
 - **Shafin's work: 5/11 done** — remaining: S6, S7, S8, S9, S10, S11. Next: Override staff decision.
-- **Order of attack:** Moinul → Security: admin route guard; Fatin → Forgot password flow; Shafin → Override staff decision.
+- **Order of attack:** Fatin → Forgot password flow; Shafin → Override staff decision.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → admin manages users, overrides decisions (audited), reads batch reports, and manages notices that appear on the public home page.
 ## How to update this file
 
