@@ -28,7 +28,7 @@ export function PortalHeader() {
 
   const appLinks = session
     ? [
-        { to: "/dashboard", label: "Dashboard" },
+        ...(isStaff || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
         ...(isStaff || isAdmin ? [{ to: "/queue", label: "Department queue" }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
