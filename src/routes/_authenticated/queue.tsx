@@ -103,7 +103,7 @@ function QueuePage() {
         .select("department_id, departments(code, name)")
         .eq("user_id", user!.id);
       if (error) throw error;
-      return (data ?? [])
+      const depts = (data ?? [])
         .map((row) => ({
           id: row.department_id,
           code: row.departments?.code,
@@ -112,6 +112,18 @@ function QueuePage() {
         .filter((d): d is DepartmentInfo & { id: string; code: string; name: string } =>
           Boolean(d.id && d.code && d.name),
         );
+      // Hard-rule fallback: registrar always sees accounts even with no explicit assignment
+      if (depts.length === 0) {
+        const { data: accountsDept } = await supabase
+          .from("departments")
+          .select("id, code, name")
+          .eq("code", "accounts")
+          .single();
+        if (accountsDept) {
+          depts.push({ id: accountsDept.id, code: accountsDept.code, name: accountsDept.name });
+        }
+      }
+      return depts;
     },
   });
 
@@ -367,7 +379,7 @@ function QueuePage() {
   return (
     <PortalShell>
       <PageHeader
-        title="Department queue"
+        title={isAdmin ? "Department queue" : "Accounts queue"}
         description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
         breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
       />
