@@ -133,7 +133,7 @@ function DashboardPage() {
               </div>
               {certificate ? (
                 <Button asChild>
-                  <Link to="/certificate">Download certificate</Link>
+                  <a href="/certificate">Download certificate</a>
                 </Button>
               ) : (
                 <StatusBadge status={application.status === "cleared" ? "approved" : "pending"} />
