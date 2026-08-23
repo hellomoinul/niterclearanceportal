@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 2026-08-23 · **Overall progress: ~66%**
+**Last updated:** 2026-08-23 · **Overall progress: ~69%**
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. No registrar role anywhere — admin throughout. Admin panel built (S1–S5): user management, workflow config, batch reports, notices, audit log viewer.
 
-**What's left:** Moinul at 14/14 (M1 + M2 + M3 + M4 + M5 + M6 + M7 + M8 + M9 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 4/10 (F1 + F2 + F4 + F8 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
+**What's left:** Moinul at 14/14 (M1 + M2 + M3 + M4 + M5 + M6 + M7 + M8 + M9 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 5/10 (F1 + F2 + F3 + F4 + F8 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
 
 ## Status board
 
@@ -37,7 +37,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | M7 | Security: head-ordering trigger | Moinul | ✅ Done | DB trigger blocks Department Head approval until other 7 offices approved |
 | F1  | Certificate page `/certificate` | Fatin  | ✅ Done | Merged via PR #18; conditional link on dashboard (enabled when 8/8 approved) |
 | F2  | PDF download + QR code          | Fatin  | ✅ Done | PR #26: jspdf + qrcode, dynamic QR, A4 scaling, signature image |
-| F3  | Forgot password flow            | Fatin  | ⬜ Not started | `resetPasswordForEmail` + reset form          |
+| F3  | Forgot password flow            | Fatin  | ✅ Done | `resetPasswordForEmail` + reset form          |
 | F4  | Profile page (read-only)        | Fatin  | ✅ Done | Merged via PR #11; layout fixed by Moinul (PortalShell + back button + nav link) |
 | F5  | Student timeline/history        | Fatin  | ⬜ Not started | Every past rejection/resubmission/approval in order |
 | F6  | Printable certificate view      | Fatin  | ⬜ Not started | Print-friendly route/CSS for physical copy       |
@@ -100,6 +100,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 - **Admin: notices management (S4):** completed via PR #27.
 - **Admin: audit log viewer (S5):** completed via PR #27.
 - **Confirmation dialogs (student) (F8):** completed via PR #31.
+- **Forgot password flow (F3):** completed via PR #35.
 - **Staff → Registrar full rename (M8):** completed via PR #33.
 - **Accounts Queue hard rule (M9):** completed via PR #32.
 - **Security: admin route guard (M4):** completed via PR #34.
@@ -121,11 +122,11 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 ## Remaining summary
 
-- **Backlog: 35 tasks · 23 done · 12 remaining.** Moinul 14/14. Fatin 4/10. Shafin 5/11.
+- **Backlog: 35 tasks · 24 done · 11 remaining.** Moinul 14/14. Fatin 5/10. Shafin 5/11.
 - **Moinul's work: 14/14 done** — all complete.
-- **Fatin's work: 4/10 done** — remaining: F3, F5, F6, F7, F9, F10. Next: Forgot password flow.
+- **Fatin's work: 5/10 done** — remaining: F5, F6, F7, F9, F10. Next: Student timeline/history.
 - **Shafin's work: 5/11 done** — remaining: S6, S7, S8, S9, S10, S11. Next: Override staff decision.
-- **Order of attack:** Fatin → Forgot password flow; Shafin → Override staff decision.
+- **Order of attack:** Fatin → Student timeline/history; Shafin → Override staff decision.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → admin manages users, overrides decisions (audited), reads batch reports, and manages notices that appear on the public home page.
 ## How to update this file
 
