@@ -132,14 +132,13 @@ function AuthPage() {
           </TabsList>
 
           <TabsContent value="signin" className="mt-5">
-            <h1 className="text-lg font-semibold">Sign in</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Use the same student or registrar ID you use for UCAM.
+            <p className="text-sm text-muted-foreground">
+              Use your UCAM ID or registered email. Used by students, registrars, and admins.
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
                 <Label htmlFor="signin-id">Student / Registrar ID or Email</Label>
-                <Input id="signin-id" name="userCode" required placeholder="e.g. 2103021 or you@email.com" />
+                <Input id="signin-id" name="userCode" required placeholder="e.g. CS 2203077 or you@email.com" />
               </div>
               
               {/* --- NEW FORGOT PASSWORD SECTION START --- */}
