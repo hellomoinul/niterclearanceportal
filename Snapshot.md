@@ -1,138 +1,174 @@
-# Project Snapshot — NITER Clearance Portal
+# NITER Clearance Portal — Project Snapshot
 
-**Last updated:** 2026-08-24 · **Overall progress: ~74%**
+**Last updated:** 2026-08-24 · **Progress: 26/35 tasks done (~74%)**
 
-Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with unified print + PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. **Staff role fully renamed to registrar** (M8) with Accounts queue hard-rule (M9). Security hardened: admin route guard, status-forgery trigger, head-ordering trigger, admin honesty pass (M4–M7). Real-email signup + smart ID/email login + recovery email live (F3 completion). Register form: program dropdown + academic-year select + confirm password. Admin panel built (S1–S3); S4/S5 stubbed pending rebuild (S11).
+---
 
-**What's left:** Moinul at 14/14 (M1 + M2 + M3 + M4 + M5 + M6 + M7 + M8 + M9 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 7/10 (F1 + F2 + F3 + F4 + F6 + F8 + F9 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
+## How to use this document
 
-## Status board
+This is the team's **checklist**. Every task has a checkbox. Tick it when your PR merges. If you start a task, mark it 🚧. If it's blocked, mark it 🔒 with a reason.
 
-Legend: ✅ Done · 🚧 In progress · ⬜ Not started
+**Legend:** ✅ Done · 🚧 In progress · ⬜ Not started · 🔒 Blocked
 
-### Foundation (done before division)
+---
 
-| Task                            | Owner   | Status  | Notes                                           |
-| ------------------------------- | ------- | ------- | ----------------------------------------------- |
-| Project scaffold                | Lovable | ✅ Done | TanStack Start, React 19, Tailwind 4, shadcn/ui |
-| Database schema                 | Lovable | ✅ Done | All tables + RLS in `supabase/migrations/`      |
-| DB automation triggers          | Lovable | ✅ Done | Fan-out reviews, auto-certificate, auto-notify  |
-| Auth pages (sign-in / register) | Lovable | ✅ Done | NITER ID → email mapping                        |
-| Apply form + student dashboard  | Lovable | ✅ Done | Progress %, per-office cards, remarks shown     |
-| Section pages + doc upload      | Lovable | ✅ Done | Client validation, signed URLs, delete          |
-| Notifications page (in-app)     | Lovable | ✅ Done | List + mark all read                            |
-| Public pages (home/about/FAQ)   | Lovable | ✅ Done |                                                 |
-| Certificate verify pages        | Lovable | ✅ Done | `/verify` + `/verify/$code`                     |
+## Moinul — Core + Infrastructure + Stretch + Bug Fixes
 
-### Current sprint
+**Status: 14/14 tasks done. Support mode — reviewing PRs and unblocking teammates.**
 
-| #   | Task                            | Owner  | Status         | Notes                                         |
-| --- | ------------------------------- | ------ | -------------- | --------------------------------------------- |
-| M1 | Staff queue `/queue` | Moinul | ✅ Done | Merged, deployed, E2E verified — staff approve/reject with remarks, student sees green card + notification |
-| M2 | Escalation logic migration | Moinul | ✅ Done | E2E verified — auto-escalates at 3 rejections, notifies Head + admins via bell icon |
-| M3 | Audit trail writes | Moinul | ✅ Done | E2E verified — every approve/reject logged to audit_log with actor + remark |
-| M4 | Security: admin route guard | Moinul | ✅ Done | `beforeLoad` role check on `/admin` layout route; redirect non-admins to / |
-| M5 | Security: status-forgery patch | Moinul | ✅ Done | BEFORE UPDATE trigger rejects `status`/`cleared_at` changes by non-admins on `clearance_applications` and `documents` |
-| M6 | Security: admin honesty pass | Moinul | ✅ Done | Replace 5 non-functional admin pages with "Coming soon" stubs |
-| M7 | Security: head-ordering trigger | Moinul | ✅ Done | DB trigger blocks Department Head approval until other 7 offices approved |
-| F1  | Certificate page `/certificate` | Fatin  | ✅ Done | Merged via PR #18; conditional link on dashboard (enabled when 8/8 approved) |
-| F2  | PDF download + QR code          | Fatin  | ✅ Done | PR #26: jspdf + qrcode, dynamic QR, A4 scaling, signature image |
-| F3  | Forgot password flow            | Fatin  | ✅ Done | `resetPasswordForEmail` + reset form          |
-| F4  | Profile page (read-only)        | Fatin  | ✅ Done | Merged via PR #11; layout fixed by Moinul (PortalShell + back button + nav link) |
-| F5  | Student timeline/history        | Fatin  | ⬜ Not started | Every past rejection/resubmission/approval in order |
-| F6  | Printable certificate view      | Fatin  | ✅ Done | Unified print + download PDF generation on `/certificate` (PR #29) |
-| F7  | Deadline lock screen            | Fatin  | ⬜ Not started | Block new submissions after batch deadline       |
-| F8  | Confirmation dialogs (student)  | Fatin  | ✅ Done | Confirm before deleting uploaded documents       |
-| F9  | Global error states             | Fatin  | ✅ Done | Settled by default — toasts + session persistence; no work needed (confirmed by Fatin) |
-| F10 | Registrar queue                 | Fatin  | ⬜ Not started | "Ready for final processing" — cleared students  |
-| S1  | Admin: user management          | Shafin | ✅ Done | PR #27: `admin/users.tsx` — roles + staff department assignment |
-| S2  | Admin: workflow config          | Shafin | ✅ Done | PR #27: `admin/workflow.tsx` — departments per program, batch deadlines |
-| S3  | Admin: batch reports            | Shafin | ✅ Done | PR #27: `admin/reports.tsx` — `recharts` charts |
-| S4  | Admin: notices management       | Shafin | ⚠️ Broken | PR #27 code queries `notices` table that doesn't exist — rebuild tracked as S11 |
-| S5  | Admin: audit log viewer         | Shafin | ⚠️ Broken | PR #27: queries wrong columns (`timestamp`/`actor`/`remarks` don't exist in `audit_log`; real: `created_at`/`actor_name`/`details`) |
-| S6  | Override staff decision         | Shafin | ⬜ Not started | Admin overturn + mandatory audit_log entry       |
-| S7  | Department config UI            | Shafin | ⬜ Not started | Enable/disable offices per program, no code edit |
-| S8  | Queue search/filter/pagination  | Shafin | ⬜ Not started | Scale to 300+ students (inside `queue.tsx`)      |
-| S9  | Rejection history panel (staff) | Shafin | ⬜ Not started | Past rejections/remarks per student in queue     |
-| S10 | Bulk approve summary modal      | Shafin | ⬜ Not started | "X approved, Y skipped (reason)" feedback        |
-| S11 | Notices rebuild (S4 fix)        | Shafin | ⬜ Not started | Create `notices` table migration + RLS (admin INSERT, public SELECT) + wire home page to DB |
+### Core approval loop
 
-### Infrastructure (done by Moinul alongside the sprint)
+- [x] **M1** — Staff queue `/queue` — approve/reject with remarks, student notification (PR #9)
+- [x] **M2** — Escalation logic — auto-escalates at 3 rejections, notifies Head + admins (PR #9)
+- [x] **M3** — Audit trail — every approve/reject logged with actor + remark (PR #9)
 
-| Task | Owner  | Status  | Notes                                                                    |
-| ---- | ------ | ------- | ------------------------------------------------------------------------ |
-| I1   | Own Supabase project | Moinul | ✅ Done | Old DB lived in inaccessible Lovable Cloud → new free project `jmpavfglhtmcraxfiock`, all migrations + fixes in `consolidated_setup.sql`, `.env` repointed |
-| I2   | Deployed to Vercel | Moinul | ✅ Done | **https://niterclearanceportal.vercel.app/** · preset *Other* + env `NITRO_PRESET=vercel`; auto-redeploys every push to `main` |
-| I3   | NITER branding | Moinul | ✅ Done | Favicon replaced, then full brand refresh applied |
-| I4   | Brand design system | Moinul | ✅ Done | UCAM pink→blue gradient (#fbc1ff→#4e65ff), Playfair Display + Inter, crest logo, dark navy footer, PageHeader banners, 12px cards. PRs #17, #22, #23, #24 |
-| I5   | Route tree guard | Moinul | ✅ Done | GitHub Action auto-warns when routeTree.gen.ts committed in PRs. Posts fix commands, auto-deletes when resolved. PR #19 |
+### Security patches
 
-### Stretch / deferred
+- [x] **M4** — Admin route guard — `beforeLoad` role check, redirect non-admins (PR #34)
+- [x] **M5** — Status-forgery patch — BEFORE UPDATE trigger blocks student status tampering (PR #34)
+- [x] **M6** — Admin honesty pass — replaced 5 broken admin pages with "Coming soon" stubs (PR #34)
+- [x] **M7** — Head-ordering trigger — DB trigger blocks Head approval until 7/8 approved (PR #34)
 
-| Task                        | Owner  | Status         | Notes                                                                                 |
-| --------------------------- | ------ | -------------- | ------------------------------------------------------------------------------------- |
-| Bulk approve in queue       | Moinul | ✅ Done    | Checkboxes + Select all + bottom action bar (PR #9) |
-| Email notifications         | Moinul | ✅ Done    | Edge Function + Resend + Database Webhook live; triggers for admin/staff/student; settings page for email entry |
-| Bangla/English toggle       | Moinul | ✅ Done    | i18n infrastructure + toggle in header (PR #10) |
-| Notification pipeline       | Moinul | ✅ Done    | 3 triggers: admin on submission, staff on review creation, student on approve/reject. All fire emails via Resend. |
-| Profile page fix            | Moinul | ✅ Done    | Wrapped in PortalShell, back button role-aware, user code links to /profile |
+### Identity & infrastructure
 
-### Deferred findings (not assigned — go-live-time decisions)
+- [x] **M8** — Staff → Registrar full rename — enum, table, function, RLS, all client refs (PRs #32/#33)
+- [x] **M9** — Accounts Queue hard-rule — registrar always sees Accounts queue (PR #32)
+
+### Stretch pool
+
+- [x] **SP1** — Bulk approve in queue — checkboxes + Select all + bottom action bar (PR #9)
+- [x] **SP2** — Email notifications — Edge Function + Resend + Webhook (PR #10)
+- [x] **SP3** — Notification pipeline — 3 DB triggers + Edge Function + Webhook (PR #10)
+- [x] **SP4** — Settings page — `/settings` route for email entry (PR #10)
+- [x] **SP5** — Profile page fix — PortalShell wrapper, role-aware back, nav link (PR #10)
+
+### Extra work (not in backlog)
+
+- [x] Own Supabase project (`jmpavfglhtmcraxfiock`) — old DB inaccessible
+- [x] Deployed to Vercel — auto-deploys `main`
+- [x] NITER branding — favicon, UCAM gradient, Playfair Display + Inter
+- [x] Auth email upgrade + hotfix (PRs #35/#36)
+- [x] UI polish rounds (PRs #37/#38/#39)
+- [x] N/A self-declaration + review-reopen RPCs (PR #42)
+- [x] Admin N/A audit table with search/filter/sort/CSV (PR #42)
+- [x] Login redirect to home, mobile profile link, register form overhaul (PR #43)
+- [x] Approved-doc delete guard (PR #43)
+- [x] About hidden for logged-in users, section "Office verifies:" text (PR #44)
+- [x] Doc-sync workflow fix (PR #44)
+- [x] 14+ bug fixes across auth, queue, notifications, branding, security
+
+---
+
+## Fatin — Certificate Pipeline & Account Features
+
+**Status: 7/10 tasks done. 3 remaining.**
+
+- [x] **F4** — Profile page `/profile` (PR #11)
+- [x] **F1** — Certificate page `/certificate` (PR #18)
+- [x] **F2** — PDF download + QR code (PR #26)
+- [x] **F3** — Forgot password flow (PRs #35/#36)
+- [x] **F6** — Printable certificate view (PR #29)
+- [x] **F8** — Confirmation dialogs on student flows (PR #31)
+- [x] **F9** — Global error states — settled by default (confirmed by Fatin, PR #41)
+
+- [ ] **F5** — Student timeline/history — every past rejection/resubmission/approval in order
+- [ ] **F7** — Deadline lock screen — block new submissions after batch deadline
+- [ ] **F10** — Registrar queue — "Ready for final processing" list of cleared students
+
+---
+
+## Shafin — Admin Panel & Queue Upgrades
+
+**Status: 5/11 tasks done (S1-S3 are stubs needing rebuild). 6 remaining.**
+
+### Original tasks (code merged via PR #27, but M6 honesty pass replaced with stubs)
+
+- [x] **S1** — Admin: user management — code merged, currently "Coming soon" stub
+- [x] **S2** — Admin: workflow config — code merged, currently "Coming soon" stub
+- [x] **S3** — Admin: batch reports — code merged, currently hardcoded data
+- [x] **S4** — Admin: notices management — code merged, **broken** (`notices` table doesn't exist)
+- [x] **S5** — Admin: audit log viewer — code merged, **broken** (queries wrong columns)
+
+### Gap fixes (remaining)
+
+- [ ] **S6** — Override staff decision — admin overturn + mandatory audit_log entry
+- [ ] **S7** — Department config UI — enable/disable offices per program
+- [ ] **S8** — Queue search/filter/pagination — scale to 300+ students
+- [ ] **S9** — Rejection history panel — past rejections/remarks per student in queue
+- [ ] **S10** — Bulk approve summary modal — "X approved, Y skipped" feedback
+- [ ] **S11** — Notices rebuild (fixes S4/S5) — create `notices` table + RLS + wire home page
+
+---
+
+## Progress summary
+
+| Member | Assigned | Done | Remaining |
+|--------|----------|------|-----------|
+| Moinul | 14 + 14 bug fixes | **14/14** | 0 |
+| Fatin | 10 | **7/10** | 3 (F5, F7, F10) |
+| Shafin | 11 | **5/11** (S1-S3 stubs) | 6 (S6-S11) |
+| **Total** | **35** | **26** | **9** |
+
+---
+
+## Order of attack
+
+1. **Fatin** → F5 (Student timeline) → F7 (Deadline lock) → F10 (Registrar queue)
+2. **Shafin** → S11 (Notices rebuild, fixes S4/S5) → S6 (Override decision) → S7-S10
+
+---
+
+## Definition of done for v1
+
+Student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → admin manages users, overrides decisions (audited), reads batch reports, and manages notices on the public home page.
+
+---
+
+## Deferred findings (go-live decisions)
 
 | Finding | Priority | Notes |
 |---------|----------|-------|
-| Test data purge | Medium | Gibberish thesis titles still in DB before go-live |
-| Password policy hardening | Medium | Client minLength 8 only; no forced change on provisioned staff accounts |
-| Certificate revocation | Medium | No process exists to revoke issued certificates |
-| Escalation resolution screen | Medium | Escalation sends notification but has no UI to resolve/reassign |
-| Formal mobile/WCAG audit | Low | AA contrast pass done (PR #23), responsive layouts exist; no comprehensive audit |
-| **User action items:** Resend custom domain verification + PDPA legal counsel review (Supabase has no Bangladesh region — confirm compliance with institution before go-live) | — | Non-code decisions |
+| Test data purge | Medium | Gibberish data in DB before go-live |
+| Password policy hardening | Medium | Client minLength 8 only; no forced change on provisioned staff |
+| Certificate revocation | Medium | No process to revoke issued certificates |
+| Escalation resolution screen | Medium | Escalation sends notification but has no resolve/reassign UI |
+| Formal mobile/WCAG audit | Low | AA contrast pass done; no comprehensive audit |
+| Resend custom domain | — | Free tier only delivers to account owner; needs `niter.edu.bd` domain verification |
+| PDPA legal counsel | — | Supabase has no Bangladesh region; confirm compliance before go-live |
+
+---
 
 ## Work history
 
 ### 2026-08-24
 
-- **Global error states (F9):** completed via PR #41.
+- Global error states (F9) — PR #41
+- N/A self-declaration + review-reopen RPCs — PR #42
+- Admin N/A audit table — PR #42
+- Login redirect, mobile profile, auth form, approved-doc guard — PR #43
+- Hide About for logged-in users, section "Office verifies:" text — PR #44
+- Doc-sync workflow fix — PR #44
 
 ### 2026-08-23
 
-- **Certificate page `/certificate` (F1):** completed via PR #18.
-- **PDF download + QR code (F2):** completed via PR #26.
-- **Admin: user management (S1):** completed via PR #27.
-- **Admin: workflow config (S2):** completed via PR #27.
-- **Admin: batch reports (S3):** completed via PR #27.
-- **Admin: notices management (S4):** completed via PR #27.
-- **Admin: audit log viewer (S5):** completed via PR #27.
-- **Confirmation dialogs (student) (F8):** completed via PR #31.
-- **Forgot password flow (F3):** completed via PR #36.
-- **Staff → Registrar full rename (M8):** completed via PR #33.
-- **Accounts Queue hard rule (M9):** completed via PR #32.
-- **Security: admin route guard (M4):** completed via PR #40.
-- **Security: status-forgery patch (M5):** completed via PR #34.
-- **Security: admin honesty pass (M6):** completed via PR #34.
-- **Security: head-ordering trigger (M7):** completed via PR #34.
-- **Printable certificate view (F6):** completed via PR #29.
+- Certificate page (F1) — PR #18
+- PDF download + QR code (F2) — PR #26
+- Admin panel (S1-S5) — PR #27
+- Confirmation dialogs (F8) — PR #31
+- Forgot password (F3) — PRs #35/#36
+- Staff → Registrar rename (M8) — PRs #32/#33
+- Security patches (M4-M7) — PR #34
+- Printable certificate (F6) — PR #29
+- Auth + home UI polish — PRs #37/#38/#39
+- UI polish round 2 — PR #41
 
 ### 2026-08-22
 
-- **Staff queue `/queue` (M1):** completed via PR #9.
-- **Escalation logic migration (M2):** completed via PR #9.
-- **Audit trail writes (M3):** completed via PR #9.
-- **Profile page (read-only) (F4):** completed via PR #11.
-- **Bulk approve in queue (SP1):** completed via PR #9.
-- **Email notifications (SP2):** completed via PR #10.
-- **Notification pipeline (SP3):** completed via PR #10.
-- **Settings page (SP4):** completed via PR #10.
-- **Profile page fix (SP5):** completed via PR #10.
-
-## Remaining summary
-
-- **Backlog: 35 tasks · 26 done · 9 remaining.** Moinul 14/14. Fatin 7/10. Shafin 5/11.
-- **Moinul's work: 14/14 done** — all complete.
-- **Fatin's work: 7/10 done** — remaining: F5, F7, F10. Next: Student timeline/history.
-- **Shafin's work: 5/11 done** — remaining: S6, S7, S8, S9, S10, S11. Next: Override staff decision.
-- **Order of attack:** Fatin → Student timeline/history; Shafin → Override staff decision.
-- **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → admin manages users, overrides decisions (audited), reads batch reports, and manages notices that appear on the public home page.
-## How to update this file
-
-When you finish or start a task: change its Status cell, add a dated bullet under Work history, then commit both this file and your code together.
+- Staff queue (M1) — PR #9
+- Escalation logic (M2) — PR #9
+- Audit trail (M3) — PR #9
+- Profile page (F4) — PR #11
+- Bulk approve (SP1) — PR #9
+- Email notifications (SP2/SP3) — PR #10
+- Settings page (SP4) — PR #10
+- Profile page fix (SP5) — PR #10
