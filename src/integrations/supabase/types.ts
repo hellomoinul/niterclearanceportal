@@ -262,6 +262,7 @@ export type Database = {
         Row: {
           body: string | null;
           created_at: string;
+          deleted_at: string | null;
           id: string;
           is_read: boolean;
           title: string;
@@ -270,6 +271,7 @@ export type Database = {
         Insert: {
           body?: string | null;
           created_at?: string;
+          deleted_at?: string | null;
           id?: string;
           is_read?: boolean;
           title: string;
@@ -278,6 +280,7 @@ export type Database = {
         Update: {
           body?: string | null;
           created_at?: string;
+          deleted_at?: string | null;
           id?: string;
           is_read?: boolean;
           title?: string;
