@@ -26,7 +26,7 @@
 
 ## Moinul — Core, Infrastructure, Stretch, Bug Fixes
 
-**Status: All assigned tasks complete. In support mode.**
+**Status: All core tasks complete. In support mode + 3 new backend tasks.**
 
 ### Core approval loop (PR #9)
 
@@ -67,13 +67,23 @@
 - [x] Approved-doc delete guard (PR #43)
 - [x] About hidden for logged-in users, section "Office verifies:" text (PR #44)
 - [x] Doc-sync workflow fix (PR #44)
+- [x] Role-aware settings page — admin/registrar see simplified form (PR #47)
+- [x] .env purge from git history + Vercel env vars via CLI
 - [x] 14+ bug fixes across auth, queue, notifications, branding, security
+
+### Review feedback tasks (assigned 2026-08-25)
+
+- [ ] **M10** — Email data flow: ensure `personal_email` from registration flows through to dashboard profile query. The registration collects email via Supabase auth + `profiles.personal_email`. The dashboard must surface it without re-prompting. Files: `src/lib/auth.tsx` (profile query), `src/routes/_authenticated/dashboard.tsx` (display). Unblocks F11.
+
+- [ ] **M11** — N/A remarks encoding: verify em-dash (`—`) in `remarks = 'N/A — student declared'` renders correctly everywhere. If it shows as `???` in any display context, fix the encoding. Check `dashboard.tsx` remarks display, `admin/index.tsx` N/A table, `section.$code.tsx` review details.
+
+- [ ] **M12** — Verification workflow: (a) Create SECURITY DEFINER RPC `verify_clearance_status(p_user_code text)` that counts approved department_reviews for the user's latest application. Returns `{ verified: boolean, approved_count: number, total: number }`. (b) Build public `/verify` page (no auth required) with input field for user code + button. On submit: call RPC, show green "Verified — Clear to sign off from NITER" if 8/8, or red "Not verified — go to NITER clearance portal" with clickable link to `/` if not. (c) Ensure QR code on certificate encodes verification URL with user_code. (d) Ensure `user_code` is printed on certificate PDF.
 
 ---
 
 ## Fatin — Certificate Pipeline & Account Features
 
-**Status: 7/10 done. 3 remaining.**
+**Status: 7/10 done. 3 remaining + 8 new from review feedback.**
 
 ### Completed
 
@@ -85,11 +95,29 @@
 - [x] **F8** — Confirmation dialogs — confirm before deleting uploaded documents (PR #31)
 - [x] **F9** — Global error states — settled by default (toasts + session persistence; confirmed by Fatin)
 
-### Remaining
+### Remaining (original)
 
 - [ ] **F5** — Student timeline/history — every past rejection, resubmission, and approval in chronological order (on dashboard or profile)
 - [ ] **F7** — Deadline lock screen — block new submissions after the batch deadline passes
 - [ ] **F10** — Registrar queue — "Ready for final processing" list of fully cleared students for pickup/sign-off
+
+### Review feedback tasks (assigned 2026-08-25)
+
+- [ ] **F11** — Dashboard email display: add `personal_email` to dashboard greeting header. After M10 makes it available, show it alongside `user_code` and `program`. Something like: "Hello, Moinul · CSE · Batch 2021 · moinul@niter.edu.bd". File: `src/routes/_authenticated/dashboard.tsx`.
+
+- [ ] **F12** — Profile page cleanup: remove readonly `bg-muted` fields that show empty values. The profile page currently displays full_name, user_code, program, batch, phone, personal_email as readonly inputs. Instead: show them as clean text (not inputs), or add an "Edit" button that toggles to editable mode. File: `src/routes/_authenticated/profile.tsx`.
+
+- [ ] **F13** — Thesis/internship on profile: add `thesis_title`, `supervisor_name`, `expected_graduation` to the profile page display section. These are collected in apply.tsx but not shown on profile. Show them as optional fields — only display if non-null. Label update: change "Thesis / project title" in apply.tsx to "Thesis / Project / Internship title" (some departments do internships, not theses). Files: `src/routes/_authenticated/profile.tsx`, `src/routes/_authenticated/apply.tsx`.
+
+- [ ] **F14** — Document delete countdown popup: when student clicks delete on an uploaded document, show an AlertDialog with a 3-second countdown timer. The dialog auto-closes when the countdown reaches zero and the deletion info loads. Pattern: similar to `notifications.tsx` soft-delete AlertDialog. File: `src/routes/_authenticated/section.$code.tsx`.
+
+- [ ] **F15** — Status icon standardization: in `status-badge.tsx`, all status icons (approved ✓, rejected ×, pending ⏳, N/A 🔘) must be the same pixel size. Currently the pending clock icon appears smaller. Force consistent `width`/`height` on all icon wrappers. File: `src/components/status-badge.tsx`.
+
+- [ ] **F16** — "Uploaded" text in dashboard: when a department has documents uploaded for its review, show "Uploaded" text below the status badge on the dashboard. This requires fetching the document count per review. Section page behavior stays unchanged — still shows pending with upload form. Admin accept still changes status as now. Files: `src/routes/_authenticated/dashboard.tsx`.
+
+- [ ] **F17** — Remarks display in dashboard: show the review `remarks` text under the status badge in each department card on the dashboard. Only show if remarks is non-null. This way students see feedback without navigating to the section page. File: `src/routes/_authenticated/dashboard.tsx`.
+
+- [ ] **F18** — Notification counter badge: show a numeric badge over the bell icon in the navbar indicating unread notification count. Use the existing notifications query data. Badge should be red with white text, positioned at top-right of the bell icon. File: `src/components/portal-shell.tsx`.
 
 ---
 
@@ -120,18 +148,26 @@
 
 | Priority | Member | Task | Why |
 |----------|--------|------|-----|
-| 1 | Fatin | F5 — Student timeline | Shows full audit trail to students |
-| 2 | Fatin | F7 — Deadline lock | Prevents late submissions |
-| 3 | Fatin | F10 — Registrar queue | Final processing page |
-| 4 | Shafin | S11 — Notices rebuild | Fixes S4/S5, enables public notices |
-| 5 | Shafin | S6 — Override decision | Admin can overturn staff decisions |
-| 6 | Shafin | S7-S10 | Queue UX improvements |
+| 1 | Moinul | M10 — Email data flow | Unblocks F11 (dashboard email display) |
+| 2 | Moinul | M12 — Verification workflow | Core certificate verification feature |
+| 3 | Moinul | M11 — N/A remarks encoding | Quick fix, improves N/A display |
+| 4 | Fatin | F15 — Status icon sizes | Quick UI fix, visible improvement |
+| 5 | Fatin | F16 — "Uploaded" text | Dashboard clarity |
+| 6 | Fatin | F17 — Remarks in dashboard | Student sees feedback without navigation |
+| 7 | Fatin | F18 — Notification badge | Users see unread count at a glance |
+| 8 | Fatin | F14 — Delete countdown popup | Safety UX for document deletion |
+| 9 | Fatin | F11 — Dashboard email display | After M10 unblocks it |
+| 10 | Fatin | F12 — Profile page cleanup | Remove clutter |
+| 11 | Fatin | F13 — Thesis/internship on profile | Show collected data |
+| 12 | Shafin | S11 — Notices rebuild | Fixes S4/S5, enables public notices |
+| 13 | Shafin | S6 — Override decision | Admin can overturn staff decisions |
+| 14 | Shafin | S7-S10 | Queue UX improvements |
 
 ---
 
 ## Definition of done for v1
 
-Student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → admin manages users, overrides decisions (audited), reads batch reports, and manages notices on the public home page.
+Student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → **verification page confirms 8/8 clearance or directs to portal** → admin manages users, overrides decisions (audited), reads batch reports, and manages notices on the public home page.
 
 ---
 
@@ -139,7 +175,7 @@ Student applies → staff approves/rejects with remarks → escalation works →
 
 | Member | Tasks assigned | Done | Remaining |
 |--------|----------------|------|-----------|
-| Moinul | 14 + 14 bug fixes | **14/14** | 0 |
-| Fatin | 10 | **7/10** | 3 |
-| Shafin | 11 | **5/11** (S1-S3 stubs) | 6 |
-| **Total** | **35** | **26** | **9** |
+| Moinul | 14 + 14 extra + 3 new | **14/17** | 3 |
+| Fatin | 10 + 8 new | **7/18** | 11 |
+| Shafin | 11 | **5/11** | 6 |
+| **Total** | **46** | **26** | **20** |

@@ -1,6 +1,6 @@
 # NITER Clearance Portal — Project Snapshot
 
-**Last updated:** 2026-08-24 · **Progress: 26/35 tasks done (~74%)**
+**Last updated:** 2026-08-25 · **Progress: 26/46 tasks done (~57%)**
 
 ---
 
@@ -14,7 +14,7 @@ This is the team's **checklist**. Every task has a checkbox. Tick it when your P
 
 ## Moinul — Core + Infrastructure + Stretch + Bug Fixes
 
-**Status: 14/14 tasks done. Support mode — reviewing PRs and unblocking teammates.**
+**Status: 14/14 core tasks done. Support mode — reviewing PRs, unblocking teammates, plus 3 new backend tasks.**
 
 ### Core approval loop
 
@@ -55,13 +55,23 @@ This is the team's **checklist**. Every task has a checkbox. Tick it when your P
 - [x] Approved-doc delete guard (PR #43)
 - [x] About hidden for logged-in users, section "Office verifies:" text (PR #44)
 - [x] Doc-sync workflow fix (PR #44)
+- [x] Role-aware settings page — admin/registrar see simplified form (PR #47)
+- [x] .env purge from git history + Vercel env vars via CLI
 - [x] 14+ bug fixes across auth, queue, notifications, branding, security
+
+### Review feedback tasks (assigned 2026-08-25)
+
+- [ ] **M10** — Email data flow: ensure `personal_email` from registration is available in dashboard profile query, link between auth → profile → dashboard so user doesn't re-type
+- [ ] **M11** — N/A remarks encoding: verify em-dash (`—`) renders correctly across all displays, fix if it shows as `???`
+- [ ] **M12** — Verification workflow: create SECURITY DEFINER RPC to check 8/8 approved status, build public `/verify` page with code input, show "Verified, Clear to sign off From NITER" or "Not verified, go to NITER clearance portal" with clickable link
 
 ---
 
 ## Fatin — Certificate Pipeline & Account Features
 
-**Status: 7/10 tasks done. 3 remaining.**
+**Status: 7/10 tasks done. 3 remaining + 8 new from review feedback.**
+
+### Completed
 
 - [x] **F4** — Profile page `/profile` (PR #11)
 - [x] **F1** — Certificate page `/certificate` (PR #18)
@@ -71,9 +81,22 @@ This is the team's **checklist**. Every task has a checkbox. Tick it when your P
 - [x] **F8** — Confirmation dialogs on student flows (PR #31)
 - [x] **F9** — Global error states — settled by default (confirmed by Fatin, PR #41)
 
+### Remaining (original)
+
 - [ ] **F5** — Student timeline/history — every past rejection/resubmission/approval in order
 - [ ] **F7** — Deadline lock screen — block new submissions after batch deadline
 - [ ] **F10** — Registrar queue — "Ready for final processing" list of cleared students
+
+### Review feedback tasks (assigned 2026-08-25)
+
+- [ ] **F11** — Dashboard email display: add `personal_email` to dashboard greeting header so users see their email on first visit without navigating to settings
+- [ ] **F12** — Profile page cleanup: remove readonly `bg-muted` fields or add edit flow — users shouldn't see unfilled/readonly fields as clutter
+- [ ] **F13** — Thesis/internship on profile: add `thesis_title`, `supervisor_name`, `expected_graduation` to profile display (optional, non-mandatory — some departments do internship not thesis)
+- [ ] **F14** — Document delete countdown popup: AlertDialog with 3-second countdown timer that auto-closes after info loads, similar to notification soft-delete pattern
+- [ ] **F15** — Status icon standardization: make all status icons (approved ✓, rejected ×, pending ⏳, N/A 🔘) the same size in `status-badge.tsx`
+- [ ] **F16** — "Uploaded" text in dashboard: show "Uploaded" label when docs are submitted for a department; section page behavior unchanged (still shows pending); admin accept still changes status as now
+- [ ] **F17** — Remarks display in dashboard: show review remarks text under status badge in dashboard so students see feedback without navigating to section page
+- [ ] **F18** — Notification counter badge: show unread notification count as a numeric badge over the bell icon in navbar
 
 ---
 
@@ -104,23 +127,24 @@ This is the team's **checklist**. Every task has a checkbox. Tick it when your P
 
 | Member | Assigned | Done | Remaining |
 |--------|----------|------|-----------|
-| Moinul | 14 + 14 bug fixes | **14/14** | 0 |
-| Fatin | 10 | **7/10** | 3 (F5, F7, F10) |
-| Shafin | 11 | **5/11** (S1-S3 stubs) | 6 (S6-S11) |
-| **Total** | **35** | **26** | **9** |
+| Moinul | 14 + 14 extra + 3 new | **14/17** | 3 (M10-M12) |
+| Fatin | 10 + 8 new | **7/18** | 11 (F5, F7, F10, F11-F18) |
+| Shafin | 11 | **5/11** | 6 (S6-S11) |
+| **Total** | **46** | **26** | **20** |
 
 ---
 
 ## Order of attack
 
-1. **Fatin** → F5 (Student timeline) → F7 (Deadline lock) → F10 (Registrar queue)
-2. **Shafin** → S11 (Notices rebuild, fixes S4/S5) → S6 (Override decision) → S7-S10
+1. **Moinul** → M10 (email data flow — unblocks F11) → M12 (verification workflow) → M11 (N/A text)
+2. **Fatin** → F15 (icon sizes) → F16 ("Uploaded") → F17 (remarks) → F18 (notification badge) → F14 (delete popup) → F11 (dashboard email — after M10) → F12 (profile cleanup) → F13 (thesis/internship)
+3. **Shafin** → S11 (Notices rebuild, fixes S4/S5) → S6 (Override decision) → S7-S10
 
 ---
 
 ## Definition of done for v1
 
-Student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → admin manages users, overrides decisions (audited), reads batch reports, and manages notices on the public home page.
+Student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → **verification page confirms 8/8 clearance or directs to portal** → admin manages users, overrides decisions (audited), reads batch reports, and manages notices on the public home page.
 
 ---
 
@@ -139,6 +163,12 @@ Student applies → staff approves/rejects with remarks → escalation works →
 ---
 
 ## Work history
+
+### 2026-08-25
+
+- Settings page: role-aware form — student fields hidden for admin/registrar (PR #47)
+- .env purge from git history + Vercel env vars via CLI
+- Review feedback task distribution — 11 new tasks assigned
 
 ### 2026-08-24
 
