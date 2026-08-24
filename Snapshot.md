@@ -92,7 +92,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 ### 2026-08-24
 
-- **Global error states (F9):** completed (no PR needed) — settled by default, confirmed by Fatin.
+- **Global error states (F9):** completed via PR #41.
 
 ### 2026-08-23
 
@@ -111,7 +111,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 - **Security: status-forgery patch (M5):** completed via PR #34.
 - **Security: admin honesty pass (M6):** completed via PR #34.
 - **Security: head-ordering trigger (M7):** completed via PR #34.
-- **Printable certificate view (F6):** completed via PR #40.
+- **Printable certificate view (F6):** completed via PR #29.
 
 ### 2026-08-22
 
