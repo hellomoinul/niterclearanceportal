@@ -1,20 +1,28 @@
-import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import { CheckCircle2, CircleSlash, Clock, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusLabel, type ReviewStatus } from "@/lib/portal";
 
-const styles: Record<ReviewStatus, string> = {
+const styles: Record<ReviewStatus | "na", string> = {
   approved: "bg-approved text-approved-foreground",
   pending: "bg-pending text-pending-foreground",
   rejected: "bg-rejected text-rejected-foreground",
+  na: "bg-muted text-muted-foreground border border-border",
 };
 
-const icons: Record<ReviewStatus, typeof Clock> = {
+const icons: Record<ReviewStatus | "na", typeof Clock> = {
   approved: CheckCircle2,
   pending: Clock,
   rejected: XCircle,
+  na: CircleSlash,
 };
 
-export function StatusBadge({ status, className }: { status: ReviewStatus; className?: string }) {
+export function StatusBadge({
+  status,
+  className,
+}: {
+  status: ReviewStatus | "na";
+  className?: string;
+}) {
   const Icon = icons[status];
   return (
     <span
@@ -25,7 +33,7 @@ export function StatusBadge({ status, className }: { status: ReviewStatus; class
       )}
     >
       <Icon className="size-3.5" aria-hidden />
-      {statusLabel(status)}
+      {status === "na" ? "Not applicable" : statusLabel(status)}
     </span>
   );
 }
