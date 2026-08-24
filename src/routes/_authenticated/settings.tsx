@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,13 +32,31 @@ export const Route = createFileRoute("/_authenticated/settings")({
 });
 
 function SettingsPage() {
-  const { profile, refresh, user } = useAuth();
+  const { profile, refresh, user, isStudent, isRegistrar, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [program, setProgram] = useState(profile?.program ?? "");
   const [batch, setBatch] = useState(profile?.batch ?? "");
+
+  const { data: registrarDepts } = useQuery({
+    enabled: !!user && !isStudent,
+    queryKey: ["registrar-departments", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("registrar_departments")
+        .select("departments(name)")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return (data ?? [])
+        .map((row) => row.departments?.name)
+        .filter(Boolean) as string[];
+    },
+  });
+
+  const roleLabel = isAdmin ? "Admin" : "Registrar";
+  const roleOffice = isAdmin ? "Admin" : registrarDepts?.join(", ") || "Registrar";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,31 +70,39 @@ function SettingsPage() {
 
     if (!fullName || !userCode) {
       setBusy(false);
-      toast.error("Name and Student ID are required");
+      toast.error(`Name and ${roleLabel} ID are required`);
       return;
     }
 
+    const base = {
+      full_name: fullName,
+      user_code: userCode,
+      phone: str(form.get("phone")) || null,
+      personal_email: personalEmail || null,
+    };
+
+    const update = isStudent
+      ? {
+          ...base,
+          guardian_name: str(form.get("guardianName")) || null,
+          guardian_phone: str(form.get("guardianPhone")) || null,
+          registration_no: str(form.get("registrationNo")) || null,
+          present_address: str(form.get("presentAddress")) || null,
+          permanent_address: str(form.get("permanentAddress")) || null,
+          program: program || null,
+          batch: batch || null,
+        }
+      : base;
+
     const { error } = await supabase
       .from("profiles")
-      .update({
-        full_name: fullName,
-        user_code: userCode,
-        phone: str(form.get("phone")) || null,
-        guardian_name: str(form.get("guardianName")) || null,
-        guardian_phone: str(form.get("guardianPhone")) || null,
-        registration_no: str(form.get("registrationNo")) || null,
-        present_address: str(form.get("presentAddress")) || null,
-        permanent_address: str(form.get("permanentAddress")) || null,
-        program: program || null,
-        batch: batch || null,
-        personal_email: personalEmail || null,
-      })
+      .update(update)
       .eq("id", profile.id);
 
     setBusy(false);
     if (error) {
       if (error.code === "23505" || /duplicate|unique/i.test(error.message)) {
-        toast.error("Student ID already taken", {
+        toast.error(`${roleLabel} ID already taken`, {
           description: "That ID belongs to another account. Use a different one.",
         });
       } else {
@@ -131,7 +157,9 @@ function SettingsPage() {
           <section>
             <h2 className="text-base font-semibold">Profile details</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Keep your information current — it appears on your clearance certificate.
+              {isStudent
+                ? "Keep your information current — it appears on your clearance certificate."
+                : "Keep your information current."}
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -144,7 +172,7 @@ function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="userCode">Student ID *</Label>
+                <Label htmlFor="userCode">{roleLabel} ID *</Label>
                 <Input id="userCode" name="userCode" required defaultValue={profile?.user_code ?? ""} />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -161,79 +189,89 @@ function SettingsPage() {
                 <Label htmlFor="phone">Phone</Label>
                 <Input id="phone" name="phone" placeholder="01XXXXXXXXX" defaultValue={profile?.phone ?? ""} />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="registrationNo">Registration no</Label>
-                <Input
-                  id="registrationNo"
-                  name="registrationNo"
-                  defaultValue={profile?.registration_no ?? ""}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Program</Label>
-                <Select name="program" value={program} onValueChange={setProgram}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DEPARTMENTS.map((d) => (
-                      <SelectItem key={d.value} value={d.value}>
-                        {d.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Academic year</Label>
-                <Select name="batch" value={batch} onValueChange={setBatch}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select academic year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {academicYears().map((year) => (
-                      <SelectItem key={year} value={year}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="guardianName">Guardian name</Label>
-                <Input
-                  id="guardianName"
-                  name="guardianName"
-                  defaultValue={profile?.guardian_name ?? ""}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="guardianPhone">Guardian phone</Label>
-                <Input
-                  id="guardianPhone"
-                  name="guardianPhone"
-                  placeholder="01XXXXXXXXX"
-                  defaultValue={profile?.guardian_phone ?? ""}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="presentAddress">Present address</Label>
-                <Textarea
-                  id="presentAddress"
-                  name="presentAddress"
-                  rows={2}
-                  defaultValue={profile?.present_address ?? ""}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="permanentAddress">Permanent address</Label>
-                <Textarea
-                  id="permanentAddress"
-                  name="permanentAddress"
-                  rows={2}
-                  defaultValue={profile?.permanent_address ?? ""}
-                />
-              </div>
+
+              {isStudent ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="registrationNo">Registration no</Label>
+                    <Input
+                      id="registrationNo"
+                      name="registrationNo"
+                      defaultValue={profile?.registration_no ?? ""}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Program</Label>
+                    <Select name="program" value={program} onValueChange={setProgram}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DEPARTMENTS.map((d) => (
+                          <SelectItem key={d.value} value={d.value}>
+                            {d.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Academic year</Label>
+                    <Select name="batch" value={batch} onValueChange={setBatch}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select academic year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {academicYears().map((year) => (
+                          <SelectItem key={year} value={year}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="guardianName">Guardian name</Label>
+                    <Input
+                      id="guardianName"
+                      name="guardianName"
+                      defaultValue={profile?.guardian_name ?? ""}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="guardianPhone">Guardian phone</Label>
+                    <Input
+                      id="guardianPhone"
+                      name="guardianPhone"
+                      placeholder="01XXXXXXXXX"
+                      defaultValue={profile?.guardian_phone ?? ""}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="presentAddress">Present address</Label>
+                    <Textarea
+                      id="presentAddress"
+                      name="presentAddress"
+                      rows={2}
+                      defaultValue={profile?.present_address ?? ""}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="permanentAddress">Permanent address</Label>
+                    <Textarea
+                      id="permanentAddress"
+                      name="permanentAddress"
+                      rows={2}
+                      defaultValue={profile?.permanent_address ?? ""}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <Label>Role / Office</Label>
+                  <Input value={roleOffice} readOnly className="bg-muted" />
+                </div>
+              )}
             </div>
             <Button type="submit" size="sm" disabled={busy} className="mt-4">
               {busy ? "Saving…" : "Save profile"}
