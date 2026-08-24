@@ -22,7 +22,6 @@ function ProfilePage() {
           to: isRegistrar || isAdmin ? "/queue" : "/dashboard",
           label: `Back to ${isRegistrar || isAdmin ? "queue" : "dashboard"}`,
         }}
-        breadcrumbs={[{ label: isRegistrar || isAdmin ? "Queue" : "Dashboard", to: isRegistrar || isAdmin ? "/queue" : "/dashboard" }]}
       />
 
       <Card>

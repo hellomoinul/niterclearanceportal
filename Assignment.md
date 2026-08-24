@@ -77,7 +77,7 @@ Dashboard redirect for admin/staff. Git conflict resolution.
 - [x] **Printable certificate view (F6)** — unified print + download PDF generation on `/certificate` (jspdf + html2canvas + auto-print, A4 landscape scaling). PR #29.
 - [ ] **Deadline lock screen (F7)** — block new submissions after the batch deadline passes
 - [x] **Confirmation dialogs on student flows (F8)** — confirm before deleting uploaded documents
-- [ ] **Global error states (F9)** — network drop / upload failure / session expiry handled with clear messages
+- [x] **Global error states (F9)** — settled by default: Supabase session persistence + auto-refresh covers expiry, and upload/network failures surface sonner toasts with clear messages. Confirmed by Fatin — no dedicated work needed.
 - [ ] **Registrar queue (F10)** — "Ready for final processing" list of fully cleared students for pickup/sign-off
 
 ## 🟡 Shafin — Admin panel & staff queue upgrades (10 tasks)
