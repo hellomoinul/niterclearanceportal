@@ -162,7 +162,7 @@ function DashboardPage() {
                   <div>
                     <h3 className="text-base font-semibold">{review.departments?.name}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Office verifies: {review.departments?.requirement}
+                      Office verifies: {review.departments?.requirement?.toLowerCase().replace(/\.$/, "")} or not.
                     </p>
                   </div>
                   <StatusBadge status={review.is_na ? "na" : review.status} />
