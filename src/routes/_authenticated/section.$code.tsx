@@ -190,7 +190,7 @@ function SectionPage() {
         <>
           <PageHeader
             title={review.department.name}
-            description={review.department.requirement}
+            description={`Office verifies: ${(review.department.requirement ?? "").toLowerCase().replace(/\.$/, "")} or not.`}
             back={{ to: "/dashboard", label: "Back to dashboard" }}
           />
           <div className="card-surface mt-2 p-4">

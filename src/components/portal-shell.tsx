@@ -49,7 +49,9 @@ export function PortalHeader() {
         </Link>
 
         <nav className="ml-auto hidden items-center gap-1 md:flex">
-          {[...publicLinks, ...appLinks].map((link) => (
+          {[...publicLinks, ...appLinks]
+            .filter((link) => session ? link.to !== "/about" : true)
+            .map((link) => (
             <Link
               key={link.to}
               to={link.to}
@@ -106,7 +108,9 @@ export function PortalHeader() {
 
       {open ? (
         <nav className="border-t border-border bg-surface px-4 py-2 md:hidden">
-          {[...publicLinks, ...appLinks].map((link) => (
+          {[...publicLinks, ...appLinks]
+            .filter((link) => session ? link.to !== "/about" : true)
+            .map((link) => (
             <Link
               key={link.to}
               to={link.to}
