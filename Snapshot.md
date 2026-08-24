@@ -1,10 +1,10 @@
 # Project Snapshot — NITER Clearance Portal
 
-**Last updated:** 2026-08-23 · **Overall progress: ~71%**
+**Last updated:** 2026-08-24 · **Overall progress: ~74%**
 
 Baseline: the full student flow works end-to-end (register → apply → per-office sections → document upload → notifications → public verification). Staff can approve/reject with remarks, bulk approve, escalation fires at 3 rejections, every decision is audit-logged. All roles get email notifications. Profile page live. Certificate page with unified print + PDF download + dynamic QR code + A4 scaling. **UCAM pink→blue gradient identity** — matching the visual language of the UCAM ERP login. Playfair Display + Inter typography. White headings on dark gradient banners. All WCAG contrast ≥4.5:1 AA. **Staff role fully renamed to registrar** (M8) with Accounts queue hard-rule (M9). Security hardened: admin route guard, status-forgery trigger, head-ordering trigger, admin honesty pass (M4–M7). Real-email signup + smart ID/email login + recovery email live (F3 completion). Register form: program dropdown + academic-year select + confirm password. Admin panel built (S1–S3); S4/S5 stubbed pending rebuild (S11).
 
-**What's left:** Moinul at 14/14 (M1 + M2 + M3 + M4 + M5 + M6 + M7 + M8 + M9 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 6/10 (F1 + F2 + F3 + F4 + F6 + F8 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
+**What's left:** Moinul at 14/14 (M1 + M2 + M3 + M4 + M5 + M6 + M7 + M8 + M9 + SP1 + SP2 + SP3 + SP4 + SP5 done). Fatin at 7/10 (F1 + F2 + F3 + F4 + F6 + F8 + F9 done). Shafin at 5/11 (S1 + S2 + S3 + S4 + S5 done).
 
 ## Status board
 
@@ -43,7 +43,7 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 | F6  | Printable certificate view      | Fatin  | ✅ Done | Unified print + download PDF generation on `/certificate` (PR #29) |
 | F7  | Deadline lock screen            | Fatin  | ⬜ Not started | Block new submissions after batch deadline       |
 | F8  | Confirmation dialogs (student)  | Fatin  | ✅ Done | Confirm before deleting uploaded documents       |
-| F9  | Global error states             | Fatin  | ⬜ Not started | Network drop / upload fail / session expiry      |
+| F9  | Global error states             | Fatin  | ✅ Done | Settled by default — toasts + session persistence; no work needed (confirmed by Fatin) |
 | F10 | Registrar queue                 | Fatin  | ⬜ Not started | "Ready for final processing" — cleared students  |
 | S1  | Admin: user management          | Shafin | ✅ Done | PR #27: `admin/users.tsx` — roles + staff department assignment |
 | S2  | Admin: workflow config          | Shafin | ✅ Done | PR #27: `admin/workflow.tsx` — departments per program, batch deadlines |
@@ -90,6 +90,10 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 ## Work history
 
+### 2026-08-24
+
+- **Global error states (F9):** completed (no PR needed) — settled by default, confirmed by Fatin.
+
 ### 2026-08-23
 
 - **Certificate page `/certificate` (F1):** completed via PR #18.
@@ -123,9 +127,9 @@ Legend: ✅ Done · 🚧 In progress · ⬜ Not started
 
 ## Remaining summary
 
-- **Backlog: 35 tasks · 25 done · 10 remaining.** Moinul 14/14. Fatin 6/10. Shafin 5/11.
+- **Backlog: 35 tasks · 26 done · 9 remaining.** Moinul 14/14. Fatin 7/10. Shafin 5/11.
 - **Moinul's work: 14/14 done** — all complete.
-- **Fatin's work: 6/10 done** — remaining: F5, F7, F9, F10. Next: Student timeline/history.
+- **Fatin's work: 7/10 done** — remaining: F5, F7, F10. Next: Student timeline/history.
 - **Shafin's work: 5/11 done** — remaining: S6, S7, S8, S9, S10, S11. Next: Override staff decision.
 - **Order of attack:** Fatin → Student timeline/history; Shafin → Override staff decision.
 - **Definition of done for v1:** student applies → staff approves/rejects with remarks → escalation works → admin route guard active → no status-forgery path → Head ordering enforced at DB level → certificate PDF downloads with scannable QR → admin manages users, overrides decisions (audited), reads batch reports, and manages notices that appear on the public home page.
