@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
@@ -36,7 +37,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "No doc changes to commit"
           else
+            git pull --rebase origin main
             PR=${{ github.event.pull_request.number }}
             git commit -m "docs(bot): update assignment + snapshot (PR #${PR})"
-            git push
+            git push origin main
           fi
