@@ -138,10 +138,11 @@ function SectionPage() {
         .eq("id", review.id)
         .single();
       if (freshReview?.status === "rejected") {
-        const { error: flipError } = await supabase
-          .from("department_reviews")
-          .update({ status: "pending" })
-          .eq("id", review.id);
+        // RLS only lets registrar/admin update reviews directly — students must go
+        // through this ownership-checked RPC to flip a rejected section back to pending.
+        const { error: flipError } = await supabase.rpc("reopen_rejected_review", {
+          p_review_id: review.id,
+        });
         if (flipError) {
           toast.error("Document saved, but could not reopen review", {
             description: flipError.message,

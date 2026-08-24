@@ -162,10 +162,10 @@ function DashboardPage() {
                   <div>
                     <h3 className="text-base font-semibold">{review.departments?.name}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {review.departments?.requirement}
+                      Office verifies: {review.departments?.requirement}
                     </p>
                   </div>
-                  <StatusBadge status={review.status} />
+                  <StatusBadge status={review.is_na ? "na" : review.status} />
                 </div>
                 {review.remarks ? (
                   <p className="mt-3 rounded-md bg-secondary px-3 py-2 text-sm">{review.remarks}</p>
