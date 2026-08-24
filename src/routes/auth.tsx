@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { idToEmail } from "@/lib/portal";
+import { DEPARTMENTS, academicYears } from "@/lib/departments";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -148,7 +149,7 @@ function AuthPage() {
           </TabsList>
 
           <TabsContent value="signin" className="mt-5">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-center text-sm text-muted-foreground">
               Universal sign in page for Students, Admin, Registrar.
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
@@ -206,11 +207,11 @@ function AuthPage() {
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="TE">TE – Textile Engineering</SelectItem>
-                      <SelectItem value="IPE">IPE – Industrial & Production Engineering</SelectItem>
-                      <SelectItem value="FDAE">FDAE – Fashion Design & Apparel Engineering</SelectItem>
-                      <SelectItem value="CSE">CSE – Computer Science & Engineering</SelectItem>
-                      <SelectItem value="EEE">EEE – Electrical & Electronic Engineering</SelectItem>
+                      {DEPARTMENTS.map((d) => (
+                        <SelectItem key={d.value} value={d.value}>
+                          {d.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -223,14 +224,11 @@ function AuthPage() {
                       <SelectValue placeholder="Select academic year" />
                     </SelectTrigger>
                     <SelectContent>
-                      {[...Array(10).keys()].map((i) => {
-                        const year = 2021 + i;
-                        return (
-                          <SelectItem key={year} value={`${year}-${(year + 1) % 100}`}>
-                            {year}-{(year + 1) % 100}
-                          </SelectItem>
-                        );
-                      })}
+                      {academicYears().map((year) => (
+                        <SelectItem key={year} value={year}>
+                          {year}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
