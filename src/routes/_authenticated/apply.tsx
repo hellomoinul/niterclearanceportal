@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PortalShell } from "@/components/portal-shell";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,6 +37,33 @@ function ApplyPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [naCodes, setNaCodes] = useState<Set<string>>(new Set());
+
+  // Departments a student may declare N/A. Accounts (tuition) and Head (final sign-off)
+  // are always required and are excluded from the list by design.
+  const { data: allDepartments } = useQuery({
+    queryKey: ["apply-departments"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("departments")
+        .select("code, name, requirement")
+        .order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+  });
+  const naEligible = (allDepartments ?? []).filter(
+    (d) => d.code !== "accounts" && d.code !== "head",
+  );
+
+  function toggleNa(code: string, checked: boolean) {
+    setNaCodes((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(code);
+      else next.delete(code);
+      return next;
+    });
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,15 +94,41 @@ function ApplyPage() {
       .select("id")
       .single();
 
-    setBusy(false);
     if (error || !data) {
+      setBusy(false);
       toast.error("Could not submit application", { description: error?.message });
       return;
     }
+
+    // Auto-approve departments the student declared not applicable.
+    // Runs after the fan-out trigger has created all review rows; the RPC enforces
+    // ownership and refuses accounts/head or reviews that already have documents.
+    let naCount = 0;
+    let naFailed = false;
+    if (naCodes.size > 0) {
+      const { data: updated, error: naError } = await supabase.rpc("declare_departments_na", {
+        p_application_id: data.id,
+        p_department_codes: [...naCodes],
+      });
+      if (naError) naFailed = true;
+      else naCount = typeof updated === "number" ? updated : 0;
+    }
+
+    setBusy(false);
     await queryClient.invalidateQueries();
-    toast.success("Application submitted", {
-      description: "All offices have been notified and can review in parallel.",
-    });
+    if (naFailed) {
+      toast.warning("Application submitted", {
+        description:
+          "Some not-applicable declarations could not be saved — ask the registrar office to mark them manually.",
+      });
+    } else {
+      toast.success("Application submitted", {
+        description:
+          naCount > 0
+            ? `${naCount} department${naCount === 1 ? "" : "s"} marked not applicable. All offices can review in parallel.`
+            : "All offices have been notified and can review in parallel.",
+      });
+    }
     navigate({ to: "/dashboard" });
   }
 
@@ -176,6 +230,34 @@ function ApplyPage() {
               />
             </div>
           </div>
+        </section>
+
+        <section>
+          <h2 className="text-base font-semibold">Departments not applicable to you</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Check a department only if it genuinely does not apply to you — for example, you never
+            stayed in the hostel or never borrowed a library book. Checked offices are marked
+            &ldquo;Not applicable&rdquo; and reported to the admin office for verification. Accounts
+            and Department Head always apply to every student.
+          </p>
+          <ul className="mt-4 divide-y divide-border rounded-md border border-border">
+            {(naEligible ?? []).map((dept) => (
+              <li key={dept.code} className="flex items-start gap-3 px-3 py-2.5">
+                <Checkbox
+                  id={`na-${dept.code}`}
+                  className="mt-0.5"
+                  checked={naCodes.has(dept.code)}
+                  onCheckedChange={(checked) => toggleNa(dept.code, checked === true)}
+                />
+                <Label htmlFor={`na-${dept.code}`} className="cursor-pointer">
+                  <span className="block text-sm font-medium">
+                    I have no record at {dept.name}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">{dept.requirement}</span>
+                </Label>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <Button type="submit" size="lg" disabled={busy}>
