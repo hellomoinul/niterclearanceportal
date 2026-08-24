@@ -97,8 +97,13 @@
       "date": "2026-08-23"
     },
     "F6": {
-      "pr": 40,
+      "pr": 29,
       "date": "2026-08-23"
+    },
+    "F9": {
+      "pr": null,
+      "date": "2026-08-24",
+      "note": "Settled by default - session persistence handles expiry; failures surface toasts. Confirmed by Fatin, no code needed."
     }
   },
   "updated_at": "2026-08-23"

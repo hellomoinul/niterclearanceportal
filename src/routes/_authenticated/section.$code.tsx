@@ -191,10 +191,6 @@ function SectionPage() {
             title={review.department.name}
             description={review.department.requirement}
             back={{ to: "/dashboard", label: "Back to dashboard" }}
-            breadcrumbs={[
-              { label: "Dashboard", to: "/dashboard" },
-              { label: "Section" },
-            ]}
           />
           <div className="card-surface mt-2 p-4">
             <div className="flex items-center justify-between">

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const publicLinks = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
+  { to: "/calendar", label: "Academic calendar" },
   { to: "/verify", label: "Verify certificate" },
   { to: "/faq", label: "FAQ" },
 ] as const;
