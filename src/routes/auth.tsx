@@ -43,7 +43,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (session) navigate({ to: "/dashboard", replace: true });
+    if (session) navigate({ to: "/", replace: true });
   }, [session, navigate]);
 
   async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
@@ -70,7 +70,7 @@ function AuthPage() {
       toast.error("Sign in failed", { description: "Check your ID and password and try again." });
       return;
     }
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/" });
   }
 
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
@@ -84,6 +84,14 @@ function AuthPage() {
     const program = String(form.get("program") ?? "").trim();
     const session = String(form.get("session") ?? "").trim();
     const phone = String(form.get("phone") ?? "").trim();
+
+    if (!userCode || !fullName || !email || !program || !session || !phone) {
+      setBusy(false);
+      toast.error("All fields are required", {
+        description: "Please fill in every field before creating your account.",
+      });
+      return;
+    }
 
     if (password !== confirmPassword) {
       setBusy(false);
@@ -126,7 +134,7 @@ function AuthPage() {
       return;
     }
     toast.success("Account created", { description: "Welcome to the clearance portal." });
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/" });
   }
 
   return (
@@ -187,19 +195,19 @@ function AuthPage() {
             <form className="mt-5 space-y-4" onSubmit={handleRegister}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="reg-id">Student ID</Label>
+                  <Label htmlFor="reg-id">Student ID<span className="text-red-500 ml-0.5">*</span></Label>
                   <Input id="reg-id" name="userCode" required placeholder="CS 2103021" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-name">Full name</Label>
+                  <Label htmlFor="reg-name">Full name<span className="text-red-500 ml-0.5">*</span></Label>
                   <Input id="reg-name" name="fullName" required placeholder="CAPITAL BLOCK LETTER" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-email">Email</Label>
+                  <Label htmlFor="reg-email">Email<span className="text-red-500 ml-0.5">*</span></Label>
                   <Input id="reg-email" name="email" type="email" required placeholder="you@email.com" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="reg-program">Program</Label>
+                  <Label htmlFor="reg-program">Program<span className="text-red-500 ml-0.5">*</span></Label>
                   <Select
                     name="program"
                   >
@@ -216,7 +224,7 @@ function AuthPage() {
                   </Select>
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="reg-session">Academic year</Label>
+                  <Label htmlFor="reg-session">Academic year<span className="text-red-500 ml-0.5">*</span></Label>
                   <Select
                     name="session"
                   >
@@ -233,11 +241,11 @@ function AuthPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-phone">Phone</Label>
-                  <Input id="reg-phone" name="phone" placeholder="01XXXXXXXXX" />
+                  <Label htmlFor="reg-phone">Phone<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Input id="reg-phone" name="phone" placeholder="01XXXXXXXXX" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-password">Password</Label>
+                  <Label htmlFor="reg-password">Password<span className="text-red-500 ml-0.5">*</span></Label>
                   <Input
                     id="reg-password"
                     name="password"
@@ -247,7 +255,7 @@ function AuthPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-confirm-password">Confirm password</Label>
+                  <Label htmlFor="reg-confirm-password">Confirm password<span className="text-red-500 ml-0.5">*</span></Label>
                   <Input
                     id="reg-confirm-password"
                     name="confirmPassword"
@@ -268,7 +276,7 @@ function AuthPage() {
         </Tabs>
       </div>
 
-      <p className="mt-6 text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         Registrar and Admin accounts are created by the admin office.
       </p>
     </div>

@@ -47,7 +47,7 @@ function UpdatePasswordPage() {
       if (error) throw error
 
       toast.success("Password updated successfully!")
-      navigate({ to: '/dashboard' }) // Send them straight to the portal!
+      navigate({ to: '/' })
       
     } catch (error: any) {
       console.error("Update error:", error)

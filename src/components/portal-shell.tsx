@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, LogOut, Menu, Settings } from "lucide-react";
+import { Bell, LogOut, Menu, Settings, User } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -116,6 +116,26 @@ export function PortalHeader() {
               {link.label}
             </Link>
           ))}
+          {session ? (
+            <div className="mt-2 border-t border-border pt-2">
+              <Link
+                to="/profile"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                <User className="size-4" />
+                {profile?.user_code ?? "Profile"}
+              </Link>
+              <Link
+                to="/settings"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                <Settings className="size-4" />
+                Settings
+              </Link>
+            </div>
+          ) : null}
         </nav>
       ) : null}
     </header>
