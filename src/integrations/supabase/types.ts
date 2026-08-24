@@ -126,6 +126,7 @@ export type Database = {
           department_id: string;
           escalated: boolean;
           id: string;
+          is_na: boolean;
           remarks: string | null;
           reviewed_at: string | null;
           reviewed_by: string | null;
@@ -138,6 +139,7 @@ export type Database = {
           department_id: string;
           escalated?: boolean;
           id?: string;
+          is_na?: boolean;
           remarks?: string | null;
           reviewed_at?: string | null;
           reviewed_by?: string | null;
@@ -150,6 +152,7 @@ export type Database = {
           department_id?: string;
           escalated?: boolean;
           id?: string;
+          is_na?: boolean;
           remarks?: string | null;
           reviewed_at?: string | null;
           reviewed_by?: string | null;
@@ -414,6 +417,14 @@ export type Database = {
         Args: { p_user_code: string }
         Returns: string
       }
+      declare_departments_na: {
+        Args: { p_application_id: string; p_department_codes: string[] };
+        Returns: number;
+      };
+      reopen_rejected_review: {
+        Args: { p_review_id: string };
+        Returns: undefined;
+      };
       registrar_in_department: {
         Args: { _department_id: string; _user_id: string };
         Returns: boolean;
