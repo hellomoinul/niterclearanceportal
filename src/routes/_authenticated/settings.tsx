@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth";
 import { DEPARTMENTS, academicYears } from "@/lib/departments";
+import { idToEmail } from "@/lib/portal";
 import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -280,14 +281,14 @@ function SettingsPage() {
         </form>
 
         <section className="border-t border-border pt-6">
-          <h2 className="text-base font-semibold">Recovery email</h2>
+          <h2 className="text-base font-semibold">Login &amp; recovery email</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Used for password resets. You'll receive a confirmation link before the change takes effect.
+            Your auto-generated login email is based on your {roleLabel.toLowerCase()} ID. Set a personal email below to receive password-reset links.
           </p>
           <div className="mt-4 max-w-md space-y-2">
-            <Label>Current email</Label>
-            <Input value={user?.email ?? ""} readOnly className="bg-muted" />
-            <Label htmlFor="newEmail">New recovery email</Label>
+            <Label>Login email (auto-generated)</Label>
+            <Input value={profile?.user_code ? idToEmail(profile.user_code) : (user?.email ?? "")} readOnly className="bg-muted" />
+            <Label htmlFor="newEmail">Personal email</Label>
             <form className="flex gap-2" onSubmit={handleEmailChange}>
               <Input
                 id="newEmail"

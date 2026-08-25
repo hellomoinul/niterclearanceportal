@@ -12,12 +12,12 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 function ProfilePage() {
-  const { profile, isRegistrar, isAdmin } = useAuth();
+  const { profile, isStudent, isRegistrar, isAdmin } = useAuth();
 
   return (
     <PortalShell className="max-w-3xl">
       <PageHeader
-        title="Student Profile"
+        title="My Profile"
         back={{
           to: isRegistrar || isAdmin ? "/queue" : "/dashboard",
           label: `Back to ${isRegistrar || isAdmin ? "queue" : "dashboard"}`,
@@ -36,17 +36,26 @@ function ProfilePage() {
                 {profile.full_name || "Not provided"}
               </div>
               <div>
-                <span className="font-semibold">Student ID: </span>
+                <span className="font-semibold">{isRegistrar || isAdmin ? "Registrar ID: " : "Student ID: "}</span>
                 {profile.user_code || "Not provided"}
               </div>
-              <div>
-                <span className="font-semibold">Department: </span>
-                {profile.program || "Not provided"}
-              </div>
-              <div>
-                <span className="font-semibold">Session: </span>
-                {profile.batch || "Not provided"}
-              </div>
+              {isStudent ? (
+                <>
+                  <div>
+                    <span className="font-semibold">Department: </span>
+                    {profile.program || "Not provided"}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Session: </span>
+                    {profile.batch || "Not provided"}
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <span className="font-semibold">Role / Office: </span>
+                  {isAdmin ? "Admin" : "Accounts"}
+                </div>
+              )}
               <div>
                 <span className="font-semibold">Phone: </span>
                 {profile.phone || "Not provided"}
@@ -54,10 +63,6 @@ function ProfilePage() {
               <div>
                 <span className="font-semibold">Email: </span>
                 {profile.personal_email || "Not provided"}
-              </div>
-              <div className="pt-4 border-t mt-4">
-                <span className="font-semibold text-sm">Account ID: </span>
-                <span className="text-sm text-muted-foreground">{profile.id}</span>
               </div>
             </div>
           ) : (
