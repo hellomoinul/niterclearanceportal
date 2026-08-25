@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-08-25 · **Progress: 26/46 done (~57%)**
+> **Last updated:** 2026-08-25 · **Overall progress: ~63%**
 
 ---
 
