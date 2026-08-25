@@ -42,14 +42,19 @@ function NotificationsPage() {
     enabled: !!user,
     queryKey: ["notifications", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("notifications")
-        .select("*")
-        .is("deleted_at", null)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from("notifications")
+          .select("*")
+          .is("deleted_at", null)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        return data;
+      } catch {
+        return [];
+      }
     },
+    retry: false,
   });
 
   const allVisibleIds = data?.map((n) => n.id) ?? [];
