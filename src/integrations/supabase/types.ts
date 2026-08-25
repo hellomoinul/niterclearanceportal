@@ -432,6 +432,10 @@ export type Database = {
         Args: { _department_id: string; _user_id: string };
         Returns: boolean;
       };
+      verify_clearance_status: {
+        Args: { p_user_code: string };
+        Returns: Json;
+      };
     };
     Enums: {
       app_role: "student" | "registrar" | "admin";
