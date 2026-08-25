@@ -64,7 +64,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --shadow-card: 0 1px 3px rgba(18, 59, 87, 0.06), 0 8px 24px rgba(18, 59, 87, 0.08);
   --shadow-raised: 0 2px 6px rgba(18, 59, 87, 0.08), 0 18px 44px rgba(18, 59, 87, 0.12);
-  --background-image-gradient-hero: linear-gradient(-135deg, #4338CA 0%, #9333EA 100%);
+  --background-image-gradient-hero: linear-gradient(-135deg, #9333EA 0%, #4338CA 100%);
   --background-image-gradient-button: linear-gradient(135deg, #fbc1ff 0%, #4e65ff 100%);
 }
 
@@ -200,10 +200,34 @@
 
 @utility hero-surface {
   background-image: var(--background-image-gradient-hero);
-  color: #07172B;
+  color: #ffffff;
 }
 
 @utility brand-gradient {
   background-image: var(--background-image-gradient-button);
   color: #07172B;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.notification-badge {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+.hero-fade-in {
+  animation: fadeSlideIn 0.5s ease-out both;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
