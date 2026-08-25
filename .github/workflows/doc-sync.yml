@@ -37,8 +37,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "No doc changes to commit"
           else
-            git pull --rebase origin main
             PR=${{ github.event.pull_request.number }}
             git commit -m "docs(bot): update assignment + snapshot (PR #${PR})"
+            git pull --rebase origin main
             git push origin main
           fi
