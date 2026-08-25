@@ -57,7 +57,7 @@ function AuthPage() {
     if (userCode.includes("@")) {
       email = userCode.trim();
     } else {
-      // Lookup real email via RPC; fall back to synthetic for legacy accounts
+      // Lookup real email via RPC; fall back to portal ID for legacy accounts
       const { data: rpcEmail } = await supabase.rpc("login_email_for_user_code", {
         p_user_code: userCode.trim(),
       });
@@ -162,8 +162,8 @@ function AuthPage() {
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="signin-id">Student/Admin/Registrar - ID or Email</Label>
-                <Input id="signin-id" name="userCode" required placeholder="CS 2103021" />
+                <Label htmlFor="signin-id">Student / Admin / Registrar — ID, Portal ID, or Email</Label>
+                <Input id="signin-id" name="userCode" required placeholder="CS 2103021, portal ID, or email" />
               </div>
               
               {/* --- NEW FORGOT PASSWORD SECTION START --- */}

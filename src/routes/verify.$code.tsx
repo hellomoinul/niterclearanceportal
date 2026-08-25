@@ -45,8 +45,8 @@ function VerifyResult() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("certificates")
-        .select("certificate_code, student_code, student_name, program, batch, issued_at")
-        .eq("certificate_code", code)
+        .select("id, student_code, student_name, program, batch, issued_at")
+        .eq("id", code)
         .maybeSingle();
       if (error) throw error;
       return data;
@@ -72,7 +72,7 @@ function VerifyResult() {
     <PortalShell className="max-w-2xl">
       <PageHeader
         title="Certificate verification"
-        description={`Checking certificate code: ${code}`}
+        description={`Checking certificate ID: ${code}`}
         breadcrumbs={[{ label: "Verify", to: "/verify" }]}
       />
       <div className="card-surface mt-4 p-6">
@@ -83,7 +83,7 @@ function VerifyResult() {
             <XCircle className="size-7 text-status-rejected" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold">No certificate found</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              No NITER clearance certificate matches the code{" "}
+              No NITER clearance certificate matches the ID{" "}
               <span className="font-mono">{code}</span>. Check for typing errors, or contact the
               admin office.
             </p>
@@ -99,7 +99,7 @@ function VerifyResult() {
             </p>
             <dl className="mt-6 divide-y divide-border text-sm">
               {[
-                ["Certificate code", cert.certificate_code],
+                ["Certificate ID", cert.id],
                 ["Student name", result.student_name ?? cert.student_name],
                 ["Student ID", result.user_code ?? cert.student_code],
                 ["Program", result.program ?? cert.program ?? "—"],
@@ -132,7 +132,7 @@ function VerifyResult() {
               </Link>
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              This certificate code exists but the student has not yet received clearance from all
+              This certificate ID exists but the student has not yet received clearance from all
               departments ({result?.approved ?? 0} of {result?.total ?? 8} approved).
             </p>
           </>

@@ -283,10 +283,10 @@ function SettingsPage() {
         <section className="border-t border-border pt-6">
           <h2 className="text-base font-semibold">Login &amp; recovery email</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Your auto-generated login email is based on your {roleLabel.toLowerCase()} ID. Set a personal email below to receive password-reset links.
+            Your portal ID is auto-generated from your {roleLabel.toLowerCase()} ID. You can sign in with your portal ID or personal email.
           </p>
           <div className="mt-4 max-w-md space-y-2">
-            <Label>Login email (auto-generated)</Label>
+            <Label>Portal ID</Label>
             <Input value={profile?.user_code ? idToEmail(profile.user_code) : (user?.email ?? "")} readOnly className="bg-muted" />
             <Label htmlFor="newEmail">Personal email</Label>
             <form className="flex gap-2" onSubmit={handleEmailChange}>
@@ -295,7 +295,7 @@ function SettingsPage() {
                 type="email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="you@niter.edu.bd"
+                placeholder="you@email.com"
                 required
                 className="flex-1"
               />

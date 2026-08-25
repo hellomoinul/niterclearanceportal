@@ -14,12 +14,12 @@ export const Route = createFileRoute("/verify")({
       {
         name: "description",
         content:
-          "Employers and offices can confirm a NITER clearance certificate is genuine by entering its certificate code — no account needed.",
+          "Employers and offices can confirm a NITER clearance certificate is genuine by entering its certificate ID — no account needed.",
       },
       { property: "og:title", content: "Verify a clearance certificate — NITER" },
       {
         property: "og:description",
-        content: "Enter a NITER clearance certificate code to confirm it is genuine.",
+        content: "Enter a NITER clearance certificate ID to confirm it is genuine.",
       },
     ],
   }),
@@ -34,7 +34,7 @@ function VerifyPage() {
     <PortalShell className="max-w-2xl">
       <PageHeader
         title="Certificate verification"
-        description="Enter the certificate code printed on the clearance certificate, or scan its QR code."
+        description="Enter the certificate ID printed on the clearance certificate, or scan its QR code."
       />
       <div className="card-surface mt-4 p-6">
         <form
@@ -46,12 +46,12 @@ function VerifyPage() {
           }}
         >
           <div className="space-y-2">
-            <Label htmlFor="code">Certificate code</Label>
+            <Label htmlFor="code">Certificate ID</Label>
             <Input
               id="code"
               value={code}
               onChange={(event) => setCode(event.target.value)}
-              placeholder="NITER-2021-2103021-A1B2C3"
+              placeholder="e.g. f7ddbb0b-a436-491e-804b-3d48e6670124"
               required
             />
           </div>
