@@ -64,7 +64,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --shadow-card: 0 1px 3px rgba(18, 59, 87, 0.06), 0 8px 24px rgba(18, 59, 87, 0.08);
   --shadow-raised: 0 2px 6px rgba(18, 59, 87, 0.08), 0 18px 44px rgba(18, 59, 87, 0.12);
-  --background-image-gradient-hero: linear-gradient(-135deg, #fbc1ff 0%, #4e65ff 100%);
+  --background-image-gradient-hero: linear-gradient(-135deg, #4338CA 0%, #9333EA 100%);
   --background-image-gradient-button: linear-gradient(135deg, #fbc1ff 0%, #4e65ff 100%);
 }
 
