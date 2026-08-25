@@ -203,7 +203,7 @@ export function PortalFooter() {
             National Institute of Textile Engineering and Research
           </p>
           <p className="mt-1 text-xs text-gray-500">
-            Level-5, Building #3, BSCIC Textile Industrial Area, Savar, Dhaka-1340, Bangladesh
+            Savar, Dhaka-1350, Bangladesh
           </p>
         </div>
         <div className="text-right">
