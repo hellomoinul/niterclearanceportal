@@ -79,7 +79,6 @@ function ApplyPage() {
         present_address: String(form.get("presentAddress") ?? ""),
         permanent_address: String(form.get("permanentAddress") ?? ""),
         registration_no: String(form.get("registrationNo") ?? ""),
-        personal_email: String(form.get("personalEmail") ?? ""),
       })
       .eq("id", user.id);
 
@@ -161,13 +160,8 @@ function ApplyPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="personalEmail">Personal email</Label>
-              <Input
-                id="personalEmail"
-                name="personalEmail"
-                type="email"
-                defaultValue={profile?.personal_email ?? ""}
-              />
+              <Label>Personal email</Label>
+              <Input value={profile?.personal_email ?? ""} readOnly className="bg-muted" />
             </div>
           </div>
         </section>

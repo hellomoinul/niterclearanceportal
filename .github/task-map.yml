@@ -79,6 +79,29 @@ tasks:
     paths: ["src/routes/_authenticated/queue.tsx", "src/components/portal-shell.tsx"]
     hint: "Registrar always sees Accounts queue (DB + client fallback)"
 
+  # Moinul — review feedback fixes (M10–M12)
+  - id: M10
+    title: "Wire personal_email flow"
+    owner: Moinul
+    order: 137
+    paths: ["src/routes/_authenticated/apply.tsx"]
+    hint: "Make personal email readonly in apply form; already saved at registration + settings"
+    also_completes: ["F11"]
+
+  - id: M11
+    title: "Fix N/A remarks rendering"
+    owner: Moinul
+    order: 138
+    paths: ["supabase/migrations/*", "supabase/migrations/20260824100500_na_and_reopen_rpcs.sql"]
+    hint: "Normalize em-dash to ASCII dash in RPC remarks text + existing DB rows"
+
+  - id: M12
+    title: "Public verify_clearance_status RPC"
+    owner: Moinul
+    order: 139
+    paths: ["supabase/migrations/*", "src/routes/verify.$code.tsx"]
+    hint: "SECURITY DEFINER RPC + updated /verify page: green if 8/8, red with portal link if not"
+
   # Fatin — certificate pipeline (F1–F4)
   - id: F1
     title: "Certificate page `/certificate`"
@@ -150,6 +173,63 @@ tasks:
     order: 200
     paths: ["src/routes/_authenticated/dashboard.tsx"]
     hint: "Ready for final processing — cleared students for pickup/sign-off"
+
+  # Fatin — review feedback fixes (F11–F18)
+  - id: F11
+    title: "Dashboard email display"
+    owner: Fatin
+    order: 201
+    paths: ["src/routes/_authenticated/dashboard.tsx"]
+    hint: "Show personal_email on dashboard header so students see it at a glance"
+
+  - id: F12
+    title: "Profile page cleanup"
+    owner: Fatin
+    order: 202
+    paths: ["src/routes/_authenticated/profile.tsx"]
+    hint: "Remove redundant readonly bg-muted inputs; show as clean text display"
+
+  - id: F13
+    title: "Section page N/A display"
+    owner: Fatin
+    order: 203
+    paths: ["src/routes/_authenticated/section.$code.tsx"]
+    hint: "Show N/A status with distinct styling when department is marked not applicable"
+
+  - id: F14
+    title: "Dashboard progress bar polish"
+    owner: Fatin
+    order: 204
+    paths: ["src/routes/_authenticated/dashboard.tsx"]
+    hint: "Fix progress bar percentage display and visual consistency"
+
+  - id: F15
+    title: "Apply form N/A UX"
+    owner: Fatin
+    order: 205
+    paths: ["src/routes/_authenticated/apply.tsx"]
+    hint: "Improve N/A checkbox UX: group, helper text, confirmation"
+
+  - id: F16
+    title: "Section page re-upload UX"
+    owner: Fatin
+    order: 206
+    paths: ["src/routes/_authenticated/section.$code.tsx"]
+    hint: "Clear file input after upload, show upload success state"
+
+  - id: F17
+    title: "Dashboard bell unread badge"
+    owner: Fatin
+    order: 207
+    paths: ["src/components/portal-shell.tsx"]
+    hint: "Show unread notification count badge on bell icon"
+
+  - id: F18
+    title: "Settings page consistency"
+    owner: Fatin
+    order: 208
+    paths: ["src/routes/_authenticated/settings.tsx"]
+    hint: "Consistent form layout, success/error states, loading skeleton"
 
   # Shafin — admin panel (S1–S5)
   - id: S1
