@@ -211,7 +211,7 @@ Student applies → staff approves/rejects with remarks → escalation works →
 
 | Member | Done | Remaining | Total |
 |--------|------|-----------|-------|
-| Moinul | ✅ 14 | ⬜ 3 | 17 |
-| Fatin | ✅ 7 | ⬜ 11 | 18 |
-| Shafin | ✅ 5 | ⬜ 6 | 11 |
+| Moinul | 17 — core + stretch + infra | 17/17 + 14 bug fixes | 0 |
+| Fatin | 18 — 4 original + 6 gap fixes | 7/18 | 11 |
+| Shafin | 11 — 5 original + 5 gap fixes + 1 rebuild | 5/11 | 6 |
 | **Total** | **✅ 26** | **⬜ 20** | **46** |
