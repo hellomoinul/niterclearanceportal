@@ -74,7 +74,7 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:8080**. The `.env` file with public Supabase keys is committed — no extra configuration needed.
+Open **http://localhost:8080**. Copy `.env.example` to `.env` and add your Supabase URL + publishable key.
 
 ### Scripts
 
