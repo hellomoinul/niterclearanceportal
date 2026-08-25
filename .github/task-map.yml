@@ -231,6 +231,13 @@ tasks:
     paths: ["src/routes/_authenticated/settings.tsx"]
     hint: "Consistent form layout, success/error states, loading skeleton"
 
+  - id: F19
+    title: "Certificate QR + verify flow fix"
+    owner: Fatin
+    order: 209
+    paths: ["src/routes/_authenticated/certificate.tsx", "src/routes/verify.tsx", "src/routes/verify.$code.tsx"]
+    hint: "Ensure QR encodes correct verify URL with certificate_code, verify page shows green/red verdict end-to-end"
+
   # Shafin — admin panel (S1–S5)
   - id: S1
     title: "Admin: user management"
