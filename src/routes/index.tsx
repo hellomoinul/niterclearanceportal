@@ -75,7 +75,7 @@ function HomePage() {
 
   return (
     <PortalShell className="max-w-6xl">
-      <section className="hero-surface overflow-hidden rounded-xl px-6 py-12 shadow-raised sm:px-10 sm:py-16">
+      <section className="hero-surface hero-fade-in overflow-hidden rounded-xl px-6 py-12 shadow-raised transition-shadow duration-300 hover:shadow-lg sm:px-10 sm:py-16">
         <p className="text-xs font-semibold tracking-[0.18em] uppercase opacity-80">
           National Institute of Textile Engineering and Research
         </p>

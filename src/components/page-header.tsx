@@ -23,7 +23,7 @@ export function PageHeader({
   back?: BackLink;
 }) {
   return (
-    <section className="hero-surface -mt-8 mb-8 rounded-xl px-6 py-8 sm:px-10 sm:py-10">
+    <section className="hero-surface hero-fade-in -mt-8 mb-8 rounded-xl px-6 py-8 sm:px-10 sm:py-10">
       {back && (
         <Link
           to={back.to}
@@ -50,7 +50,7 @@ export function PageHeader({
       )}
       <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">{title}</h1>
       {description && (
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#07172B]/95">{description}</p>
+        <p className="mt-2 max-w-2xl text-base leading-relaxed text-white/90">{description}</p>
       )}
     </section>
   );
