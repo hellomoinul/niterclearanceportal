@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-08-25 · **Overall progress: ~63%**
+> **Last updated:** 2026-08-25 · **Overall progress: ~62%**
 
 ---
 
@@ -12,7 +12,7 @@
 
 ## 👨‍💻 Moinul — Core + Infrastructure
 
-> ✅ **14/14 core done** · 🔧 3 new backend tasks
+> ✅ **17/17 done** · all core + stretch + infra complete
 
 ### ✅ Core approval loop (PR #9)
 
@@ -57,17 +57,17 @@
 - ✅ .env purge from git history
 - ✅ 14+ bug fixes across auth, queue, notifications, branding
 
-### ⬜ New review feedback tasks
+### ✅ New review feedback tasks
 
-- ⬜ **M10** — Email data flow: link auth → profile → dashboard so user doesn't re-type email
-- ⬜ **M11** — N/A remarks encoding: verify em-dash renders correctly, fix if `???`
-- ⬜ **M12** — Verification workflow: RPC to check 8/8 status + public `/verify` page
+- ✅ **M10** — Email data flow: personal email readonly in apply, removed from form submit (auth.tsx + apply.tsx)
+- ✅ **M11** — N/A remarks encoding: em-dash → ASCII dash in RPC + migration for existing rows
+- ✅ **M12** — Verification workflow: `verify_clearance_status` RPC + `/verify` page green/red verdict
 
 ---
 
 ## 🎨 Fatin — Certificate Pipeline & Student Features
 
-> ✅ **7/10 done** · ⬜ 3 remaining + 8 new from review
+> ✅ **7/10 done** · ⬜ 4 remaining + 8 new from review
 
 ### ✅ Completed
 
@@ -82,19 +82,43 @@
 ### ⬜ Remaining (original)
 
 - ⬜ **F5** — Student timeline — every rejection/resubmission/approval in order
+  > 📁 `src/routes/_authenticated/dashboard.tsx` · Query `department_reviews` history (attempts, status changes, timestamps) and display as a vertical timeline under the progress card.
+
 - ⬜ **F7** — Deadline lock — block submissions after batch deadline
+  > 📁 `src/routes/_authenticated/apply.tsx` · Read batch deadline from `app_settings` or `departments` table. Disable submit button + show "Deadline passed" message if current date > deadline.
+
 - ⬜ **F10** — Registrar queue — "Ready for final processing" list
+  > 📁 `src/routes/_authenticated/dashboard.tsx` · Add a card/section for registrar role showing students where all 8/8 approved but `status != 'cleared'` — these need final sign-off.
 
 ### ⬜ New review feedback tasks
 
-- ⬜ **F11** — Dashboard email: add `personal_email` to greeting header
+- ⬜ **F11** — Dashboard email: show personal_email in greeting header
+  > 📁 `src/routes/_authenticated/dashboard.tsx` · After M10 wires the data, add `profile.personal_email` to the PageHeader description. E.g. "CS 2103021 · CSE · Batch 2021 · you@email.com"
+
 - ⬜ **F12** — Profile cleanup: remove readonly bg-muted clutter
-- ⬜ **F13** — Thesis/internship on profile: show collected fields (optional)
+  > 📁 `src/routes/_authenticated/profile.tsx` · Replace readonly `<Input readOnly className="bg-muted" />` with plain `<p>` text or `<span>`. Keep the label + value layout but remove the input styling.
+
+- ⬜ **F13** — Thesis/internship on profile: show collected fields
+  > 📁 `src/routes/_authenticated/profile.tsx` · Add a new section below "Academic" showing `thesis_title`, `supervisor_name`, `expected_graduation` only if non-null. Update apply.tsx label: "Thesis / project title" → "Thesis / Project / Internship title".
+
 - ⬜ **F14** — Delete countdown popup: 3-second auto-close AlertDialog
+  > 📁 `src/routes/_authenticated/section.$code.tsx` · When student clicks delete on uploaded doc, wrap confirmation in `<AlertDialog>`. Add `useEffect` countdown — auto-close after 3 seconds. See `notifications.tsx` soft-delete pattern.
+
 - ⬜ **F15** — Icon sizes: standardize all status badge icons
+  > 📁 `src/components/status-badge.tsx` · All icon wrappers should use the same `size-4` or `size-5` class. The pending clock icon is currently smaller — make it match.
+
 - ⬜ **F16** — "Uploaded" text: show on dashboard when docs submitted
+  > 📁 `src/routes/_authenticated/dashboard.tsx` · In the review card loop, after StatusBadge, check if any documents exist for that review. If yes, show small "Uploaded" text below the badge.
+
 - ⬜ **F17** — Remarks in dashboard: show feedback without navigation
+  > 📁 `src/routes/_authenticated/dashboard.tsx` · Already partially done (line 170-172). Verify remarks render correctly for all statuses — not just rejected. Add `text-muted-foreground` styling.
+
 - ⬜ **F18** — Notification badge: unread count on bell icon
+  > 📁 `src/components/portal-shell.tsx` · Query notifications where `read_at IS NULL`. Show red dot or count badge on the bell icon. Re-query when notifications change.
+
+- ⬜ **F19** — Certificate QR + verify flow fix
+  > 📁 `src/routes/_authenticated/certificate.tsx`, `src/routes/verify.$code.tsx`
+  > The QR already encodes `/verify/{certificate_code}`. Confirm it works end-to-end: scan → `/verify/$code` page → calls `verify_clearance_status` RPC → shows green ✅ (8/8) or red ❌ with portal link. The RPC is deployed — just wire the frontend.
 
 ---
 
@@ -113,11 +137,28 @@
 ### ⬜ Gap fixes
 
 - ⬜ **S6** — Override staff decision — admin overturn + audit_log
+  > 📁 `src/routes/_authenticated/admin/index.tsx`, `src/routes/_authenticated/queue.tsx`
+  > Add "Override" button on admin view for any review. Calls a new RPC or direct update (admin RLS allows). Must write to `audit_log` with `entity = 'department_reviews'` and reason field.
+
 - ⬜ **S7** — Department config UI — enable/disable offices per program
+  > 📁 `src/routes/_authenticated/admin/workflow.tsx`
+  > Read from `departments` table. Add toggle to enable/disable each department per program. Store in a new `program_departments` junction table or a JSONB column on `departments`.
+
 - ⬜ **S8** — Queue search/filter/pagination — scale to 300+ students
+  > 📁 `src/routes/_authenticated/queue.tsx`
+  > Add search input (filter by student name/ID). Add status filter tabs (pending/rejected). Add pagination (50 per page). Use Supabase `.range()` for server-side pagination.
+
 - ⬜ **S9** — Rejection history panel — past rejections per student
+  > 📁 `src/routes/_authenticated/queue.tsx`
+  > In the student detail expandable row, show a mini-table of past rejections: date, department, remarks, attempt number. Query `department_reviews` where `status = 'rejected'` for that student.
+
 - ⬜ **S10** — Bulk approve summary — "X approved, Y skipped"
-- ⬜ **S11** — Notices rebuild (fixes S4/S5) — `notices` table + RLS
+  > 📁 `src/routes/_authenticated/queue.tsx`
+  > After bulk approve action completes, show a toast or modal with counts: how many approved, how many skipped (with reason — e.g. "already approved", "has pending docs"). Update the review list.
+
+- ⬜ **S11** — Notices rebuild (fixes S4/S5)
+  > 📁 `src/routes/_authenticated/admin/notices.tsx`, `src/routes/index.tsx`, `supabase/migrations/*notices*`
+  > Create `notices` table with RLS (admin INSERT, public SELECT). Build CRUD admin page. Wire home page `/` to fetch and display active notices. Fix S4 (broken notices) and S5 (wrong audit columns).
 
 ---
 
@@ -125,10 +166,10 @@
 
 | Member | Done | Remaining | Total |
 |--------|------|-----------|-------|
-| Moinul | ✅ 14 | ⬜ 3 | 17 |
-| Fatin | ✅ 7 | ⬜ 11 | 18 |
+| Moinul | ✅ 17 | ⬜ 0 | 17 |
+| Fatin | ✅ 7 | ⬜ 12 | 19 |
 | Shafin | ✅ 5 | ⬜ 6 | 11 |
-| **Total** | **✅ 26** | **⬜ 20** | **46** |
+| **Total** | **✅ 29** | **⬜ 18** | **47** |
 
 ---
 
@@ -136,20 +177,21 @@
 
 | # | Who | Task | Why |
 |---|-----|------|-----|
-| 1 | Moinul | M10 — Email data flow | Unblocks F11 |
-| 2 | Moinul | M12 — Verification workflow | Core cert feature |
-| 3 | Moinul | M11 — N/A remarks encoding | Quick fix |
-| 4 | Fatin | F15 — Icon sizes | Quick UI win |
-| 5 | Fatin | F16 — "Uploaded" text | Dashboard clarity |
-| 6 | Fatin | F17 — Remarks display | Student feedback |
-| 7 | Fatin | F18 — Notification badge | UX improvement |
-| 8 | Fatin | F14 — Delete popup | Safety UX |
-| 9 | Fatin | F11 — Dashboard email | After M10 |
-| 10 | Fatin | F12 — Profile cleanup | Remove clutter |
-| 11 | Fatin | F13 — Thesis/internship | Show collected data |
-| 12 | Shafin | S11 — Notices rebuild | Fixes S4/S5 |
-| 13 | Shafin | S6 — Override decision | Admin power |
-| 14 | Shafin | S7-S10 | Queue UX |
+| 1 | Fatin | F19 — Certificate QR + verify | End-to-end verification |
+| 2 | Fatin | F15 — Icon sizes | Quick UI win |
+| 3 | Fatin | F16 — "Uploaded" text | Dashboard clarity |
+| 4 | Fatin | F17 — Remarks display | Student feedback |
+| 5 | Fatin | F18 — Notification badge | UX improvement |
+| 6 | Fatin | F14 — Delete popup | Safety UX |
+| 7 | Fatin | F11 — Dashboard email | After M10 |
+| 8 | Fatin | F12 — Profile cleanup | Remove clutter |
+| 9 | Fatin | F13 — Thesis/internship | Show collected data |
+| 10 | Fatin | F5 — Student timeline | Full history view |
+| 11 | Fatin | F7 — Deadline lock | Block late submissions |
+| 12 | Fatin | F10 — Registrar queue | Final processing |
+| 13 | Shafin | S11 — Notices rebuild | Fixes S4/S5 |
+| 14 | Shafin | S6 — Override decision | Admin power |
+| 15 | Shafin | S7-S10 | Queue UX |
 
 ---
 
@@ -180,6 +222,11 @@ Student applies → staff approves/rejects with remarks → escalation works →
 - ✅ Settings page: role-aware form (PR #47)
 - ✅ .env purge from git history
 - ✅ 11 new review feedback tasks distributed
+- ✅ M10 — Email data flow: personal_email wired (PR #47)
+- ✅ M11 — N/A remarks: em-dash → ASCII dash (PR #47)
+- ✅ M12 — verify_clearance_status RPC + /verify page (PR #47)
+- ✅ F19 — Certificate QR + verify flow task assigned to Fatin
+- ✅ Doc-sync workflow fix: commit before pull-rebase
 
 ### 2026-08-24
 
