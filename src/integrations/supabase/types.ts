@@ -48,7 +48,6 @@ export type Database = {
         Row: {
           application_id: string;
           batch: string | null;
-          certificate_code: string;
           id: string;
           issued_at: string;
           program: string | null;
@@ -58,7 +57,6 @@ export type Database = {
         Insert: {
           application_id: string;
           batch?: string | null;
-          certificate_code: string;
           id?: string;
           issued_at?: string;
           program?: string | null;
@@ -68,7 +66,6 @@ export type Database = {
         Update: {
           application_id?: string;
           batch?: string | null;
-          certificate_code?: string;
           id?: string;
           issued_at?: string;
           program?: string | null;

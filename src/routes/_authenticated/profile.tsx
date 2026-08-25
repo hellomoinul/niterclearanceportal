@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
+import { idToEmail } from "@/lib/portal";
 import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
 
@@ -39,6 +40,10 @@ function ProfilePage() {
                 <span className="font-semibold">{isRegistrar || isAdmin ? "Registrar ID: " : "Student ID: "}</span>
                 {profile.user_code || "Not provided"}
               </div>
+              <div>
+                <span className="font-semibold">Portal ID: </span>
+                {profile.user_code ? idToEmail(profile.user_code) : "Not provided"}
+              </div>
               {isStudent ? (
                 <>
                   <div>
@@ -63,6 +68,10 @@ function ProfilePage() {
               <div>
                 <span className="font-semibold">Email: </span>
                 {profile.personal_email || "Not provided"}
+              </div>
+              <div className="pt-4 border-t mt-4">
+                <span className="font-semibold text-sm">Account UUID: </span>
+                <span className="text-sm text-muted-foreground font-mono">{profile.id}</span>
               </div>
             </div>
           ) : (

@@ -7,7 +7,7 @@ export const DOCS_BUCKET = "clearance-docs";
 export const MAX_FILE_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 
-/** UCAM-style sign in: students and registrars type an ID, never an email. */
+/** Generate a portal ID (login email) from a user code. */
 export function idToEmail(userCode: string) {
   return `${userCode
     .trim()
