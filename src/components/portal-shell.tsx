@@ -33,16 +33,21 @@ export function PortalHeader() {
     queryKey: ["notifications-unread"],
     queryFn: async () => {
       if (!session?.user) return 0;
-      const { count } = await supabase
-        .from("notifications")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", session.user.id)
-        .eq("is_read", false)
-        .is("deleted_at", null);
-      return count ?? 0;
+      try {
+        const { count } = await supabase
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", session.user.id)
+          .eq("is_read", false)
+          .is("deleted_at", null);
+        return count ?? 0;
+      } catch {
+        return 0;
+      }
     },
     enabled: !!session?.user,
     refetchInterval: 30_000,
+    retry: false,
   });
 
   async function handleSignOut() {
