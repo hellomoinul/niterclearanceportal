@@ -57,30 +57,33 @@ export default function NoticeBoardPage() {
   }
   setLoading(false);
 };
+const handleCreateNotice = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!title.trim() || !content.trim()) return;
 
-  const handleCreateNotice = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
+  const { error } = await (supabase as any).from('notices').insert([
+    {
+      title,
+      content,
+      target_audience: targetAudience,
+    },
+  ]);
 
-    const { error } = await supabase.from('notices' as any).insert([
-      {
-        title,
-        content,
-        target_audience: targetAudience,
-      },
-    ]);
+  if (error) {
+    console.error('Notice create error:', error);
+    alert(`Failed to publish notice: ${error.message}`);
+    return;
+  }
 
-    if (!error) {
-      setTitle('');
-      setContent('');
-      setTargetAudience('All');
-      setOpen(false);
-      fetchNotices();
-    }
-  };
+  setTitle('');
+  setContent('');
+  setTargetAudience('All');
+  setOpen(false);
+  fetchNotices();
+};
 
   const handleDeleteNotice = async (id: string) => {
-    const { error } = await supabase.from('notices' as any).delete().eq('id', id);
+    const { error } = await (supabase as any).from('notices').delete().eq('id', id);
     if (!error) {
       fetchNotices();
     }
