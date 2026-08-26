@@ -88,17 +88,26 @@ function DashboardPage() {
 
   return (
     <PortalShell>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">
-            {profile?.full_name ? `Hello, ${profile.full_name.split(" ")[0]}` : "My clearance"}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {profile?.user_code ? `ID ${profile.user_code}` : "Student"}
-            {profile?.program ? ` · ${profile.program}` : ""}
-            {profile?.batch ? ` · Batch ${profile.batch}` : ""}
-          </p>
-        </div>
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {profile?.full_name ? `Hello, ${profile.full_name.split(" ")[0]}` : "My clearance"}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {profile?.user_code
+            ? `${profile.user_code}${profile?.program ? ` · ${profile.program}` : ""}${profile?.batch ? ` · Batch ${profile.batch}` : ""}`
+            : "Student"}
+        </p>
+      </header>
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        {approved === total && total > 0 ? (
+          <Button asChild variant="default">
+            <a href="/certificate">View Certificate</a>
+          </Button>
+        ) : (
+          <Button disabled variant="default">
+            View Certificate
+          </Button>
+        )}
         {(isStaff || isAdmin) && (
           <Button asChild variant="outline">
             <Link to="/queue">Go to department queue</Link>
@@ -174,4 +183,4 @@ function DashboardPage() {
       )}
     </PortalShell>
   );
-}
+};
