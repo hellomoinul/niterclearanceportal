@@ -95,7 +95,7 @@ src/
 │   ├── auth.tsx                     # Sign in / register
 │   ├── about.tsx                    # About page
 │   ├── calendar.tsx                 # Academic calendar
-│   ├── faq.tsx                      # FAQ
+│   ├── guide.tsx                    # Role-based guide (+ folded-in FAQ)
 │   ├── verify.tsx                   # Public certificate verification
 │   └── _authenticated/              # Requires login
 │       ├── dashboard.tsx            # Student dashboard
@@ -106,6 +106,7 @@ src/
 │       ├── settings.tsx             # Account settings
 │       ├── notifications.tsx        # In-app notifications
 │       ├── queue.tsx                # Registrar/admin review queue
+│       ├── registrar/queue.tsx      # Registrar "Final Queue" (issuance view)
 │       └── admin/                   # Admin-only pages
 │           ├── route.tsx            # Layout guard (admin role check)
 │           ├── index.tsx            # Admin dashboard + N/A audit table
@@ -149,7 +150,7 @@ Database migrations are applied via the Supabase CLI (`npx supabase db query --l
 ## Team workflow
 
 1. **Never push directly to `main`.** Work on personal branches.
-2. Read [`Assignment.md`](Assignment.md) for who owns which files and tasks.
+2. Read [`Snapshot.md`](Snapshot.md) for ownership, task specs, and current status.
 3. Daily loop:
 
    ```sh
@@ -162,7 +163,7 @@ Database migrations are applied via the Supabase CLI (`npx supabase db query --l
    ```
 
 4. Open a Pull Request → Moinul reviews and merges.
-5. Update your checklist in [`Assignment.md`](Assignment.md) and log progress in [`Snapshot.md`](Snapshot.md) in the same PR.
+5. Update your checklist + log progress in [`Snapshot.md`](Snapshot.md) in the same PR.
 6. Stuck more than 30 minutes? Post in the group chat.
 
 ## License
