@@ -174,9 +174,10 @@ const faqs: Record<RoleKey, { q: string; a: string }[]> = {
 };
 
 function GuidePage() {
-  const { isRegistrar, isAdmin } = useAuth();
-  const defaultRole: RoleKey = isAdmin ? "admin" : isRegistrar ? "registrar" : "student";
-  const [role, setRole] = useState<RoleKey>(defaultRole);
+  const { session, isRegistrar, isAdmin } = useAuth();
+  const sessionRole: RoleKey = isAdmin ? "admin" : isRegistrar ? "registrar" : "student";
+  const [role, setRole] = useState<RoleKey>(sessionRole);
+  const showTabs = !session;
 
   const steps = role === "student" ? studentSteps : role === "registrar" ? registrarSteps : adminSteps;
 
@@ -187,27 +188,29 @@ function GuidePage() {
         description="How the NITER clearance portal works — a step-by-step walkthrough for your role, plus answers to common questions."
       />
 
-      <div className="card-surface mt-6 p-6">
-        <p className="text-sm font-medium text-muted-foreground">View the guide for</p>
-        <Tabs value={role} onValueChange={(v) => setRole(v as RoleKey)}>
-          <TabsList className="mt-3 grid w-full max-w-sm grid-cols-3">
-            {roleTabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+      {showTabs && (
+        <div className="card-surface mt-6 p-6">
+          <p className="text-sm font-medium text-muted-foreground">View the guide for</p>
+          <Tabs value={role} onValueChange={(v) => setRole(v as RoleKey)}>
+            <TabsList className="mt-3 grid w-full max-w-sm grid-cols-3">
+              {roleTabs.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-          {roleTabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value} className="mt-2">
-              <p className="text-sm text-muted-foreground">
-                Guide for the{" "}
-                <span className="font-semibold text-foreground">{tab.label}</span> role.
-              </p>
-            </TabsContent>
-          ))}
-        </Tabs>
-      </div>
+            {roleTabs.map((tab) => (
+              <TabsContent key={tab.value} value={tab.value} className="mt-2">
+                <p className="text-sm text-muted-foreground">
+                  Guide for the{" "}
+                  <span className="font-semibold text-foreground">{tab.label}</span> role.
+                </p>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      )}
 
       <div className="card-surface mt-6 p-6">
         <h2 className="text-base font-semibold">What to do, step by step</h2>
