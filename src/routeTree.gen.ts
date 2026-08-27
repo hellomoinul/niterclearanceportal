@@ -14,8 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as GuideRouteImport } from './routes/guide'
 import { Route as UpdatePasswordRouteImport } from './routes/update-password'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
@@ -59,14 +59,14 @@ const CalendarRoute = CalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FaqRoute = FaqRouteImport.update({
-  id: '/faq',
-  path: '/faq',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UpdatePasswordRoute = UpdatePasswordRouteImport.update({
@@ -171,8 +171,8 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
-  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/guide': typeof GuideRoute
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -197,8 +197,8 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
-  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/guide': typeof GuideRoute
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
@@ -224,8 +224,8 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
-  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/guide': typeof GuideRoute
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -252,8 +252,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/calendar'
-    | '/faq'
     | '/forgot-password'
+    | '/guide'
     | '/update-password'
     | '/verify'
     | '/admin'
@@ -278,8 +278,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/calendar'
-    | '/faq'
     | '/forgot-password'
+    | '/guide'
     | '/update-password'
     | '/verify'
     | '/apply'
@@ -304,8 +304,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/calendar'
-    | '/faq'
     | '/forgot-password'
+    | '/guide'
     | '/update-password'
     | '/verify'
     | '/_authenticated/admin'
@@ -332,8 +332,8 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   CalendarRoute: typeof CalendarRoute
-  FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  GuideRoute: typeof GuideRoute
   UpdatePasswordRoute: typeof UpdatePasswordRoute
   VerifyRoute: typeof VerifyRouteWithChildren
 }
@@ -375,18 +375,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/faq': {
-      id: '/faq'
-      path: '/faq'
-      fullPath: '/faq'
-      preLoaderRoute: typeof FaqRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/forgot-password': {
       id: '/forgot-password'
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/update-password': {
@@ -586,8 +586,8 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   CalendarRoute: CalendarRoute,
-  FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  GuideRoute: GuideRoute,
   UpdatePasswordRoute: UpdatePasswordRoute,
   VerifyRoute: VerifyRouteWithChildren,
 }

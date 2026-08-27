@@ -21,7 +21,7 @@ const publicLinks = [
   { to: "/verify", label: "Verify certificate" },
 ] as const;
 
-const faqLink = { to: "/faq", label: "FAQ" } as const;
+const guideLink = { to: "/guide", label: "Guide" } as const;
 
 export function PortalHeader() {
   const { session, profile, isRegistrar, isAdmin, signOut } = useAuth();
@@ -79,7 +79,7 @@ export function PortalHeader() {
         </Link>
 
         <nav className="ml-auto hidden items-center gap-1 md:flex">
-          {[...publicLinks, ...appLinks, faqLink]
+          {[...publicLinks, ...appLinks, guideLink]
             .filter((link) => session ? link.to !== "/about" : true)
             .map((link) => (
             <Link
@@ -154,7 +154,7 @@ export function PortalHeader() {
 
       {open ? (
         <nav className="animate-in fade-in slide-in-from-top-1 border-t border-border bg-surface px-4 py-2 duration-200 md:hidden">
-          {[...publicLinks, ...appLinks, faqLink]
+          {[...publicLinks, ...appLinks, guideLink]
             .filter((link) => session ? link.to !== "/about" : true)
             .map((link) => (
             <Link
