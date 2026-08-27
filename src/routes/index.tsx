@@ -28,7 +28,11 @@ export const Route = createFileRoute("/")({
 
 const notices = [
   {
+<<<<<<< HEAD
     title: "Clearance window for Batch 2021 is open",
+=======
+    title: "Clearance window for Academic year 2021 is open",
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     body: "Final-year students of all programs may submit their clearance application until 30 September.",
   },
   {
@@ -75,6 +79,7 @@ function HomePage() {
 
   return (
     <PortalShell className="max-w-6xl">
+<<<<<<< HEAD
       <section className="hero-surface overflow-hidden rounded-xl px-6 py-12 shadow-raised sm:px-10 sm:py-16">
         <p className="text-xs font-semibold tracking-[0.18em] uppercase opacity-80">
           National Institute of Textile Engineering and Research
@@ -104,6 +109,15 @@ function HomePage() {
             </Link>
           </Button>
         </div>
+=======
+      <section className="hero-surface hero-fade-in overflow-hidden rounded-xl px-6 py-12 shadow-raised transition-shadow duration-300 hover:shadow-lg sm:px-10 sm:py-16">
+        <p className="text-xs font-semibold tracking-[0.18em] uppercase opacity-80">
+          National Institute of Textile Engineering and Research
+        </p>
+<h1 className="mt-4 max-w-2xl text-3xl font-semibold font-display text-white sm:text-4xl">
+          Final-year clearance, without walking to eight offices
+        </h1>
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
       </section>
 
       <section className="mt-10 grid gap-4 sm:grid-cols-3">

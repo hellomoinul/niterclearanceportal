@@ -238,7 +238,10 @@ CREATE POLICY "authenticated write audit log" ON public.audit_log FOR INSERT TO 
 CREATE TABLE public.certificates (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   application_id uuid NOT NULL UNIQUE REFERENCES public.clearance_applications(id) ON DELETE CASCADE,
+<<<<<<< HEAD
   certificate_code text UNIQUE NOT NULL,
+=======
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   student_name text NOT NULL,
   student_code text NOT NULL,
   program text,
@@ -278,10 +281,16 @@ BEGIN
     SELECT * INTO prof FROM public.profiles WHERE id = app.student_id;
     UPDATE public.clearance_applications
       SET status = 'cleared', cleared_at = now() WHERE id = NEW.application_id AND status <> 'cleared';
+<<<<<<< HEAD
     INSERT INTO public.certificates (application_id, certificate_code, student_name, student_code, program, batch)
     VALUES (
       NEW.application_id,
       'NITER-' || COALESCE(prof.batch, 'NA') || '-' || COALESCE(prof.user_code, 'NA') || '-' || upper(substr(replace(NEW.application_id::text, '-', ''), 1, 6)),
+=======
+    INSERT INTO public.certificates (application_id, student_name, student_code, program, batch)
+    VALUES (
+      NEW.application_id,
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
       COALESCE(prof.full_name, 'Unknown'),
       COALESCE(prof.user_code, 'Unknown'),
       prof.program,

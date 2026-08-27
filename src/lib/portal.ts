@@ -7,7 +7,11 @@ export const DOCS_BUCKET = "clearance-docs";
 export const MAX_FILE_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 
+<<<<<<< HEAD
 /** UCAM-style sign in: students and registrars type an ID, never an email. */
+=======
+/** Generate a portal ID (login email) from a user code. */
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
 export function idToEmail(userCode: string) {
   return `${userCode
     .trim()
@@ -41,3 +45,19 @@ export function validateUpload(file: File) {
   }
   return null;
 }
+<<<<<<< HEAD
+=======
+
+/** Strip anything that is not a numeric digit. */
+export function stripNonDigits(value: string) {
+  return value.replace(/[^0-9]/g, "");
+}
+
+/** React onInput handler: keep only digits, cap at 11 (e.g. BD phone numbers). */
+export function phoneInputHandler(
+  event: React.FormEvent<HTMLInputElement>
+) {
+  const el = event.currentTarget;
+  el.value = stripNonDigits(el.value).slice(0, 11);
+}
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c

@@ -48,7 +48,10 @@ export type Database = {
         Row: {
           application_id: string;
           batch: string | null;
+<<<<<<< HEAD
           certificate_code: string;
+=======
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           id: string;
           issued_at: string;
           program: string | null;
@@ -58,7 +61,10 @@ export type Database = {
         Insert: {
           application_id: string;
           batch?: string | null;
+<<<<<<< HEAD
           certificate_code: string;
+=======
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           id?: string;
           issued_at?: string;
           program?: string | null;
@@ -68,7 +74,10 @@ export type Database = {
         Update: {
           application_id?: string;
           batch?: string | null;
+<<<<<<< HEAD
           certificate_code?: string;
+=======
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           id?: string;
           issued_at?: string;
           program?: string | null;
@@ -126,10 +135,18 @@ export type Database = {
           department_id: string;
           escalated: boolean;
           id: string;
+<<<<<<< HEAD
+=======
+          is_na: boolean;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           remarks: string | null;
           reviewed_at: string | null;
           reviewed_by: string | null;
           status: Database["public"]["Enums"]["review_status"];
+<<<<<<< HEAD
+=======
+          triggered: boolean;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
         };
         Insert: {
           application_id: string;
@@ -138,10 +155,18 @@ export type Database = {
           department_id: string;
           escalated?: boolean;
           id?: string;
+<<<<<<< HEAD
+=======
+          is_na?: boolean;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           remarks?: string | null;
           reviewed_at?: string | null;
           reviewed_by?: string | null;
           status?: Database["public"]["Enums"]["review_status"];
+<<<<<<< HEAD
+=======
+          triggered?: boolean;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
         };
         Update: {
           application_id?: string;
@@ -150,10 +175,18 @@ export type Database = {
           department_id?: string;
           escalated?: boolean;
           id?: string;
+<<<<<<< HEAD
+=======
+          is_na?: boolean;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           remarks?: string | null;
           reviewed_at?: string | null;
           reviewed_by?: string | null;
           status?: Database["public"]["Enums"]["review_status"];
+<<<<<<< HEAD
+=======
+          triggered?: boolean;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
         };
         Relationships: [
           {
@@ -259,6 +292,10 @@ export type Database = {
         Row: {
           body: string | null;
           created_at: string;
+<<<<<<< HEAD
+=======
+          deleted_at: string | null;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           id: string;
           is_read: boolean;
           title: string;
@@ -267,6 +304,10 @@ export type Database = {
         Insert: {
           body?: string | null;
           created_at?: string;
+<<<<<<< HEAD
+=======
+          deleted_at?: string | null;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           id?: string;
           is_read?: boolean;
           title: string;
@@ -275,6 +316,10 @@ export type Database = {
         Update: {
           body?: string | null;
           created_at?: string;
+<<<<<<< HEAD
+=======
+          deleted_at?: string | null;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           id?: string;
           is_read?: boolean;
           title?: string;
@@ -414,10 +459,28 @@ export type Database = {
         Args: { p_user_code: string }
         Returns: string
       }
+<<<<<<< HEAD
+=======
+      declare_departments_na: {
+        Args: { p_application_id: string; p_department_codes: string[] };
+        Returns: number;
+      };
+      reopen_rejected_review: {
+        Args: { p_review_id: string };
+        Returns: undefined;
+      };
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
       registrar_in_department: {
         Args: { _department_id: string; _user_id: string };
         Returns: boolean;
       };
+<<<<<<< HEAD
+=======
+      verify_clearance_status: {
+        Args: { p_user_code: string };
+        Returns: Json;
+      };
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     };
     Enums: {
       app_role: "student" | "registrar" | "admin";

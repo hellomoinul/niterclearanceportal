@@ -18,6 +18,10 @@ function CertificatePage() {
   
   const [isGenerating, setIsGenerating] = useState(false)
   const [qrCodeUrl, setQrCodeUrl] = useState('')
+<<<<<<< HEAD
+=======
+  const [certId, setCertId] = useState('')
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   const certificateRef = useRef<HTMLDivElement>(null)
 
   // TODO (Shafin): Replace this local fallback with a fetch to the app_settings table
@@ -51,9 +55,16 @@ function CertificatePage() {
             .eq('application_id', appData.id)
             .maybeSingle()
           
+<<<<<<< HEAD
           if (certData?.certificate_code) {
             // Generate QR code pointing to the public verification page
             const verifyUrl = `${window.location.origin}/verify/${certData.certificate_code}`
+=======
+          if (certData?.id) {
+            // Generate QR code pointing to the public verification page (uses certificate UUID)
+            const verifyUrl = `${window.location.origin}/verify/${certData.id}`
+            setCertId(certData.id)
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
             try {
               const url = await QRCode.toDataURL(verifyUrl, { width: 100, margin: 0 })
               setQrCodeUrl(url)
@@ -201,7 +212,11 @@ function CertificatePage() {
               {profile.program}
               <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
             </span> department, 
+<<<<<<< HEAD
             Batch 
+=======
+            Academic year 
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
             <span className="relative inline-block font-bold px-2 mx-1 pb-1">
               {profile.batch}
               <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
@@ -226,6 +241,15 @@ function CertificatePage() {
                 <p className="text-sm font-medium text-[#0f172a] mt-1">
                   {isCleared ? new Date().toLocaleDateString('en-GB') : 'N/A'}
                 </p>
+<<<<<<< HEAD
+=======
+                {certId && (
+                  <>
+                    <p className="text-xs font-semibold text-[#334155] uppercase tracking-wider mt-3">Certificate ID</p>
+                    <p className="text-[10px] font-mono text-[#64748b] mt-1 break-all">{certId}</p>
+                  </>
+                )}
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
               </div>
             </div>
             

@@ -34,3 +34,9 @@ dist-ssr
 
 # Supabase temp
 supabase/.temp/
+<<<<<<< HEAD
+=======
+
+.vercel
+.env*
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c

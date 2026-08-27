@@ -13,8 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
+<<<<<<< HEAD
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+=======
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as GuideRouteImport } from './routes/guide'
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
 import { Route as UpdatePasswordRouteImport } from './routes/update-password'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
@@ -53,9 +59,15 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+<<<<<<< HEAD
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+=======
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -63,6 +75,14 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+<<<<<<< HEAD
+=======
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
 const UpdatePasswordRoute = UpdatePasswordRouteImport.update({
   id: '/update-password',
   path: '/update-password',
@@ -164,8 +184,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+<<<<<<< HEAD
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+=======
+  '/calendar': typeof CalendarRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/guide': typeof GuideRoute
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -189,8 +215,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+<<<<<<< HEAD
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+=======
+  '/calendar': typeof CalendarRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/guide': typeof GuideRoute
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
@@ -215,8 +247,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+<<<<<<< HEAD
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+=======
+  '/calendar': typeof CalendarRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/guide': typeof GuideRoute
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -242,8 +280,14 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+<<<<<<< HEAD
     | '/faq'
     | '/forgot-password'
+=======
+    | '/calendar'
+    | '/forgot-password'
+    | '/guide'
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     | '/update-password'
     | '/verify'
     | '/admin'
@@ -267,8 +311,14 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+<<<<<<< HEAD
     | '/faq'
     | '/forgot-password'
+=======
+    | '/calendar'
+    | '/forgot-password'
+    | '/guide'
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     | '/update-password'
     | '/verify'
     | '/apply'
@@ -292,8 +342,14 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/auth'
+<<<<<<< HEAD
     | '/faq'
     | '/forgot-password'
+=======
+    | '/calendar'
+    | '/forgot-password'
+    | '/guide'
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     | '/update-password'
     | '/verify'
     | '/_authenticated/admin'
@@ -319,8 +375,14 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+<<<<<<< HEAD
   FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+=======
+  CalendarRoute: typeof CalendarRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  GuideRoute: typeof GuideRoute
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   UpdatePasswordRoute: typeof UpdatePasswordRoute
   VerifyRoute: typeof VerifyRouteWithChildren
 }
@@ -355,11 +417,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+<<<<<<< HEAD
     '/faq': {
       id: '/faq'
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+=======
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -369,6 +439,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+<<<<<<< HEAD
+=======
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     '/update-password': {
       id: '/update-password'
       path: '/update-password'
@@ -565,8 +645,14 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+<<<<<<< HEAD
   FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+=======
+  CalendarRoute: CalendarRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  GuideRoute: GuideRoute,
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   UpdatePasswordRoute: UpdatePasswordRoute,
   VerifyRoute: VerifyRouteWithChildren,
 }

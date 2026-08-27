@@ -4,7 +4,12 @@ import { GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+<<<<<<< HEAD
 import { idToEmail } from "@/lib/portal";
+=======
+import { idToEmail, phoneInputHandler } from "@/lib/portal";
+import { DEPARTMENTS, academicYears } from "@/lib/departments";
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +47,11 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+<<<<<<< HEAD
     if (session) navigate({ to: "/dashboard", replace: true });
+=======
+    if (session) navigate({ to: "/", replace: true });
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   }, [session, navigate]);
 
   async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
@@ -56,7 +65,11 @@ function AuthPage() {
     if (userCode.includes("@")) {
       email = userCode.trim();
     } else {
+<<<<<<< HEAD
       // Lookup real email via RPC; fall back to synthetic for legacy accounts
+=======
+      // Lookup real email via RPC; fall back to portal ID for legacy accounts
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
       const { data: rpcEmail } = await supabase.rpc("login_email_for_user_code", {
         p_user_code: userCode.trim(),
       });
@@ -69,7 +82,11 @@ function AuthPage() {
       toast.error("Sign in failed", { description: "Check your ID and password and try again." });
       return;
     }
+<<<<<<< HEAD
     navigate({ to: "/dashboard" });
+=======
+    navigate({ to: "/" });
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   }
 
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
@@ -84,6 +101,17 @@ function AuthPage() {
     const session = String(form.get("session") ?? "").trim();
     const phone = String(form.get("phone") ?? "").trim();
 
+<<<<<<< HEAD
+=======
+    if (!userCode || !fullName || !email || !program || !session || !phone) {
+      setBusy(false);
+      toast.error("All fields are required", {
+        description: "Please fill in every field before creating your account.",
+      });
+      return;
+    }
+
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     if (password !== confirmPassword) {
       setBusy(false);
       toast.error("Passwords do not match", {
@@ -125,7 +153,11 @@ function AuthPage() {
       return;
     }
     toast.success("Account created", { description: "Welcome to the clearance portal." });
+<<<<<<< HEAD
     navigate({ to: "/dashboard" });
+=======
+    navigate({ to: "/" });
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   }
 
   return (
@@ -148,13 +180,22 @@ function AuthPage() {
           </TabsList>
 
           <TabsContent value="signin" className="mt-5">
+<<<<<<< HEAD
             <p className="text-sm text-muted-foreground">
+=======
+            <p className="text-center text-sm text-muted-foreground">
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
               Universal sign in page for Students, Admin, Registrar.
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
+<<<<<<< HEAD
                 <Label htmlFor="signin-id">Student/Admin/Registrar - ID or Email</Label>
                 <Input id="signin-id" name="userCode" required placeholder="CS 2103021" />
+=======
+                <Label htmlFor="signin-id">Student / Admin / Registrar — ID, Portal ID, or Email</Label>
+                <Input id="signin-id" name="userCode" required placeholder="CS 2103021, portal ID, or email" />
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
               </div>
               
               {/* --- NEW FORGOT PASSWORD SECTION START --- */}
@@ -186,6 +227,7 @@ function AuthPage() {
             <form className="mt-5 space-y-4" onSubmit={handleRegister}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
+<<<<<<< HEAD
                   <Label htmlFor="reg-id">Student ID</Label>
                   <Input id="reg-id" name="userCode" required placeholder="CS 2103021" />
                 </div>
@@ -199,6 +241,34 @@ function AuthPage() {
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="reg-program">Program</Label>
+=======
+                  <Label htmlFor="reg-id">Student ID<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Input id="reg-id" name="userCode" required placeholder="CS 2103021" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-name">Full name<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Input id="reg-name" name="fullName" required placeholder="CAPITAL BLOCK LETTER" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-email">Email<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Input id="reg-email" name="email" type="email" required placeholder="you@email.com" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-phone">Phone<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Input
+                    id="reg-phone"
+                    name="phone"
+                    placeholder="01XXXXXXXXX"
+                    inputMode="numeric"
+                    pattern="[0-9]{11}"
+                    maxLength={11}
+                    onInput={phoneInputHandler}
+                    required
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="reg-program">Program<span className="text-red-500 ml-0.5">*</span></Label>
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                   <Select
                     name="program"
                   >
@@ -206,16 +276,28 @@ function AuthPage() {
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
+<<<<<<< HEAD
                       <SelectItem value="TE">TE – Textile Engineering</SelectItem>
                       <SelectItem value="IPE">IPE – Industrial & Production Engineering</SelectItem>
                       <SelectItem value="FDAE">FDAE – Fashion Design & Apparel Engineering</SelectItem>
                       <SelectItem value="CSE">CSE – Computer Science & Engineering</SelectItem>
                       <SelectItem value="EEE">EEE – Electrical & Electronic Engineering</SelectItem>
+=======
+                      {DEPARTMENTS.map((d) => (
+                        <SelectItem key={d.value} value={d.value}>
+                          {d.label}
+                        </SelectItem>
+                      ))}
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2 sm:col-span-2">
+<<<<<<< HEAD
                   <Label htmlFor="reg-session">Academic year</Label>
+=======
+                  <Label htmlFor="reg-session">Academic year<span className="text-red-500 ml-0.5">*</span></Label>
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                   <Select
                     name="session"
                   >
@@ -223,6 +305,7 @@ function AuthPage() {
                       <SelectValue placeholder="Select academic year" />
                     </SelectTrigger>
                     <SelectContent>
+<<<<<<< HEAD
                       {[...Array(10).keys()].map((i) => {
                         const year = 2021 + i;
                         return (
@@ -231,15 +314,26 @@ function AuthPage() {
                           </SelectItem>
                         );
                       })}
+=======
+                      {academicYears().map((year) => (
+                        <SelectItem key={year} value={year}>
+                          {year}
+                        </SelectItem>
+                      ))}
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
+<<<<<<< HEAD
                   <Label htmlFor="reg-phone">Phone</Label>
                   <Input id="reg-phone" name="phone" placeholder="01XXXXXXXXX" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-password">Password</Label>
+=======
+                  <Label htmlFor="reg-password">Password<span className="text-red-500 ml-0.5">*</span></Label>
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                   <Input
                     id="reg-password"
                     name="password"
@@ -249,7 +343,11 @@ function AuthPage() {
                   />
                 </div>
                 <div className="space-y-2">
+<<<<<<< HEAD
                   <Label htmlFor="reg-confirm-password">Confirm password</Label>
+=======
+                  <Label htmlFor="reg-confirm-password">Confirm password<span className="text-red-500 ml-0.5">*</span></Label>
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                   <Input
                     id="reg-confirm-password"
                     name="confirmPassword"
@@ -270,7 +368,11 @@ function AuthPage() {
         </Tabs>
       </div>
 
+<<<<<<< HEAD
       <p className="mt-6 text-sm text-muted-foreground">
+=======
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
         Registrar and Admin accounts are created by the admin office.
       </p>
     </div>

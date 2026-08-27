@@ -14,7 +14,11 @@ const data = [
 export default function BatchReports() {
   return (
     <div className="p-6">
+<<<<<<< HEAD
       <h2 className="text-2xl font-bold mb-4">Batch Clearance Reports</h2>
+=======
+      <h2 className="text-2xl font-bold mb-4">Academic Year Clearance Reports</h2>
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
       <div className="bg-white p-6 shadow-sm border rounded-lg max-w-4xl">
         <div className="w-full h-[350px]">
           <ResponsiveContainer width="100%" height="100%">

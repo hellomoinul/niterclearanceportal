@@ -63,7 +63,12 @@ interface QueueReview {
   remarks: string | null;
   attempts: number;
   escalated: boolean;
+<<<<<<< HEAD
   departments: { code: string; name: string } | null;
+=======
+  triggered: boolean;
+  departments: { code: string; name: string; is_final_signoff: boolean } | null;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   clearance_applications: {
     id: string;
     thesis_title: string | null;
@@ -156,7 +161,11 @@ function QueuePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("department_reviews")
+<<<<<<< HEAD
         .select("*, departments(code, name), clearance_applications(id, thesis_title, student_id)")
+=======
+        .select("*, departments(code, name, is_final_signoff), clearance_applications(id, thesis_title, student_id)")
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
         .in("status", ["pending", "rejected"])
         .in("department_id", scopedDeptIds);
       if (error) throw error;
@@ -167,7 +176,12 @@ function QueuePage() {
         remarks: string | null;
         attempts: number;
         escalated: boolean;
+<<<<<<< HEAD
         departments: { code: string; name: string } | null;
+=======
+        triggered: boolean;
+        departments: { code: string; name: string; is_final_signoff: boolean } | null;
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
         clearance_applications: {
           id: string;
           thesis_title: string | null;
@@ -238,6 +252,15 @@ function QueuePage() {
           ? tab === "rejected"
           : false;
       if (!matchesTab) return false;
+<<<<<<< HEAD
+=======
+      // Final sign-off (Department Head) reviews show only once triggered (7/8 approved);
+      // they never have documents, so exempt them from the zero-document rule.
+      if (r.departments?.is_final_signoff) {
+        if (!r.triggered) return false;
+        return true;
+      }
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
       if (r.status === "pending" && (docsByReview[r.id] ?? []).length === 0) return false;
       return true;
     });
@@ -472,13 +495,23 @@ function QueuePage() {
                         </span>
                       </h2>
                       <p className="mt-1 text-sm text-muted-foreground">
+<<<<<<< HEAD
                         {[student?.program, student?.batch ? `Batch ${student.batch}` : null]
+=======
+                        {[student?.program, student?.batch ? `Academic year ${student.batch}` : null]
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                           .filter(Boolean)
                           .join(" · ") || "—"}
                       </p>
                       {review.departments?.name && (
                         <p className="mt-0.5 text-xs font-medium text-muted-foreground">
                           Office: {review.departments.name}
+<<<<<<< HEAD
+=======
+                          {review.departments.is_final_signoff
+                            ? " — applied for final approval"
+                            : ""}
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                         </p>
                       )}
                     </div>
@@ -496,6 +529,17 @@ function QueuePage() {
                   </p>
                 )}
 
+<<<<<<< HEAD
+=======
+                {review.departments?.is_final_signoff ? (
+                  <div className="mt-4">
+                    <h3 className="text-sm font-semibold">Final sign-off</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      No document required — the Department Head reviews this student's clearance.
+                    </p>
+                  </div>
+                ) : (
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                 <div className="mt-4">
                   <h3 className="text-sm font-semibold">Proof documents ({docs.length})</h3>
                   {docs.length === 0 ? (
@@ -522,6 +566,10 @@ function QueuePage() {
                     </ul>
                   )}
                 </div>
+<<<<<<< HEAD
+=======
+                )}
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
 
                 {review.status !== "approved" && (
                   <div className="mt-4 border-t border-border pt-4">

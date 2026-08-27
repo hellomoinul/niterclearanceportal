@@ -44,7 +44,11 @@ function ForgotPasswordPage() {
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-2xl font-bold text-[#0f172a]">Reset Password</CardTitle>
           <CardDescription className="text-[#64748b]">
+<<<<<<< HEAD
             Enter your NITER student email to receive a secure password reset link.
+=======
+            Enter your email to receive a secure password reset link.
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -52,7 +56,11 @@ function ForgotPasswordPage() {
             <div className="space-y-2">
               <Input
                 type="email"
+<<<<<<< HEAD
                 placeholder="e.g. cs2200000@niter.edu.bd"
+=======
+                placeholder="you@email.com"
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

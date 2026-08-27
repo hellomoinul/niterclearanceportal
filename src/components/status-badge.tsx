@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusLabel, type ReviewStatus } from "@/lib/portal";
@@ -15,6 +16,33 @@ const icons: Record<ReviewStatus, typeof Clock> = {
 };
 
 export function StatusBadge({ status, className }: { status: ReviewStatus; className?: string }) {
+=======
+import { CheckCircle2, CircleSlash, Clock, XCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { statusLabel, type ReviewStatus } from "@/lib/portal";
+
+const styles: Record<ReviewStatus | "na", string> = {
+  approved: "bg-approved text-approved-foreground",
+  pending: "bg-pending text-pending-foreground",
+  rejected: "bg-rejected text-rejected-foreground",
+  na: "bg-muted text-muted-foreground border border-border",
+};
+
+const icons: Record<ReviewStatus | "na", typeof Clock> = {
+  approved: CheckCircle2,
+  pending: Clock,
+  rejected: XCircle,
+  na: CircleSlash,
+};
+
+export function StatusBadge({
+  status,
+  className,
+}: {
+  status: ReviewStatus | "na";
+  className?: string;
+}) {
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
   const Icon = icons[status];
   return (
     <span
@@ -25,7 +53,11 @@ export function StatusBadge({ status, className }: { status: ReviewStatus; class
       )}
     >
       <Icon className="size-3.5" aria-hidden />
+<<<<<<< HEAD
       {statusLabel(status)}
+=======
+      {status === "na" ? "Not applicable" : statusLabel(status)}
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     </span>
   );
 }

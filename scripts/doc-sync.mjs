@@ -233,7 +233,16 @@ function updateSnapshot() {
     whLines.push(`### ${date}`, '');
     for (const entry of byDate[date]) {
       const task = TASKS.find(t => t.id === entry.id);
+<<<<<<< HEAD
       if (task) whLines.push(`- **${task.title} (${task.id}):** completed via PR #${entry.pr}.`);
+=======
+      if (!task) continue;
+      if (entry.pr) {
+        whLines.push(`- **${task.title} (${task.id}):** completed via PR #${entry.pr}.`);
+      } else {
+        whLines.push(`- **${task.title} (${task.id}):** completed (no PR needed).`);
+      }
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
     }
     whLines.push('');
   }

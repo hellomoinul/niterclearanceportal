@@ -30,6 +30,7 @@ export function PortalHeader() {
     ? [
         ...(isRegistrar || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
         ...(isRegistrar || isAdmin ? [{ to: "/queue", label: isAdmin ? "Department queue" : "Accounts queue" }] : []),
+        ...(isRegistrar ? [{ to: "/registrar/queue", label: "Final Queue" }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];

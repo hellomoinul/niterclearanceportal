@@ -21,6 +21,7 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
+<<<<<<< HEAD
 const calendar = [
   { label: "Clearance window opens", value: "1 September" },
   { label: "Last date to submit application", value: "30 September" },
@@ -46,6 +47,24 @@ function AboutPage() {
             </li>
           ))}
         </ul>
+=======
+function AboutPage() {
+  return (
+    <PortalShell className="max-w-4xl">
+      <PageHeader title="About NITER clearance" />
+
+      <div className="card-surface mt-8 p-6">
+        <h2 className="text-lg font-semibold">How final-year clearance works</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          How NITER final-year clearance works: the offices involved, the documents required and
+          the academic calendar deadlines. Each office lists its own document requirement inside
+          your application, and every deadline lives on the{" "}
+          <a href="/calendar" className="text-primary underline-offset-4 hover:underline">
+            Academic calendar
+          </a>{" "}
+          page.
+        </p>
+>>>>>>> 6e23aac45333d379a1516e174f619d5fa23b414c
       </div>
 
       <div className="card-surface mt-6 p-6">
