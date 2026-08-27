@@ -21,7 +21,6 @@ type QueueApplication = {
   id: string;
   status: string;
   cleared_at: string | null;
-  thesis_title: string | null;
   profiles: {
     full_name: string | null;
     user_code: string | null;
@@ -58,8 +57,7 @@ function RegistrarQueuePage() {
         .select(`
           id, 
           status, 
-          cleared_at, 
-          thesis_title,
+          cleared_at,
           profiles!inner(full_name, user_code, program, batch)
         `)
         .order("cleared_at", { ascending: false });
@@ -172,7 +170,6 @@ function RegistrarQueuePage() {
                   <div className="flex items-center gap-1">Student Name <ArrowUpDown className="size-3"/></div>
                 </th>
                 <th className="p-3 font-semibold">Program / Batch</th>
-                <th className="p-3 font-semibold">Thesis Title</th>
                 <th className="p-3 font-semibold cursor-pointer" onClick={() => toggleSort("status")}>
                   <div className="flex items-center gap-1">Status <ArrowUpDown className="size-3"/></div>
                 </th>
@@ -183,18 +180,15 @@ function RegistrarQueuePage() {
             </thead>
             <tbody className="divide-y divide-border">
               {isLoading ? (
-                <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Loading queue...</td></tr>
+                <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">Loading queue...</td></tr>
               ) : paginatedData.length === 0 ? (
-                <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">No students found.</td></tr>
+                <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No students found.</td></tr>
               ) : (
                 paginatedData.map((app) => (
                   <tr key={app.id} className="hover:bg-muted/50 transition-colors">
                     <td className="p-3 font-medium">{app.profiles?.user_code}</td>
                     <td className="p-3">{app.profiles?.full_name}</td>
                     <td className="p-3 text-muted-foreground">{app.profiles?.program} · Batch {app.profiles?.batch}</td>
-                    <td className="p-3 text-muted-foreground truncate max-w-[200px]" title={app.thesis_title || ""}>
-                      {app.thesis_title || "—"}
-                    </td>
                     <td className="p-3">
                       {app.status === "cleared" ? (
                         <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800 border border-green-200">
