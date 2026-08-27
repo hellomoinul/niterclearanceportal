@@ -41,3 +41,16 @@ export function validateUpload(file: File) {
   }
   return null;
 }
+
+/** Strip anything that is not a numeric digit. */
+export function stripNonDigits(value: string) {
+  return value.replace(/[^0-9]/g, "");
+}
+
+/** React onInput handler: keep only digits, cap at 11 (e.g. BD phone numbers). */
+export function phoneInputHandler(
+  event: React.FormEvent<HTMLInputElement>
+) {
+  const el = event.currentTarget;
+  el.value = stripNonDigits(el.value).slice(0, 11);
+}

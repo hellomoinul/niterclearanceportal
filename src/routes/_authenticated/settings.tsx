@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth";
 import { DEPARTMENTS, academicYears } from "@/lib/departments";
-import { idToEmail } from "@/lib/portal";
+import { phoneInputHandler } from "@/lib/portal";
+
 import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -36,8 +37,6 @@ function SettingsPage() {
   const { profile, refresh, user, isStudent, isRegistrar, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
-  const [emailBusy, setEmailBusy] = useState(false);
-  const [newEmail, setNewEmail] = useState("");
   const [program, setProgram] = useState(profile?.program ?? "");
   const [batch, setBatch] = useState(profile?.batch ?? "");
 
@@ -119,37 +118,11 @@ function SettingsPage() {
     toast.success("Profile updated");
   }
 
-  async function handleEmailChange(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newEmail.trim() || !profile) return;
-    setEmailBusy(true);
-
-    const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
-
-    setEmailBusy(false);
-    if (error) {
-      toast.error("Could not update email", { description: error.message });
-      return;
-    }
-
-    // Optimistically update personal_email so smart login resolves immediately
-    await supabase
-      .from("profiles")
-      .update({ personal_email: newEmail.trim() })
-      .eq("id", profile.id);
-
-    toast.success("Confirmation link sent", {
-      description: `Check ${newEmail.trim()} to confirm the change.`,
-    });
-    setNewEmail("");
-    await refresh();
-  }
-
   return (
     <PortalShell className="max-w-3xl">
       <PageHeader
         title="Settings"
-        description="Manage your profile details and emails."
+        description="Manage your profile details."
         breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
       />
 
@@ -188,7 +161,16 @@ function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" name="phone" placeholder="01XXXXXXXXX" defaultValue={profile?.phone ?? ""} />
+                <Input
+                  id="phone"
+                  name="phone"
+                  placeholder="01XXXXXXXXX"
+                  inputMode="numeric"
+                  pattern="[0-9]{11}"
+                  maxLength={11}
+                  onInput={phoneInputHandler}
+                  defaultValue={profile?.phone ?? ""}
+                />
               </div>
 
               {isStudent ? (
@@ -245,6 +227,10 @@ function SettingsPage() {
                       id="guardianPhone"
                       name="guardianPhone"
                       placeholder="01XXXXXXXXX"
+                      inputMode="numeric"
+                      pattern="[0-9]{11}"
+                      maxLength={11}
+                      onInput={phoneInputHandler}
                       defaultValue={profile?.guardian_phone ?? ""}
                     />
                   </div>
@@ -279,32 +265,6 @@ function SettingsPage() {
             </Button>
           </section>
         </form>
-
-        <section className="border-t border-border pt-6">
-          <h2 className="text-base font-semibold">Login &amp; recovery email</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your portal ID is auto-generated from your {roleLabel.toLowerCase()} ID. You can sign in with your portal ID or personal email.
-          </p>
-          <div className="mt-4 max-w-md space-y-2">
-            <Label>Portal ID</Label>
-            <Input value={profile?.user_code ? idToEmail(profile.user_code) : (user?.email ?? "")} readOnly className="bg-muted" />
-            <Label htmlFor="newEmail">Personal email</Label>
-            <form className="flex gap-2" onSubmit={handleEmailChange}>
-              <Input
-                id="newEmail"
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="you@email.com"
-                required
-                className="flex-1"
-              />
-              <Button type="submit" size="sm" disabled={emailBusy}>
-                {emailBusy ? "Sending…" : "Update"}
-              </Button>
-            </form>
-          </div>
-        </section>
       </div>
     </PortalShell>
   );

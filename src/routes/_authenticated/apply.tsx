@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
+import { phoneInputHandler } from "@/lib/portal";
 import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/apply")({
@@ -182,6 +183,10 @@ function ApplyPage() {
               <Input
                 id="guardianPhone"
                 name="guardianPhone"
+                inputMode="numeric"
+                pattern="[0-9]{11}"
+                maxLength={11}
+                onInput={phoneInputHandler}
                 defaultValue={profile?.guardian_phone ?? ""}
               />
             </div>
@@ -208,7 +213,7 @@ function ApplyPage() {
           <h2 className="text-base font-semibold">Academic closing details</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="thesisTitle">Thesis / project title</Label>
+              <Label htmlFor="thesisTitle">Thesis/Project title or Internship company name</Label>
               <Input id="thesisTitle" name="thesisTitle" />
             </div>
             <div className="space-y-2">

@@ -128,6 +128,7 @@ export type Database = {
           reviewed_at: string | null;
           reviewed_by: string | null;
           status: Database["public"]["Enums"]["review_status"];
+          triggered: boolean;
         };
         Insert: {
           application_id: string;
@@ -141,6 +142,7 @@ export type Database = {
           reviewed_at?: string | null;
           reviewed_by?: string | null;
           status?: Database["public"]["Enums"]["review_status"];
+          triggered?: boolean;
         };
         Update: {
           application_id?: string;
@@ -154,6 +156,7 @@ export type Database = {
           reviewed_at?: string | null;
           reviewed_by?: string | null;
           status?: Database["public"]["Enums"]["review_status"];
+          triggered?: boolean;
         };
         Relationships: [
           {

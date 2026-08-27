@@ -54,7 +54,7 @@ function DashboardPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("department_reviews")
-        .select("*, departments(code, name, requirement, sort_order)")
+        .select("*, departments(code, name, requirement, sort_order, is_final_signoff)")
         .eq("application_id", application!.id);
       if (error) throw error;
       return (data ?? []).sort(
@@ -69,7 +69,7 @@ function DashboardPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("certificates")
-        .select("certificate_code")
+        .select("id")
         .eq("application_id", application!.id)
         .maybeSingle();
       if (error) throw error;
@@ -162,10 +162,20 @@ function DashboardPage() {
                   <div>
                     <h3 className="text-base font-semibold">{review.departments?.name}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Office verifies: {review.departments?.requirement?.toLowerCase().replace(/\.$/, "")} or not.
+                      {review.departments?.is_final_signoff
+                        ? "Final sign-off — no document required."
+                        : `Office verifies: ${review.departments?.requirement?.toLowerCase().replace(/\.$/, "")} or not.`}
                     </p>
                   </div>
-                  <StatusBadge status={review.is_na ? "na" : review.status} />
+                  {review.departments?.is_final_signoff &&
+                  review.status === "pending" &&
+                  !review.triggered ? (
+                    <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                      Waiting for 7/8 approval
+                    </span>
+                  ) : (
+                    <StatusBadge status={review.is_na ? "na" : review.status} />
+                  )}
                 </div>
                 {review.remarks ? (
                   <p className="mt-3 rounded-md bg-secondary px-3 py-2 text-sm">{review.remarks}</p>
