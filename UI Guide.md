@@ -85,7 +85,7 @@ If not all offices approved: **"Not verified — go to NITER clearance portal"**
 ### Also public
 - **About** `/about` — how clearance works + how decisions are recorded (hidden from nav once logged in).
 - **Academic calendar** `/calendar` — key dates (window opens, deadline, review deadline, certificate release).
-- **FAQ** `/faq` — accordion; questions switch by role (student vs registrar/admin).
+- **Guide** `/guide` — a **role-based** guide (Student / Registrar / Admin tabs). Step-by-step how-to for each role, plus a folded-in FAQ accordion whose questions switch by role. Replaces the old "FAQ" page.
 
 ---
 
