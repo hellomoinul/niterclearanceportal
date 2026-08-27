@@ -19,7 +19,7 @@
 ## Navigation Bar (on every logged-in page)
 
 ```
-[logo]  Dashboard  About  Calendar  Verify  FAQ   [bell 3]  [▾ MyID]
+[logo]  Dashboard  About  Calendar  Verify  Guide   [bell 3]  [▾ MyID]
                                             (hidden when   └── Profile
                                              logged in)        Settings
                                                                Sign out
@@ -194,6 +194,22 @@ Submitting creates the application and fans it out to all offices in parallel.
 - **Reject requires a remark** — otherwise a toast blocks it.
 - Final-signoff (Head) reviews appear only once **triggered (7/8 done)**, labeled **"applied for final approval"**, no documents shown.
 - Bulk **approve** via checkbox + bottom action bar.
+
+### Final Queue `/registrar/queue` (registrar only)
+```
+Final Clearance Queue — Monitor and filter student certificate issuance
+[Search by NITER ID or Name...]  [All Statuses ▾]
+┌──────────┬───────────────┬──────────────────┬──────────┬──────────────┐
+│ NITER ID │ Student Name  │ Program / Batch  │ Status   │ Cleared Date │
+├──────────┼───────────────┼──────────────────┼──────────┼──────────────┤
+│ ...      │ ...           │ ...              │ Issued   │ 2026-08-24   │
+│ ...      │ ...           │ ...              │ Pending  │ —            │
+└──────────┴───────────────┴──────────────────┴──────────┴──────────────┘
+```
+- Lists **all** clearance applications joined with student profiles (currently, not filtered to 8/8-approved — accepted as-is).
+- Status filter: **All statuses / Issued only / Not Issued only**; search by NITER ID or name; sortable + paginated (25/page).
+- **Issued** badge = application `status == 'cleared'`; **Pending** = anything else.
+- Added to the registrar's nav as **Final Queue**.
 
 ---
 

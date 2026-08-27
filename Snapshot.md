@@ -1,6 +1,6 @@
 # NITER Clearance Portal -- Snapshot & Assignment
 
-> **Last updated:** 2026-08-27 -- **Overall progress: ~72%**
+> **Last updated:** 2026-08-27 (build mode session) -- **Overall progress: ~76%**
 >
 > Single source of truth: who owns what, plus current status. Replace Assignment.md (merged here).
 
@@ -34,7 +34,7 @@ Done -- In progress -- Not started -- Blocked
 
 ## Moinul -- Core, Infrastructure, Security, Docs
 
-> **All core tasks complete.** New security + review-feedback items (M13-M15) done 2026-08-27, pending live SQL apply.
+> **All core tasks complete.** New security + review-feedback items (M13-M17) done 2026-08-27.
 
 ### Core approval loop (PR #9)
 - **M1** -- Staff queue -- approve/reject with remarks + document preview
@@ -65,26 +65,26 @@ Done -- In progress -- Not started -- Blocked
 
 ### 2026-08-27 -- external review fixes (done/documented)
 - **M13** -- Standardize label **"Academic year"** everywhere (was "Batch"/"Session"): dashboard, queue, certificate, verify, profile, reports, workflow, landing notice. Merged into Snapshot work.
-- **M14** -- Restrict `audit_log` INSERT RLS to registrar/admin (was any authenticated user). Migration `20260827150000_restrict_audit_log_rls.sql` -- **needs SQL-Editor apply**.
-- **M15** -- N/A rollback RPC `reopen_na_review` so a caught false N/A can be reverted to pending. Migration `20260827160000_na_rollback_rpc.sql` -- **needs SQL-Editor apply**.
+- **M14** -- Restrict `audit_log` INSERT RLS to registrar/admin (was any authenticated user). Migration `20260827150000_restrict_audit_log_rls.sql`. **Applied to live** (verified: `registrar and admin write audit log` policy present).
+- **M15** -- N/A rollback RPC `reopen_na_review` so a caught false N/A can be reverted to pending. Migration `20260827160000_na_rollback_rpc.sql`. **Applied to live** (verified: function present).
+- **M16** -- **Fix Fatin's Final Queue returning "No students found".** Root cause was NOT RLS (registrar read access already correct on both `clearance_applications` + `profiles`): `clearance_applications.student_id` had an FK only to `auth.users`, not to `profiles`, so PostgREST could not resolve the `profiles!inner(...)` embedded join and the request errored. Added FK `clearance_applications.student_id -> profiles(id)` (kept the auth.users FK). Migration `20260827170000_clearance_student_profiles_fk.sql` -- **applied to live** (verified: `clearance_applications_student_profiles_fkey` present). Verify: PostgREST query returns HTTP 200 (was erroring).
+- **M17** -- **Restore `portal-shell.tsx` after PR #51 regressions.** Fatin's `fatin/registrar-queue-v3` merge (based on an older main) overwrote the newer portal-shell, reverting the Guide nav link (back to dead `/faq`), the notification unread badge, the account dropdown, the "hide About when logged in" desktop filter, the mobile account menu, the calendar link, and nav animations. Restored all of that **while keeping** Fatin's new `Final Queue` nav item + updated footer address. No code was lost (fast-forward history intact; backups `backup/origin-main-328a120` + `backup/fatin-queue-merge`).
 - **Docs** -- Rewrite `SYSTEM_FLOW.md` (external/authority copy) to fix stale/wrong claims (#audit/notices stubs, guard fixed, admin dashboard real).
 
 ---
 
 ## Fatin -- Certificate Pipeline & Student Features
 
-> **12/19 done (plus F19) -- 8 remaining**
+> **13/19 done (plus F19) -- 7 remaining**
 
 ### Completed
-F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26) · F3 Forgot password (PRs #35/#36) · F6 Printable certificate (PR #29) · F8 Confirmation dialogs (PR #31) · F9 Global error states (PR #41) · F12 Profile cleanup · F15 Icon sizes · F17 Remarks in dashboard · F18 Notification badge · F19 Certificate QR + verify flow
+F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26) · F3 Forgot password (PRs #35/#36) · F6 Printable certificate (PR #29) · F8 Confirmation dialogs (PR #31) · F9 Global error states (PR #41) · F12 Profile cleanup · F15 Icon sizes · F17 Remarks in dashboard · F18 Notification badge · F19 Certificate QR + verify flow · **F10 Registrar final queue (PR #51, fixed via M16)**
 
 ### Remaining
 - **F5** -- Student timeline -- every rejection/resubmission/approval in order
   > `src/routes/_authenticated/dashboard.tsx` -- Query `department_reviews` history (attempts, status changes, timestamps) as a vertical timeline under the progress card.
 - **F7** -- Deadline lock -- block submissions after batch deadline
   > `src/routes/_authenticated/apply.tsx` -- Read deadline from `app_settings`/`departments`; disable submit + show "Deadline passed".
-- **F10** -- Registrar queue -- "Ready for final processing" list
-  > `src/routes/_authenticated/dashboard.tsx` -- Card for registrar showing students 8/8 approved but `status != 'cleared'`.
 - **F11** -- Dashboard email: show `personal_email` in greeting header
   > `src/routes/_authenticated/dashboard.tsx`.
 - **F13** -- Thesis/internship on profile: show collected fields
@@ -96,6 +96,8 @@ F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26)
 - **F20** -- **Resubmit comment field** (external review -- fixes the "Re-submit for final approval" loop)
   > `src/routes/_authenticated/section.$code.tsx` + `suppabase/migrations/20260824100500_na_and_reopen_rpcs.sql`
   > Add an optional student comment captured before flipping a rejected/Head review back to pending. Store on `department_reviews` (new `student_comment` column or pass through `reopen_rejected_review`). Surface the comment to the office in the queue card. This gives the student a way to address the office's objection instead of a blind "please look again" ping.
+
+**F10 note (done, spec deviation):** Built as a separate route `/registrar/queue` ("Final Queue") instead of the specified dashboard card. It lists **all** applications (not just "8/8 approved but `status != 'cleared'`"), with a Thesis Title column that was later removed. After the M16 FK fix it correctly returns all applicants for a registrar. Accepted as-is by Moinul (shows all applicants is OK); closing F10 counts as complete. If a stricter "ready to issue (8/8 approved, not cleared)" filter is wanted later it can be revisited.
 
 ---
 
@@ -145,14 +147,13 @@ F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26)
 | 7 | Fatin | F13 -- Thesis/internship | Show collected data |
 | 8 | Fatin | F5 -- Student timeline | Full history view |
 | 9 | Fatin | F7 -- Deadline lock | Block late submissions |
-| 10 | Fatin | F10 -- Registrar queue | Final processing |
-| 11 | Shafin | S11 -- Notices rebuild | Fixes S4/S5 |
-| 12 | Shafin | S6 -- Override decision | Admin power |
-| 13 | Shafin | S8 -- Queue pagination | Scale to 300+ |
-| 14 | Shafin | S9 -- Rejection history | Queue UX |
-| 15 | Shafin | S10 -- Bulk summary | Queue UX |
-| 16 | Shafin | S7 -- Department config | Workflow settings |
-| 17 | Shafin | S13 -- Live reports | Real data |
+| 10 | Shafin | S11 -- Notices rebuild | Fixes S4/S5 |
+| 11 | Shafin | S6 -- Override decision | Admin power |
+| 12 | Shafin | S8 -- Queue pagination | Scale to 300+ |
+| 13 | Shafin | S9 -- Rejection history | Queue UX |
+| 14 | Shafin | S10 -- Bulk summary | Queue UX |
+| 15 | Shafin | S7 -- Department config | Workflow settings |
+| 16 | Shafin | S13 -- Live reports | Real data |
 
 ---
 
@@ -166,8 +167,8 @@ Student applies --> staff approves/rejects with remarks --> escalation works -->
 
 | Member | Done | Remaining | Total |
 |--------|------|-----------|-------|
-| Moinul | 20 (incl. M13-M15 + docs) | 0 | 20 |
-| Fatin | 12 | 8 | 20 |
+| Moinul | 22 (incl. M13-M17 + docs) | 0 | 22 |
+| Fatin | 13 | 7 | 20 |
 | Shafin | 5 | 9 | 14 |
 
 ---
@@ -204,10 +205,17 @@ Student applies --> staff approves/rejects with remarks --> escalation works -->
 
 ### 2026-08-27
 - M13 -- Standardized "Academic year" label everywhere (was Batch/Session)
-- M14 -- audit_log INSERT RLS restricted to registrar/admin (migration written, needs SQL-Editor apply)
-- M15 -- `reopen_na_review` N/A rollback RPC (migration written, needs SQL-Editor apply)
+- M14 -- audit_log INSERT RLS restricted to registrar/admin (written + **applied to live**)
+- M15 -- `reopen_na_review` N/A rollback RPC (written + **applied to live**)
 - Docs -- consolidated Snapshot+Assignment; flagged external-review gaps; rewrote authority-facing SYSTEM_FLOW facts
 - Distributed teammate scope: Fatin F20 (resubmit comment), Shafin S12/S13/S14 (audit page, live reports, N/A revert UI)
+
+### 2026-08-27 (build-mode session)
+- **Fatin PR #51 merged** -- registrar Final Queue (`/registrar/queue`) + route-tree. Fatin's portal-shell edit clobbered Moinul's newer nav/UI work (Guide link back to dead `/faq`, lost notification badge/dropdown/calendar/mobile menu/animations).
+- **M17** -- Restored `portal-shell.tsx`: re-applied all clobbered nav/UI work **and** kept Fatin's `Final Queue` nav item + footer address. (No code lost; fast-forward history intact; backups created.)
+- **Fatin F10 final queue "No students found" diagnosed + fixed (M16):** confirmed registrar role + RLS were already correct; root cause was missing FK `clearance_applications.student_id -> profiles(id)` so PostgREST's `profiles!inner(...)` join errored. Applied FK to live + migration `20260827170000_clearance_student_profiles_fk.sql`. PostgREST now returns 200.
+- Removed the unplanned **Thesis Title column** from the Final Queue table (type + select + header + cell + colSpan).
+- Confirmed M14 + M15 verified applied on live (pg_proc + pg_policies checks).
 
 ### 2026-08-25 (evening)
 - Role-aware profile/settings, `idToEmail`, N/A remark + verify migrations, registrar email fix, snapshot rewrite
