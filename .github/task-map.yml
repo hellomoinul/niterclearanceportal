@@ -274,7 +274,8 @@ tasks:
     order: 220
     paths: ["src/routes/_authenticated/admin/audit.tsx"]
     hint: "Read-only table of audit_log"
-    # ⚠️ Broken in Snapshot.md — queries wrong columns. Needs rebuild.
+    # ✅ DONE as S12 — real paginated/searchable/filtered page lifted to main (PR #52).
+    # (Historically a stub with wrong columns.)
 
   # Shafin — gap fixes (S6–S11)
   - id: S6

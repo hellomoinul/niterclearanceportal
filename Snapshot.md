@@ -103,7 +103,7 @@ F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26)
 
 ## Shafin -- Admin Panel & Queue Upgrades
 
-> **5/11 done -- 9 remaining** (S6-S11 original + 3 new)
+> **6/11 done -- 8 remaining** (S6-S11 original + 3 new)
 
 ### Completed (merged PR #27, stubs via M6)
 - **S1** -- Admin: user management -- stub
@@ -111,6 +111,9 @@ F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26)
 - **S3** -- Admin: batch reports -- hardcoded data
 - **S4** -- Admin: notices -- stub (no table)
 - **S5** -- Admin: audit log -- stub (wrong columns)
+- **S12** -- **Real Admin Audit Log page** -- built by Shafin on a stale branch, lifted onto current main as `shafin/admin-panel-lift` (PR #52 pending). Replaces the S5 stub with a read-only paginated/searchable/filtered table over `audit_log`. Columns verified against live schema; page works end-to-end.
+
+> **Shafin branch salvage (important):** `shafin/admin-panel` was forked from an ancient main (193 commits behind) and, if force-merged, would delete `guide.tsx`, `registrar/queue.tsx`, `forgot-password.tsx`, `calendar.tsx`, `page-header.tsx`, `departments.ts`, `UI Guide.md`, re-add the gitignored `.env`, and restore old `faq.tsx`/workflows. Only Shafin's genuinely new admin work was salvaged onto modern main. Backed up as `backup/shafin-admin-panel`.
 
 ### Remaining (gap fixes)
 - **S6** -- Override staff decision -- admin overturn + audit_log
@@ -125,10 +128,11 @@ F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26)
   > `queue.tsx` -- toast with counts after bulk approve.
 - **S11** -- Notices rebuild (fixes S4/S5)
   > `admin/notices.tsx`, `index.tsx`, migration -- create `notices` table + CRUD admin page + wire home page.
-- **S12** -- **Build the real Admin Audit Log page** (replaces S5 stub; external review)
-  > `src/routes/_authenticated/admin/audit.tsx` -- read-only table over `audit_log` (correct columns: `actor_id`, `actor_name`, `action`, `entity`, `entity_id`, `details`, `created_at`). The table + trigger already exist and are populated; only the page is missing. This is the primary accountability record -- highest priority.
+- **S12** -- **~~Build the real Admin Audit Log page~~** (DONE, see Completed above) (replaces S5 stub; external review)
+  > `src/routes/_authenticated/admin/audit.tsx` -- read-only table over `audit_log` (correct columns: `actor_id`, `actor_name`, `action`, `entity`, `entity_id`, `details`, `created_at`). The table + trigger already exist and are populated; only the page was missing. This is the primary accountability record -- highest priority.
 - **S13** -- **Wire Admin Reports to live data** (replaces S3 hardcoded)
   > `src/routes/_authenticated/admin/reports.tsx` -- replace the static array with a query over `clearance_applications` grouped by program + status. Currently fake numbers.
+  > **Schema blocker (noted during Shafin salvage):** `clearance_applications` has **no `department` or `batch` columns** (dept is derived via `department_reviews`, and there is no batch concept). Shafin's reports page queried `app.department`/`app.batch` and would render everything as "General" with an inert filter, so it was **not** lifted. The page must be rebuilt against `department_reviews`/`departments` (and drop the batch filter), not copied verbatim.
 - **S14** -- **N/A review + revert UI** (external review; consumes M15 RPC)
   > `src/routes/_authenticated/admin/index.tsx` -- add an action on the N/A declarations table to call `reopen_na_review(review_id)` so admins can revert a caught false declaration back to pending (button appears for rows with a matching open application). Add a review-cadence note so the table is actually checked regularly.
 
@@ -138,8 +142,7 @@ F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26)
 
 | # | Who | Task | Why |
 |---|-----|------|-----|
-| 1 | Shafin | S12 -- Real audit log page | Accountability record -- highest priority |
-| 2 | Fatin | F20 -- Resubmit comment field | Fixes the blind resubmit loop |
+| 1 | Fatin | F20 -- Resubmit comment field | Fixes the blind resubmit loop |
 | 3 | Shafin | S14 -- N/A revert UI (uses M15) | Act on caught false N/A |
 | 4 | Fatin | F16 -- "Uploaded" text | Dashboard clarity |
 | 5 | Fatin | F11 -- Dashboard email | Show contact info |
@@ -216,6 +219,7 @@ Student applies --> staff approves/rejects with remarks --> escalation works -->
 - **Fatin F10 final queue "No students found" diagnosed + fixed (M16):** confirmed registrar role + RLS were already correct; root cause was missing FK `clearance_applications.student_id -> profiles(id)` so PostgREST's `profiles!inner(...)` join errored. Applied FK to live + migration `20260827170000_clearance_student_profiles_fk.sql`. PostgREST now returns 200.
 - Removed the unplanned **Thesis Title column** from the Final Queue table (type + select + header + cell + colSpan).
 - Confirmed M14 + M15 verified applied on live (pg_proc + pg_policies checks).
+- **Shafin admin salvage (S12):** `shafin/admin-panel` is 193 commits behind main and force-merging would clobber dozens of modern files (delete guide/registrar-queue/forgot-password/calendar/page-header/departments, re-add gitignored `.env`). Created `backup/shafin-admin-panel`, then lifted **only** Shafin's real admin work onto a fresh branch off current main (`shafin/admin-panel-lift`). Verified his admin files import only standard UI components (no deps on deleted modules). **Lifted `audit.tsx`** (S12; all `audit_log` columns verified against live schema; tsc + vite build pass; route registered at `/admin/audit`). **Not lifted:** `route.tsx` (drops admin guard), `index.tsx` (main's is richer), `users.tsx` (is a non-persisting workflow form), `workflow.tsx`/`notices.tsx` (backing tables `workflow_steps`/`notices` don't exist), `reports.tsx` (queries `department`/`batch` columns that don't exist — noted as S13 blocker). PR opened for review.
 
 ### 2026-08-25 (evening)
 - Role-aware profile/settings, `idToEmail`, N/A remark + verify migrations, registrar email fix, snapshot rewrite
