@@ -263,7 +263,7 @@ Working feature: stats, quick links, and a filterable/sortable **N/A declaration
 | User Management | `/admin/users` | **Coming soon** (stub) |
 | Workflow Config | `/admin/workflow` | **Coming soon** (stub) |
 | Notices | `/admin/notices` | **Coming soon** (stub) |
-| Audit Log | `/admin/audit` | **Coming soon** (stub) |
+| Audit Log | `/admin/audit` | **Working** — paginated searchable/filtered read-only table over `audit_log` (S12) |
 | Reports | `/admin/reports` | **Hardcoded** demo chart |
 
 The reports page shows a bar chart (cleared vs pending by department) but the data is static — not yet wired to the database.
@@ -311,7 +311,7 @@ A comment field is planned (F20).
 ---
 
 ## Notes / known gaps
-- Several **admin sub-pages are stubs** (users, workflow, notices, audit) and reports is hardcoded — pending teammate work (Shafin S11/S12/S13). The `audit_log` table + trigger work and are populated; only the audit **page** is missing.
+- Several **admin sub-pages are stubs** (users, workflow, notices) and reports is hardcoded — pending teammate work (Shafin S11/S13). The **audit page (S12) is done** — `audit_log` table + trigger work and are populated, and the read-only page is live. Reports (S13) is blocked: `clearance_applications` has no `department`/`batch` columns, so it must be rebuilt against `department_reviews` rather than copied verbatim.
 - The **"Certificate ID"** shown on the certificate is the raw certificate **UUID** (the QR encodes it correctly for `/verify/<id>`).
 - The **Department Head** has no separate login — it's handled by the **admin** in the queue.
 - **N/A declarations** extend to every office except Accounts + Department Head (not just hostel/library). Declared offices are auto-approved at submit; admin reviews them after the fact, with a rollback RPC available.
