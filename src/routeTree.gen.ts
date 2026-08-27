@@ -33,6 +33,7 @@ import { Route as AuthenticatedAdminNoticesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminWorkflowRouteImport } from './routes/_authenticated/admin/workflow'
+import { Route as AuthenticatedRegistrarQueueRouteImport } from './routes/_authenticated/registrar/queue'
 import { Route as AuthenticatedSectionCodeRouteImport } from './routes/_authenticated/section.$code'
 
 const IndexRoute = IndexRouteImport.update({
@@ -159,6 +160,12 @@ const AuthenticatedAdminWorkflowRoute =
     path: '/workflow',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedRegistrarQueueRoute =
+  AuthenticatedRegistrarQueueRouteImport.update({
+    id: '/registrar/queue',
+    path: '/registrar/queue',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSectionCodeRoute =
   AuthenticatedSectionCodeRouteImport.update({
     id: '/section/$code',
@@ -189,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
+  '/registrar/queue': typeof AuthenticatedRegistrarQueueRoute
   '/section/$code': typeof AuthenticatedSectionCodeRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -214,6 +222,7 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
+  '/registrar/queue': typeof AuthenticatedRegistrarQueueRoute
   '/section/$code': typeof AuthenticatedSectionCodeRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -242,6 +251,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
+  '/_authenticated/registrar/queue': typeof AuthenticatedRegistrarQueueRoute
   '/_authenticated/section/$code': typeof AuthenticatedSectionCodeRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/users'
     | '/admin/workflow'
+    | '/registrar/queue'
     | '/section/$code'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/users'
     | '/admin/workflow'
+    | '/registrar/queue'
     | '/section/$code'
     | '/admin'
   id:
@@ -322,6 +334,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/workflow'
+    | '/_authenticated/registrar/queue'
     | '/_authenticated/section/$code'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -508,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWorkflowRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/registrar/queue': {
+      id: '/_authenticated/registrar/queue'
+      path: '/registrar/queue'
+      fullPath: '/registrar/queue'
+      preLoaderRoute: typeof AuthenticatedRegistrarQueueRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/section/$code': {
       id: '/_authenticated/section/$code'
       path: '/section/$code'
@@ -551,6 +571,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQueueRoute: typeof AuthenticatedQueueRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedRegistrarQueueRoute: typeof AuthenticatedRegistrarQueueRoute
   AuthenticatedSectionCodeRoute: typeof AuthenticatedSectionCodeRoute
 }
 
@@ -563,6 +584,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQueueRoute: AuthenticatedQueueRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedRegistrarQueueRoute: AuthenticatedRegistrarQueueRoute,
   AuthenticatedSectionCodeRoute: AuthenticatedSectionCodeRoute,
 }
 
