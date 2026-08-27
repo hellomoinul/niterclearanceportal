@@ -61,7 +61,7 @@ function SectionPage() {
       if (!app) return null;
       const { data: dept } = await supabase
         .from("departments")
-        .select("id, code, name, requirement, document_hint")
+        .select("id, code, name, requirement, document_hint, is_final_signoff")
         .eq("code", code)
         .maybeSingle();
       if (!dept) return null;
@@ -160,6 +160,23 @@ function SectionPage() {
     toast.success("Document uploaded", { description: "The office will review it shortly." });
   }
 
+  async function handleResubmit() {
+    if (!review || !user) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("reopen_rejected_review", {
+      p_review_id: review.id,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error("Could not resubmit", { description: error.message });
+      return;
+    }
+    await queryClient.invalidateQueries();
+    toast.success("Resubmitted", {
+      description: "Your clearance is back under final review by the Department Head.",
+    });
+  }
+
   async function openDocument(path: string) {
     const { data, error } = await supabase.storage.from(DOCS_BUCKET).createSignedUrl(path, 60);
     if (error || !data) {
@@ -190,7 +207,11 @@ function SectionPage() {
         <>
           <PageHeader
             title={review.department.name}
-            description={`Office verifies: ${(review.department.requirement ?? "").toLowerCase().replace(/\.$/, "")} or not.`}
+            description={
+              review.department.is_final_signoff
+                ? "Final sign-off after all other offices approve. No document required."
+                : `Office verifies: ${(review.department.requirement ?? "").toLowerCase().replace(/\.$/, "")} or not.`
+            }
             back={{ to: "/dashboard", label: "Back to dashboard" }}
           />
           <div className="card-surface mt-2 p-4">
@@ -212,14 +233,39 @@ function SectionPage() {
               </p>
             ) : null}
 
-            {review.status !== "approved" ? (
+            {!review.department.is_final_signoff && review.status !== "approved" ? (
               <p className="mt-4 text-sm text-muted-foreground">
                 Re-upload attempts used: {review.attempts} of 3
               </p>
             ) : null}
           </div>
 
-          {review.status !== "approved" ? (
+          {review.department.is_final_signoff ? (
+            <div className="card-surface mt-6 space-y-2 p-6">
+              <h2 className="text-base font-semibold">Department Head sign-off</h2>
+              {review.status === "rejected" ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    The Department Head did not approve your clearance. You can resubmit below.
+                  </p>
+                  <Button size="sm" onClick={handleResubmit} disabled={busy} className="mt-1">
+                    {busy ? "Resubmitting…" : "Re-submit for final approval"}
+                  </Button>
+                </>
+              ) : !review.triggered ? (
+                <p className="text-sm text-muted-foreground">
+                  Waiting for 7/8 approval. No document is required — this final step opens once
+                  all other offices have approved.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No document is required for this step. The Department Head will review your
+                  clearance once all other offices have finished. If there is an objection, the
+                  Head will not approve it.
+                </p>
+              )}
+            </div>
+          ) : review.status !== "approved" ? (
             <form className="card-surface mt-6 space-y-4 p-6" onSubmit={handleUpload}>
               <h2 className="text-base font-semibold">Upload proof document</h2>
               <p className="text-sm text-muted-foreground">
@@ -236,9 +282,10 @@ function SectionPage() {
             </form>
           ) : null}
 
-          <div className="card-surface mt-6 p-6">
-            <h2 className="text-base font-semibold">Uploaded documents</h2>
-            {documents && documents.length > 0 ? (
+          {!review.department.is_final_signoff ? (
+            <div className="card-surface mt-6 p-6">
+              <h2 className="text-base font-semibold">Uploaded documents</h2>
+              {documents && documents.length > 0 ? (
               <ul className="mt-4 divide-y divide-border">
                 {documents.map((doc) => {
                   const uploadedAfterApproval =
@@ -317,7 +364,8 @@ function SectionPage() {
             ) : (
               <p className="mt-3 text-sm text-muted-foreground">Nothing uploaded yet.</p>
             )}
-          </div>
+            </div>
+          ) : null}
         </>
       )}
     </PortalShell>

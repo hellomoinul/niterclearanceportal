@@ -4,7 +4,7 @@ import { GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { idToEmail } from "@/lib/portal";
+import { idToEmail, phoneInputHandler } from "@/lib/portal";
 import { DEPARTMENTS, academicYears } from "@/lib/departments";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -206,6 +206,19 @@ function AuthPage() {
                   <Label htmlFor="reg-email">Email<span className="text-red-500 ml-0.5">*</span></Label>
                   <Input id="reg-email" name="email" type="email" required placeholder="you@email.com" />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-phone">Phone<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Input
+                    id="reg-phone"
+                    name="phone"
+                    placeholder="01XXXXXXXXX"
+                    inputMode="numeric"
+                    pattern="[0-9]{11}"
+                    maxLength={11}
+                    onInput={phoneInputHandler}
+                    required
+                  />
+                </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="reg-program">Program<span className="text-red-500 ml-0.5">*</span></Label>
                   <Select
@@ -239,10 +252,6 @@ function AuthPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-phone">Phone<span className="text-red-500 ml-0.5">*</span></Label>
-                  <Input id="reg-phone" name="phone" placeholder="01XXXXXXXXX" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-password">Password<span className="text-red-500 ml-0.5">*</span></Label>

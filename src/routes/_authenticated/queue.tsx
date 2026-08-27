@@ -63,7 +63,8 @@ interface QueueReview {
   remarks: string | null;
   attempts: number;
   escalated: boolean;
-  departments: { code: string; name: string } | null;
+  triggered: boolean;
+  departments: { code: string; name: string; is_final_signoff: boolean } | null;
   clearance_applications: {
     id: string;
     thesis_title: string | null;
@@ -156,7 +157,7 @@ function QueuePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("department_reviews")
-        .select("*, departments(code, name), clearance_applications(id, thesis_title, student_id)")
+        .select("*, departments(code, name, is_final_signoff), clearance_applications(id, thesis_title, student_id)")
         .in("status", ["pending", "rejected"])
         .in("department_id", scopedDeptIds);
       if (error) throw error;
@@ -167,7 +168,8 @@ function QueuePage() {
         remarks: string | null;
         attempts: number;
         escalated: boolean;
-        departments: { code: string; name: string } | null;
+        triggered: boolean;
+        departments: { code: string; name: string; is_final_signoff: boolean } | null;
         clearance_applications: {
           id: string;
           thesis_title: string | null;
@@ -238,6 +240,12 @@ function QueuePage() {
           ? tab === "rejected"
           : false;
       if (!matchesTab) return false;
+      // Final sign-off (Department Head) reviews show only once triggered (7/8 approved);
+      // they never have documents, so exempt them from the zero-document rule.
+      if (r.departments?.is_final_signoff) {
+        if (!r.triggered) return false;
+        return true;
+      }
       if (r.status === "pending" && (docsByReview[r.id] ?? []).length === 0) return false;
       return true;
     });
@@ -479,6 +487,9 @@ function QueuePage() {
                       {review.departments?.name && (
                         <p className="mt-0.5 text-xs font-medium text-muted-foreground">
                           Office: {review.departments.name}
+                          {review.departments.is_final_signoff
+                            ? " — applied for final approval"
+                            : ""}
                         </p>
                       )}
                     </div>
@@ -496,6 +507,14 @@ function QueuePage() {
                   </p>
                 )}
 
+                {review.departments?.is_final_signoff ? (
+                  <div className="mt-4">
+                    <h3 className="text-sm font-semibold">Final sign-off</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      No document required — the Department Head reviews this student's clearance.
+                    </p>
+                  </div>
+                ) : (
                 <div className="mt-4">
                   <h3 className="text-sm font-semibold">Proof documents ({docs.length})</h3>
                   {docs.length === 0 ? (
@@ -522,6 +541,7 @@ function QueuePage() {
                     </ul>
                   )}
                 </div>
+                )}
 
                 {review.status !== "approved" && (
                   <div className="mt-4 border-t border-border pt-4">

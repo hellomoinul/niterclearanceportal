@@ -29,7 +29,7 @@ BEGIN
   UPDATE department_reviews dr
   SET status = 'approved',
       is_na = true,
-      remarks = 'N/A - student declared',
+      remarks = 'Student declared N/A',
       reviewed_at = now()
   FROM departments d
   WHERE dr.department_id = d.id
