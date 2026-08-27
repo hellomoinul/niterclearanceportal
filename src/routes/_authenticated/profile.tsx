@@ -51,7 +51,7 @@ function ProfilePage() {
                     {profile.program || "Not provided"}
                   </div>
                   <div>
-                    <span className="font-semibold">Session: </span>
+                    <span className="font-semibold">Academic year: </span>
                     {profile.batch || "Not provided"}
                   </div>
                 </>

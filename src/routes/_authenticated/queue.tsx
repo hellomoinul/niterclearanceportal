@@ -480,7 +480,7 @@ function QueuePage() {
                         </span>
                       </h2>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {[student?.program, student?.batch ? `Batch ${student.batch}` : null]
+                        {[student?.program, student?.batch ? `Academic year ${student.batch}` : null]
                           .filter(Boolean)
                           .join(" · ") || "—"}
                       </p>

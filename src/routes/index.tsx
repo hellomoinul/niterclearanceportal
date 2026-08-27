@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
 
 const notices = [
   {
-    title: "Clearance window for Batch 2021 is open",
+    title: "Clearance window for Academic year 2021 is open",
     body: "Final-year students of all programs may submit their clearance application until 30 September.",
   },
   {
