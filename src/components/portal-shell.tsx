@@ -1,54 +1,23 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, LogOut, Menu, Settings, User } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Bell, LogOut, Menu, Settings } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const publicLinks = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
-  { to: "/calendar", label: "Academic calendar" },
   { to: "/verify", label: "Verify certificate" },
+  { to: "/faq", label: "FAQ" },
 ] as const;
-
-const guideLink = { to: "/guide", label: "Guide" } as const;
 
 export function PortalHeader() {
   const { session, profile, isRegistrar, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-
-  const { data: unreadCount = 0 } = useQuery({
-    queryKey: ["notifications-unread"],
-    queryFn: async () => {
-      if (!session?.user) return 0;
-      try {
-        const { count } = await supabase
-          .from("notifications")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", session.user.id)
-          .eq("is_read", false)
-          .is("deleted_at", null);
-        return count ?? 0;
-      } catch {
-        return 0;
-      }
-    },
-    enabled: !!session?.user,
-    refetchInterval: 30_000,
-    retry: false,
-  });
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -61,6 +30,7 @@ export function PortalHeader() {
     ? [
         ...(isRegistrar || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
         ...(isRegistrar || isAdmin ? [{ to: "/queue", label: isAdmin ? "Department queue" : "Accounts queue" }] : []),
+        ...(isRegistrar ? [{ to: "/registrar/queue", label: "Final Queue" }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];
@@ -79,9 +49,7 @@ export function PortalHeader() {
         </Link>
 
         <nav className="ml-auto hidden items-center gap-1 md:flex">
-          {[...publicLinks, ...appLinks, guideLink]
-            .filter((link) => session ? link.to !== "/about" : true)
-            .map((link) => (
+          {[...publicLinks, ...appLinks].map((link) => (
             <Link
               key={link.to}
               to={link.to}
@@ -101,39 +69,23 @@ export function PortalHeader() {
           {session ? (
             <>
               <Button asChild variant="ghost" size="icon" aria-label="Notifications">
-                <Link to="/notifications" className="relative">
-                  <Bell className="size-4 transition-transform duration-200 hover:scale-110" />
-                  {unreadCount > 0 && (
-                    <span className="notification-badge absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground shadow-sm">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
+                <Link to="/notifications">
+                  <Bell className="size-4" />
                 </Link>
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="hidden gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
-                    <User className="size-4" />
-                    {profile?.user_code ?? "Account"}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={8}>
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile" className="cursor-pointer">
-                      <User className="size-4" /> Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings" className="cursor-pointer">
-                      <Settings className="size-4" /> Settings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
-                    <LogOut className="size-4" /> Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button asChild variant="ghost" size="icon" aria-label="Settings">
+                <Link to="/settings">
+                  <Settings className="size-4" />
+                </Link>
+              </Button>
+              <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
+                <Link to="/profile" className="transition-colors hover:text-foreground">
+                  {profile?.user_code ?? "Account"}
+                </Link>
+              </span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="size-4" /> Sign out
+              </Button>
             </>
           ) : (
             <Button asChild size="sm">
@@ -153,10 +105,8 @@ export function PortalHeader() {
       </div>
 
       {open ? (
-        <nav className="animate-in fade-in slide-in-from-top-1 border-t border-border bg-surface px-4 py-2 duration-200 md:hidden">
-          {[...publicLinks, ...appLinks, guideLink]
-            .filter((link) => session ? link.to !== "/about" : true)
-            .map((link) => (
+        <nav className="border-t border-border bg-surface px-4 py-2 md:hidden">
+          {[...publicLinks, ...appLinks].map((link) => (
             <Link
               key={link.to}
               to={link.to}
@@ -166,33 +116,6 @@ export function PortalHeader() {
               {link.label}
             </Link>
           ))}
-          {session ? (
-            <div className="mt-2 border-t border-border pt-2">
-              <Link
-                to="/profile"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                <User className="size-4" />
-                {profile?.user_code ?? "Profile"}
-              </Link>
-              <Link
-                to="/settings"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                <Settings className="size-4" />
-                Settings
-              </Link>
-              <button
-                onClick={() => { setOpen(false); handleSignOut(); }}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
-              >
-                <LogOut className="size-4" />
-                Sign out
-              </button>
-            </div>
-          ) : null}
         </nav>
       ) : null}
     </header>
@@ -208,7 +131,7 @@ export function PortalFooter() {
             National Institute of Textile Engineering and Research
           </p>
           <p className="mt-1 text-xs text-gray-500">
-            Savar, Dhaka-1350, Bangladesh
+            Level-5, Building #3, BSCIC Textile Industrial Area, Savar, Dhaka-1340, Bangladesh
           </p>
         </div>
         <div className="text-right">
