@@ -103,7 +103,7 @@ function VerifyResult() {
                 ["Student name", result.student_name ?? cert.student_name],
                 ["Student ID", result.user_code ?? cert.student_code],
                 ["Program", result.program ?? cert.program ?? "—"],
-                ["Batch", result.batch ?? cert.batch ?? "—"],
+                ["Academic year", result.batch ?? cert.batch ?? "—"],
                 [
                   "Departments approved",
                   result.approved != null && result.total != null

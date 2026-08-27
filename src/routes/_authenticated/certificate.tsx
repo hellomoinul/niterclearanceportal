@@ -203,7 +203,7 @@ function CertificatePage() {
               {profile.program}
               <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
             </span> department, 
-            Batch 
+            Academic year 
             <span className="relative inline-block font-bold px-2 mx-1 pb-1">
               {profile.batch}
               <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>

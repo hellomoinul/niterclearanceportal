@@ -1,6 +1,8 @@
-# NITER Clearance Portal -- Snapshot
+# NITER Clearance Portal -- Snapshot & Assignment
 
-> **Last updated:** 2026-08-25 (evening) -- **Overall progress: ~72%**
+> **Last updated:** 2026-08-27 -- **Overall progress: ~72%**
+>
+> Single source of truth: who owns what, plus current status. Replace Assignment.md (merged here).
 
 ---
 
@@ -10,152 +12,153 @@ Done -- In progress -- Not started -- Blocked
 
 ---
 
-## Moinul -- Core + Infrastructure
+## Team
 
-> **17/17 done** -- all core + stretch + infra complete
+| Member | Branch | Role |
+|--------|--------|------|
+| **Moinul** | `main` | Architect & core -- builds the system, now reviewing PRs |
+| **Fatin** | `fatin/*` | Certificate pipeline & student-facing features |
+| **Shafin** | `shafin/*` | Admin panel & staff queue upgrades |
+
+> **Note:** Teammates are currently inactive. Branches need re-clone + recreation. Remaining tasks are documented here with file paths + implementation guidance for when work resumes.
+
+### Ground Rules
+
+1. **Never push directly to `main`.** Work on your personal branch.
+2. **Do not edit files another member owns** -- ask instead.
+3. **When done:** tick in this file, update progress + work history, open PR --> Moinul reviews.
+4. **Before PR:** `npx tsc --noEmit` + `npx vite build` -- no broken builds.
+5. **Stuck 30+ min?** Post in group chat.
+
+---
+
+## Moinul -- Core, Infrastructure, Security, Docs
+
+> **All core tasks complete.** New security + review-feedback items (M13-M15) done 2026-08-27, pending live SQL apply.
 
 ### Core approval loop (PR #9)
-
-- **M1** -- Staff queue -- approve/reject with remarks + student notification
-- **M2** -- Escalation -- auto-escalates at 3 rejections --> notifies Head + admins
-- **M3** -- Audit trail -- every action logged with actor + remark + timestamp
+- **M1** -- Staff queue -- approve/reject with remarks + document preview
+- **M2** -- Escalation -- auto-escalates at 3 rejections --> Head + admins
+- **M3** -- Audit trail -- every action logged with actor + timestamp
 
 ### Security patches (PR #34)
-
-- **M4** -- Admin route guard -- `beforeLoad` role check, redirect non-admins
-- **M5** -- Status-forgery patch -- DB trigger blocks student status tampering
-- **M6** -- Admin honesty pass -- replaced 5 broken admin pages with stubs
-- **M7** -- Head-ordering trigger -- blocks Head approval until 7/8 approved
+- **M4** -- Admin route guard -- `beforeLoad` role check
+- **M5** -- Status-forgery patch -- DB trigger blocks tampering
+- **M6** -- Admin honesty pass -- 5 broken pages --> stubs
+- **M7** -- Head-ordering trigger -- blocks Head until 7/8 approved
 
 ### Identity & infrastructure (PRs #32/#33)
-
-- **M8** -- Staff --> Registrar full rename -- enum, table, RLS, all refs
-- **M9** -- Accounts Queue hard-rule -- registrar always sees Accounts queue
+- **M8** -- Staff --> Registrar full rename
+- **M9** -- Accounts Queue hard-rule
 
 ### Stretch pool (PRs #9/#10)
+- **SP1** -- Bulk approve -- checkboxes + action bar
+- **SP2** -- Email notifications -- Edge Function + Resend (still forwards to Moinul's Gmail -- deferred)
+- **SP3** -- Notification pipeline -- 3 DB triggers
+- **SP4** -- Settings page
+- **SP5** -- Profile page fix
 
-- **SP1** -- Bulk approve -- checkboxes + Select all + bottom action bar
-- **SP2** -- Email notifications -- Edge Function + Resend + Webhook
-- **SP3** -- Notification pipeline -- 3 DB triggers + Edge Function
-- **SP4** -- Settings page -- `/settings` route
-- **SP5** -- Profile page fix -- PortalShell wrapper, role-aware nav
+### New review feedback tasks
+- **M10** -- Email data flow: personal email readonly in apply
+- **M11** -- N/A remarks encoding: em-dash --> ASCII dash
+- **M12** -- Verification workflow: `verify_clearance_status` RPC + `/verify` green/red verdict
 
-### Extra work (beyond backlog)
-
-- Own Supabase project -- old DB inaccessible
-- Deployed to Vercel -- auto-deploys `main`
-- NITER branding -- favicon, UCAM gradient, typography
-- Auth email upgrade + hotfix (PRs #35/#36)
-- UI polish rounds (PRs #37/#38/#39)
-- N/A self-declaration + review-reopen RPCs (PR #42)
-- Admin N/A audit table with search/filter/sort/CSV (PR #42)
-- Login redirect, mobile profile, register form overhaul (PR #43)
-- Approved-doc delete guard (PR #43)
-- Hide About for logged-in users (PR #44)
-- Doc-sync workflow fix (PR #44)
-- Role-aware settings page (PR #47)
-- .env purge from git history
-- 14+ bug fixes across auth, queue, notifications, branding
-
-### New review feedback tasks (PR #47)
-
-- **M10** -- Email data flow: personal email readonly in apply, removed from form submit (auth.tsx + apply.tsx)
-- **M11** -- N/A remarks encoding: em-dash --> ASCII dash in RPC + migration for existing rows
-- **M12** -- Verification workflow: `verify_clearance_status` RPC + `/verify` page green/red verdict
-
-### Extra work (2026-08-25 evening)
-
-- Profile page: role-aware labels ("My Profile", "Registrar ID" / "Student ID", "Role / Office")
-- Profile page: Account ID (UUID) removed from display
-- Settings page: synthetic email via `idToEmail(user_code)` instead of raw auth email
-- Settings page: clarified section header "Login & recovery email", label refinements
-- DB: applied `normalize_na_remarks` migration (em-dash --> ASCII dash)
-- DB: applied `verify_clearance_status` RPC migration
-- DB: fixed registrar auth email `staff@niter.portal` --> `700001@niter.portal`
+### 2026-08-27 -- external review fixes (done/documented)
+- **M13** -- Standardize label **"Academic year"** everywhere (was "Batch"/"Session"): dashboard, queue, certificate, verify, profile, reports, workflow, landing notice. Merged into Snapshot work.
+- **M14** -- Restrict `audit_log` INSERT RLS to registrar/admin (was any authenticated user). Migration `20260827150000_restrict_audit_log_rls.sql` -- **needs SQL-Editor apply**.
+- **M15** -- N/A rollback RPC `reopen_na_review` so a caught false N/A can be reverted to pending. Migration `20260827160000_na_rollback_rpc.sql` -- **needs SQL-Editor apply**.
+- **Docs** -- Rewrite `SYSTEM_FLOW.md` (external/authority copy) to fix stale/wrong claims (#audit/notices stubs, guard fixed, admin dashboard real).
 
 ---
 
 ## Fatin -- Certificate Pipeline & Student Features
 
-> **12/19 done** -- 7 remaining
+> **12/19 done (plus F19) -- 8 remaining**
 
 ### Completed
-
-- **F4** -- Profile page `/profile` (PR #11)
-- **F1** -- Certificate page `/certificate` (PR #18)
-- **F2** -- PDF download + QR code (PR #26)
-- **F3** -- Forgot password flow (PRs #35/#36)
-- **F6** -- Printable certificate view (PR #29)
-- **F8** -- Confirmation dialogs (PR #31)
-- **F9** -- Global error states (PR #41)
-- **F12** -- Profile cleanup -- readonly inputs replaced with plain text, Account ID removed
-- **F15** -- Icon sizes -- all status badge icons standardized at `size-3.5`
-- **F17** -- Remarks in dashboard -- feedback shows for all statuses under review cards
-- **F18** -- Notification badge -- unread count on bell icon with pulse animation, 30s polling
-- **F19** -- Certificate QR + verify flow -- QR encodes correct URL, verify page calls RPC, green/red verdict
+F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26) · F3 Forgot password (PRs #35/#36) · F6 Printable certificate (PR #29) · F8 Confirmation dialogs (PR #31) · F9 Global error states (PR #41) · F12 Profile cleanup · F15 Icon sizes · F17 Remarks in dashboard · F18 Notification badge · F19 Certificate QR + verify flow
 
 ### Remaining
-
 - **F5** -- Student timeline -- every rejection/resubmission/approval in order
-  > `src/routes/_authenticated/dashboard.tsx` -- Query `department_reviews` history (attempts, status changes, timestamps) and display as a vertical timeline under the progress card.
-
+  > `src/routes/_authenticated/dashboard.tsx` -- Query `department_reviews` history (attempts, status changes, timestamps) as a vertical timeline under the progress card.
 - **F7** -- Deadline lock -- block submissions after batch deadline
-  > `src/routes/_authenticated/apply.tsx` -- Read batch deadline from `app_settings` or `departments` table. Disable submit button + show "Deadline passed" message if current date > deadline.
-
+  > `src/routes/_authenticated/apply.tsx` -- Read deadline from `app_settings`/`departments`; disable submit + show "Deadline passed".
 - **F10** -- Registrar queue -- "Ready for final processing" list
-  > `src/routes/_authenticated/dashboard.tsx` -- Add a card/section for registrar role showing students where all 8/8 approved but `status != 'cleared'` -- these need final sign-off.
-
-- **F11** -- Dashboard email: show personal_email in greeting header
-  > `src/routes/_authenticated/dashboard.tsx` -- Add `profile.personal_email` to the PageHeader description. E.g. "CS 2103021 -- CSE -- Batch 2021 -- you@email.com"
-
+  > `src/routes/_authenticated/dashboard.tsx` -- Card for registrar showing students 8/8 approved but `status != 'cleared'`.
+- **F11** -- Dashboard email: show `personal_email` in greeting header
+  > `src/routes/_authenticated/dashboard.tsx`.
 - **F13** -- Thesis/internship on profile: show collected fields
-  > `src/routes/_authenticated/profile.tsx` -- Add `thesis_title`, `supervisor_name`, `expected_graduation` section below academic info (only if non-null). Update apply.tsx label: "Thesis / project title" --> "Thesis / Project / Internship title".
-
+  > `profile.tsx` + `apply.tsx` (label already updated to "Thesis/Project title or Internship company name").
 - **F14** -- Delete countdown popup: 3-second auto-close AlertDialog
-  > `src/routes/_authenticated/section.$code.tsx` -- AlertDialog already exists for document delete. Add `useEffect` countdown that auto-closes after 3 seconds. Pattern: `notifications.tsx` soft-delete.
-
-- **F16** -- "Uploaded" text: show on dashboard when docs submitted
-  > `src/routes/_authenticated/dashboard.tsx` -- In the review card loop, after StatusBadge, check if any documents exist for that review. If yes, show small "Uploaded" text below the badge.
+  > `src/routes/_authenticated/section.$code.tsx`.
+- **F16** -- "Uploaded" text on dashboard when docs submitted
+  > `src/routes/_authenticated/dashboard.tsx`.
+- **F20** -- **Resubmit comment field** (external review -- fixes the "Re-submit for final approval" loop)
+  > `src/routes/_authenticated/section.$code.tsx` + `suppabase/migrations/20260824100500_na_and_reopen_rpcs.sql`
+  > Add an optional student comment captured before flipping a rejected/Head review back to pending. Store on `department_reviews` (new `student_comment` column or pass through `reopen_rejected_review`). Surface the comment to the office in the queue card. This gives the student a way to address the office's objection instead of a blind "please look again" ping.
 
 ---
 
 ## Shafin -- Admin Panel & Queue Upgrades
 
-> **5/11 done** -- 6 remaining
+> **5/11 done -- 9 remaining** (S6-S11 original + 3 new)
 
-### Completed (merged via PR #27, stubs via M6)
-
-- **S1** -- Admin: user management -- "Coming soon" stub
-- **S2** -- Admin: workflow config -- "Coming soon" stub
+### Completed (merged PR #27, stubs via M6)
+- **S1** -- Admin: user management -- stub
+- **S2** -- Admin: workflow config -- stub
 - **S3** -- Admin: batch reports -- hardcoded data
-- **S4** -- Admin: notices management -- "Coming soon" stub (no `notices` table)
-- **S5** -- Admin: audit log viewer -- "Coming soon" stub (wrong columns)
+- **S4** -- Admin: notices -- stub (no table)
+- **S5** -- Admin: audit log -- stub (wrong columns)
 
 ### Remaining (gap fixes)
-
 - **S6** -- Override staff decision -- admin overturn + audit_log
-  > `src/routes/_authenticated/admin/index.tsx`, `src/routes/_authenticated/queue.tsx`
-  > Add "Override" button on admin view for any review. Calls a new RPC or direct update (admin RLS allows). Must write to `audit_log` with `entity = 'department_reviews'` and reason field.
-
+  > `admin/index.tsx`, `queue.tsx` -- "Override" button on admin view; write to `audit_log`.
 - **S7** -- Department config UI -- enable/disable offices per program
-  > `src/routes/_authenticated/admin/workflow.tsx`
-  > Read from `departments` table. Add toggle to enable/disable each department per program. Store in a new `program_departments` junction table or a JSONB column on `departments`.
-
-- **S8** -- Queue search/filter/pagination -- scale to 300+ students
-  > `src/routes/_authenticated/queue.tsx`
-  > Add search input (filter by student name/ID). Add status filter tabs (pending/rejected). Add pagination (50 per page). Use Supabase `.range()` for server-side pagination.
-
+  > `admin/workflow.tsx`.
+- **S8** -- Queue search/filter/pagination -- scale to 300+
+  > `queue.tsx` -- search, status tabs, pagination (50/page) via `.range()`.
 - **S9** -- Rejection history panel -- past rejections per student
-  > `src/routes/_authenticated/queue.tsx`
-  > In the student detail expandable row, show a mini-table of past rejections: date, department, remarks, attempt number. Query `department_reviews` where `status = 'rejected'` for that student.
-
+  > `queue.tsx` -- mini-table of past rejections in the detail row.
 - **S10** -- Bulk approve summary -- "X approved, Y skipped"
-  > `src/routes/_authenticated/queue.tsx`
-  > After bulk approve action completes, show a toast or modal with counts: how many approved, how many skipped (with reason -- e.g. "already approved", "has pending docs"). Update the review list.
-
+  > `queue.tsx` -- toast with counts after bulk approve.
 - **S11** -- Notices rebuild (fixes S4/S5)
-  > `src/routes/_authenticated/admin/notices.tsx`, `src/routes/index.tsx`, `supabase/migrations/*notices*`
-  > Create `notices` table with RLS (admin INSERT, public SELECT). Build CRUD admin page. Wire home page `/` to fetch and display active notices.
+  > `admin/notices.tsx`, `index.tsx`, migration -- create `notices` table + CRUD admin page + wire home page.
+- **S12** -- **Build the real Admin Audit Log page** (replaces S5 stub; external review)
+  > `src/routes/_authenticated/admin/audit.tsx` -- read-only table over `audit_log` (correct columns: `actor_id`, `actor_name`, `action`, `entity`, `entity_id`, `details`, `created_at`). The table + trigger already exist and are populated; only the page is missing. This is the primary accountability record -- highest priority.
+- **S13** -- **Wire Admin Reports to live data** (replaces S3 hardcoded)
+  > `src/routes/_authenticated/admin/reports.tsx` -- replace the static array with a query over `clearance_applications` grouped by program + status. Currently fake numbers.
+- **S14** -- **N/A review + revert UI** (external review; consumes M15 RPC)
+  > `src/routes/_authenticated/admin/index.tsx` -- add an action on the N/A declarations table to call `reopen_na_review(review_id)` so admins can revert a caught false declaration back to pending (button appears for rows with a matching open application). Add a review-cadence note so the table is actually checked regularly.
+
+---
+
+## Order of Attack (next up)
+
+| # | Who | Task | Why |
+|---|-----|------|-----|
+| 1 | Shafin | S12 -- Real audit log page | Accountability record -- highest priority |
+| 2 | Fatin | F20 -- Resubmit comment field | Fixes the blind resubmit loop |
+| 3 | Shafin | S14 -- N/A revert UI (uses M15) | Act on caught false N/A |
+| 4 | Fatin | F16 -- "Uploaded" text | Dashboard clarity |
+| 5 | Fatin | F11 -- Dashboard email | Show contact info |
+| 6 | Fatin | F14 -- Delete countdown | Safety UX |
+| 7 | Fatin | F13 -- Thesis/internship | Show collected data |
+| 8 | Fatin | F5 -- Student timeline | Full history view |
+| 9 | Fatin | F7 -- Deadline lock | Block late submissions |
+| 10 | Fatin | F10 -- Registrar queue | Final processing |
+| 11 | Shafin | S11 -- Notices rebuild | Fixes S4/S5 |
+| 12 | Shafin | S6 -- Override decision | Admin power |
+| 13 | Shafin | S8 -- Queue pagination | Scale to 300+ |
+| 14 | Shafin | S9 -- Rejection history | Queue UX |
+| 15 | Shafin | S10 -- Bulk summary | Queue UX |
+| 16 | Shafin | S7 -- Department config | Workflow settings |
+| 17 | Shafin | S13 -- Live reports | Real data |
+
+---
+
+## Definition of Done for v1
+
+Student applies --> staff approves/rejects with remarks --> escalation works --> admin guard active --> no status-forgery --> Head ordering enforced --> certificate PDF with QR --> **verification confirms 8/8 or directs to portal** --> admin manages users + notices + sees real audit log.
 
 ---
 
@@ -163,36 +166,9 @@ Done -- In progress -- Not started -- Blocked
 
 | Member | Done | Remaining | Total |
 |--------|------|-----------|-------|
-| Moinul | 17 | 0 | 17 |
-| Fatin | 12 | 7 | 19 |
-| Shafin | 5 | 6 | 11 |
-| **Total** | **34** | **13** | **47** |
-
----
-
-## Order of Attack
-
-| # | Who | Task | Why |
-|---|-----|------|-----|
-| 1 | Fatin | F16 -- "Uploaded" text | Dashboard clarity |
-| 2 | Fatin | F11 -- Dashboard email | Show contact info |
-| 3 | Fatin | F14 -- Delete countdown | Safety UX |
-| 4 | Fatin | F13 -- Thesis/internship | Show collected data |
-| 5 | Fatin | F5 -- Student timeline | Full history view |
-| 6 | Fatin | F7 -- Deadline lock | Block late submissions |
-| 7 | Fatin | F10 -- Registrar queue | Final processing |
-| 8 | Shafin | S11 -- Notices rebuild | Fixes S4/S5 |
-| 9 | Shafin | S6 -- Override decision | Admin power |
-| 10 | Shafin | S8 -- Queue pagination | Scale to 300+ |
-| 11 | Shafin | S9 -- Rejection history | Queue UX |
-| 12 | Shafin | S10 -- Bulk summary | Queue UX |
-| 13 | Shafin | S7 -- Department config | Workflow settings |
-
----
-
-## Definition of Done for v1
-
-Student applies --> staff approves/rejects with remarks --> escalation works --> admin guard active --> no status-forgery --> Head ordering enforced --> certificate PDF with QR --> **verification confirms 8/8 or directs to portal** --> admin manages users + notices.
+| Moinul | 20 (incl. M13-M15 + docs) | 0 | 20 |
+| Fatin | 12 | 8 | 20 |
+| Shafin | 5 | 9 | 14 |
 
 ---
 
@@ -205,7 +181,7 @@ Student applies --> staff approves/rejects with remarks --> escalation works -->
 | Certificate revocation | Medium | No revoke process |
 | Escalation resolution | Medium | No resolve/reassign UI |
 | Mobile/WCAG audit | Low | AA contrast done, no full audit |
-| Resend custom domain | -- | Needs `niter.edu.bd` verification |
+| Resend custom domain | -- | Needs resend.dev sender only for now (personal recipients OK). Edge fn not called from frontend. |
 | PDPA compliance | -- | No Bangladesh region in Supabase |
 
 ---
@@ -214,66 +190,27 @@ Student applies --> staff approves/rejects with remarks --> escalation works -->
 
 | Issue | Severity | Notes |
 |-------|----------|-------|
-| Edge function hardcoded recipient | Medium | `send-notification-email` sends to `akash.moinulhasan@gmail.com` instead of user's personal_email |
-| `consolidated_setup.sql` stale | Low | Missing migrations 05-19; should not be used for fresh setup |
-| `admin/route.tsx` dead layout | Low | Renders placeholder string instead of `<Outlet />`; admin pages are independent file-routes |
-| 27 unused shadcn/ui components | Low | Over half of installed UI components never imported by application code |
-| No storage bucket in migrations | Medium | `clearance-docs` bucket only created in `consolidated_setup.sql`; fresh migration-only setup will fail on file upload |
-| No seed file | Low | Test users, roles, and registrar-department assignments must be created manually |
+| Edge function hardcoded recipient + never invoked | Medium | `send-notification-email` sends to Moinul's Gmail; not wired from frontend. In-app SQL notifications work. Deferred. |
+| Email pipeline not delivering to students | Medium | Needs DB webhook/edge-function wiring. In-app notifications are the working channel. |
+| `/verify` "Certificate ID" shows raw UUID | Low | QR encoding is correct; label could be friendlier. Pending decision. |
+| `admin/route.tsx` dead layout | Low | Placeholder string instead of `<Outlet />`; admin pages are independent file-routes |
+| 27 unused shadcn/ui components | Low | Over half never imported |
+| No storage bucket in migrations | Medium | `clearance-docs` only in `consolidated_setup.sql` |
+| No seed file | Low | Test users/roles/assignments created manually |
 
 ---
 
 ## Work History
 
+### 2026-08-27
+- M13 -- Standardized "Academic year" label everywhere (was Batch/Session)
+- M14 -- audit_log INSERT RLS restricted to registrar/admin (migration written, needs SQL-Editor apply)
+- M15 -- `reopen_na_review` N/A rollback RPC (migration written, needs SQL-Editor apply)
+- Docs -- consolidated Snapshot+Assignment; flagged external-review gaps; rewrote authority-facing SYSTEM_FLOW facts
+- Distributed teammate scope: Fatin F20 (resubmit comment), Shafin S12/S13/S14 (audit page, live reports, N/A revert UI)
+
 ### 2026-08-25 (evening)
+- Role-aware profile/settings, `idToEmail`, N/A remark + verify migrations, registrar email fix, snapshot rewrite
 
-- Profile page: role-aware labels ("My Profile", Registrar/Student ID, Role/Office)
-- Profile page: Account ID (UUID) removed from display
-- Settings page: `idToEmail(user_code)` for synthetic login email
-- Settings page: section header "Login & recovery email", label refinements
-- DB: applied `normalize_na_remarks` + `verify_clearance_status` migrations
-- DB: fixed registrar auth email `staff@niter.portal` --> `700001@niter.portal`
-- Snapshot + Assignment rewritten with accurate completion status
-
-### 2026-08-25
-
-- Settings page: role-aware form (PR #47)
-- .env purge from git history
-- 11 new review feedback tasks distributed
-- M10 -- Email data flow: personal_email wired (PR #47)
-- M11 -- N/A remarks: em-dash --> ASCII dash (PR #47)
-- M12 -- verify_clearance_status RPC + /verify page (PR #47)
-- F19 -- Certificate QR + verify flow task assigned to Fatin
-- Doc-sync workflow fix: commit before pull-rebase
-
-### 2026-08-24
-
-- Global error states (F9) -- PR #41
-- N/A self-declaration + RPCs -- PR #42
-- Admin N/A audit table -- PR #42
-- Login redirect, mobile profile, auth form -- PR #43
-- Hide About, section text -- PR #44
-- Doc-sync workflow fix -- PR #44
-
-### 2026-08-23
-
-- Certificate page (F1) -- PR #18
-- PDF + QR code (F2) -- PR #26
-- Admin panel (S1-S5) -- PR #27
-- Confirmation dialogs (F8) -- PR #31
-- Forgot password (F3) -- PRs #35/#36
-- Staff --> Registrar rename (M8) -- PRs #32/#33
-- Security patches (M4-M7) -- PR #34
-- Printable certificate (F6) -- PR #29
-- Auth + home UI polish -- PRs #37/#38/#39
-
-### 2026-08-22
-
-- Staff queue (M1) -- PR #9
-- Escalation logic (M2) -- PR #9
-- Audit trail (M3) -- PR #9
-- Profile page (F4) -- PR #11
-- Bulk approve (SP1) -- PR #9
-- Email notifications (SP2/SP3) -- PR #10
-- Settings page (SP4) -- PR #10
-- Profile page fix (SP5) -- PR #10
+### Earlier
+- See git history / prior snapshots for full log (certificate, admin panel, security patches, core loop).

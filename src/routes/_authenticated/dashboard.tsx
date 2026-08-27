@@ -93,7 +93,7 @@ function DashboardPage() {
         title={profile?.full_name ? `Hello, ${profile.full_name.split(" ")[0]}` : "My clearance"}
         description={
           profile?.user_code
-            ? `${profile.user_code}${profile?.program ? ` · ${profile.program}` : ""}${profile?.batch ? ` · Batch ${profile.batch}` : ""}`
+            ? `${profile.user_code}${profile?.program ? ` · ${profile.program}` : ""}${profile?.batch ? ` · Academic year ${profile.batch}` : ""}`
             : "Student"
         }
       />

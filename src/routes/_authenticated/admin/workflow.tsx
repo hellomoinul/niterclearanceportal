@@ -11,7 +11,7 @@ function WorkflowStub() {
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
         <p className="text-sm text-yellow-800">
           <strong>Coming soon.</strong> This page will allow admins to configure departments
-          per program and set batch clearance deadlines.
+          per program and set academic year clearance deadlines.
         </p>
       </div>
     </div>
