@@ -1,6 +1,6 @@
 # NITER Clearance Portal -- Snapshot & Assignment
 
-> **Last updated:** 2026-08-27 (build mode session) -- **Overall progress: ~76%**
+> **Last updated:** 2026-08-28 (admin panel completion) -- **Overall progress: ~85%**
 >
 > Single source of truth: who owns what, plus current status. Replace Assignment.md (merged here).
 
@@ -103,41 +103,26 @@ F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26)
 
 ## Shafin -- Admin Panel & Queue Upgrades
 
-> **9/11 done -- 5 remaining** (S6-S11 original + 3 new)
+> **8/14 done -- 6 remaining** (S1-S11 original + S12-S14 new)
 
-### Completed (merged PR #27, stubs via M6)
-- **S1** -- Admin: user management -- stub
-- **S2** -- Admin: workflow config -- stub
-- **S3** -- Admin: batch reports -- hardcoded data
-- **S4** -- Admin: notices -- stub (no table)
-- **S5** -- Admin: audit log -- stub (wrong columns)
-- **S12** -- **Real Admin Audit Log page** -- built by Shafin on a stale branch, lifted onto current main as `shafin/admin-panel-lift`, **merged as PR #53**. Replaces the S5 stub with a read-only paginated/searchable/filtered table over `audit_log`. Columns verified against live schema; page works end-to-end.
-- **S7** -- **Workflow & deadline config UI** -- Shafin's `admin/workflow.tsx` lifted in `shafin/admin-work-lift-3` (PR #56). Now backed by a real `workflow_steps` table (created in migration `20260828000000`, applied to live). Admins can add/reorder/toggle/delete stages and persist to DB.
-- **S11** -- **Notices rebuild (fixes S4/S5)** -- Shafin's `admin/notices.tsx` lifted in `shafin/admin-work-lift-3` (PR #56). Backed by a real `notices` table (created in migration `20260828000000`, applied to live) with admin-only CRUD + RLS.
-- **S13** -- **Wire Admin Reports to live data** (replaces S3 hardcoded) -- `admin/reports.tsx` rebuilt in `shafin/admin-work-lift-3` (PR #56) to query the real schema: department stats from `department_reviews` joined with `departments` (approved/pending/rejected per office) + pie chart of overall status + total application count. Dropped the batch filter (no batch concept) and non-existent `department`/`batch` columns Shafin's draft used.
+> **How Shafin's work reached main:** `shafin/admin-panel` was forked from an ancient main (193 commits behind; force-merging would have deleted `guide.tsx`, `registrar/queue.tsx`, `forgot-password.tsx`, `calendar.tsx`, `page-header.tsx`, `departments.ts`, `UI Guide.md`, re-added the gitignored `.env`). So his genuinely-new admin files were lifted onto fresh branches off modern `main` (PR #53, #54, #55). Original branch backed up as `backup/shafin-admin-panel`; PR #52 (stale) closed as obsolete.
 
-> **Shafin branch salvage (important):** `shafin/admin-panel` was forked from an ancient main (193 commits behind) and, if force-merged, would delete `guide.tsx`, `registrar/queue.tsx`, `forgot-password.tsx`, `calendar.tsx`, `page-header.tsx`, `departments.ts`, `UI Guide.md`, re-add the gitignored `.env`, and restore old `faq.tsx`/workflows. Only Shafin's genuinely new admin work was salvaged onto modern main. Backed up as `backup/shafin-admin-panel`.
+### Done & working (real pages)
+- **S2/S7** -- Workflow & deadline config -- `admin/workflow.tsx` (lifted, fixed UUID save, PR #54). Backed by `workflow_steps` table (migration `20260828000000`, live). Add/reorder/toggle/delete stages -> persists to DB.
+- **S3/S13** -- Reports -- `admin/reports.tsx` rebuilt vs real schema (PR #54): per-department approved/pending/rejected from `department_reviews` + `departments`, status pie, total count. (Shafin's draft queried non-existent `department`/`batch` columns; rebuilt, batch dropped.)
+- **S4/S11** -- Notices -- `admin/notices.tsx` (lifted, PR #54). Backed by `notices` table (migration `20260828000000`, live), admin-only RLS.
+- **S5/S12** -- Audit log -- `admin/audit.tsx` (lifted, PR #53): paginated/searchable/filtered read-only table over `audit_log`.
+- **Admin nav/layout** -- `admin/route.tsx` fixed to render `<Outlet />` + sub-nav bar (Dashboard / Workflow / Notices / Audit / Reports / Users), so all admin pages now display (PR #55).
 
-### Remaining (gap fixes)
-- **S6** -- Override staff decision -- admin overturn + audit_log
-  > `admin/index.tsx`, `queue.tsx` -- "Override" button on admin view; write to `audit_log`.
-- **S7** -- Department config UI -- **DONE** (see Completed above; `workflow_steps` table created)
-  > `admin/workflow.tsx`.
-- **S8** -- Queue search/filter/pagination -- scale to 300+
-  > `queue.tsx` -- search, status tabs, pagination (50/page) via `.range()`.
-- **S9** -- Rejection history panel -- past rejections per student
-  > `queue.tsx` -- mini-table of past rejections in the detail row.
-- **S10** -- Bulk approve summary -- "X approved, Y skipped"
-  > `queue.tsx` -- toast with counts after bulk approve.
-- **S11** -- Notices rebuild (fixes S4/S5) -- **DONE** (see Completed above; `notices` table created)
-  > `admin/notices.tsx`, `index.tsx`, migration -- create `notices` table + CRUD admin page + wire home page.
-- **S12** -- **~~Build the real Admin Audit Log page~~** (DONE, see Completed above) (replaces S5 stub; external review)
-  > `src/routes/_authenticated/admin/audit.tsx` -- read-only table over `audit_log` (correct columns: `actor_id`, `actor_name`, `action`, `entity`, `entity_id`, `details`, `created_at`). The table + trigger already exist and are populated; only the page was missing. This is the primary accountability record -- highest priority.
-- **S13** -- Wire Admin Reports to live data (replaces S3 hardcoded) -- **DONE** (see Completed above; rebuilt against `department_reviews`/`departments`)
-  > `src/routes/_authenticated/admin/reports.tsx` -- replace the static array with a query over `clearance_applications` grouped by program + status. Currently fake numbers.
-  > **Resolution:** `clearance_applications` has no `department`/`batch` columns. Reports rebuilt to source department stats from `department_reviews` joined with `departments` (approved/pending/rejected per office), status distribution from the `review_status` enum, and total applications from `clearance_applications`. Batch filter dropped (no batch concept).
-- **S14** -- **N/A review + revert UI** (external review; consumes M15 RPC)
-  > `src/routes/_authenticated/admin/index.tsx` -- add an action on the N/A declarations table to call `reopen_na_review(review_id)` so admins can revert a caught false declaration back to pending (button appears for rows with a matching open application). Add a review-cadence note so the table is actually checked regularly.
+### Not done (Shafin's remaining work)
+- **S1** -- User management -- `/admin/users` is still a **stub** (no role management). Shafin's `users.tsx` was a non-persisting mock form; not lifted.
+- **S6** -- Override staff decision -- add "Override" action + `audit_log` write (on admin view / `queue.tsx`).
+- **S8** -- Queue search/filter/pagination -- `queue.tsx` search, status tabs, pagination (50/page via `.range()`).
+- **S9** -- Rejection history panel -- `queue.tsx` mini-table of past rejections in detail row.
+- **S10** -- Bulk approve summary toast -- "X approved, Y skipped" in `queue.tsx`.
+- **S14** -- N/A revert UI -- `admin/index.tsx`: "Revert" button on the N/A declarations table calling `reopen_na_review(review_id)` (M15 RPC exists + is live); plus a review-cadence note.
+
+> **Pending PR:** PR #55 (admin layout `<Outlet />` fix) is open on branch `fix/admin-layout-outlet` -- merge so the live Vercel site shows working admin pages.
 
 ---
 
@@ -153,10 +138,11 @@ F4 Profile page (PR #11) · F1 Certificate page (PR #18) · F2 PDF + QR (PR #26)
 | 6 | Fatin | F13 -- Thesis/internship | Show collected data |
 | 7 | Fatin | F5 -- Student timeline | Full history view |
 | 8 | Fatin | F7 -- Deadline lock | Block late submissions |
-| 9 | Shafin | S6 -- Override decision | Admin power |
-| 10 | Shafin | S8 -- Queue pagination | Scale to 300+ |
-| 11 | Shafin | S9 -- Rejection history | Queue UX |
-| 12 | Shafin | S10 -- Bulk summary | Queue UX |
+| 9 | Shafin | S1 -- Real users page (was stub) | Admin role mgmt |
+| 10 | Shafin | S6 -- Override decision | Admin power |
+| 11 | Shafin | S8 -- Queue pagination | Scale to 300+ |
+| 12 | Shafin | S9 -- Rejection history | Queue UX |
+| 13 | Shafin | S10 -- Bulk summary | Queue UX |
 
 ---
 
@@ -172,7 +158,7 @@ Student applies --> staff approves/rejects with remarks --> escalation works -->
 |--------|------|-----------|-------|
 | Moinul | 22 (incl. M13-M17 + docs) | 0 | 22 |
 | Fatin | 13 | 7 | 20 |
-| Shafin | 5 | 9 | 14 |
+| Shafin | 8 | 6 | 14 |
 
 ---
 
@@ -197,7 +183,6 @@ Student applies --> staff approves/rejects with remarks --> escalation works -->
 | Edge function hardcoded recipient + never invoked | Medium | `send-notification-email` sends to Moinul's Gmail; not wired from frontend. In-app SQL notifications work. Deferred. |
 | Email pipeline not delivering to students | Medium | Needs DB webhook/edge-function wiring. In-app notifications are the working channel. |
 | `/verify` "Certificate ID" shows raw UUID | Low | QR encoding is correct; label could be friendlier. Pending decision. |
-| `admin/route.tsx` dead layout | Low | Placeholder string instead of `<Outlet />`; admin pages are independent file-routes |
 | 27 unused shadcn/ui components | Low | Over half never imported |
 | No storage bucket in migrations | Medium | `clearance-docs` only in `consolidated_setup.sql` |
 | No seed file | Low | Test users/roles/assignments created manually |
@@ -225,6 +210,8 @@ Student applies --> staff approves/rejects with remarks --> escalation works -->
 - **PR #53 merged** -- Shafin audit page (S12) landed on main. **PR #52 (stale `shafin/admin-panel`) closed as obsolete** -- unsolvable 68-file conflict; nothing lost (backup + merged #53).
 - **Migration `20260828000000_admin_notices_workflow.sql` created + applied to live:** new `notices` and `workflow_steps` tables with admin-only RLS (`admins manage notices`, `admins manage workflow_steps`). Verified live (pg_policies + columns match Shafin's page usage).
 - **Lifted Shafin's `workflow.tsx` (S7) + `notices.tsx` (S11)** onto `shafin/admin-work-lift-3` and **rebuilt `reports.tsx` (S13)** against the real schema (`department_reviews` joined with `departments`, `review_status` enum, total from `clearance_applications`; dropped non-existent `batch` column). Fixed a UTF-16 encoding corruption from PowerShell redirect by using `git checkout` to preserve exact bytes. tsc + `vite build` pass; routes `/admin/workflow|notices|reports` registered. PR opened.
+- **PR #54 merged** -- workflow/notices/reports landed on main.
+- **Admin layout fix (PR #55, open):** `admin/route.tsx` was a placeholder printing `Hello "/_authenticated/admin"!` with no `<Outlet />`, so all admin sub-pages rendered blank. Replaced with a proper layout: auth + admin-role guard kept, `<Outlet />` renders child pages, sub-nav bar (Dashboard / Workflow / Notices / Audit / Reports / Users) with active-tab highlighting. Branch `fix/admin-layout-outlet`.
 
 ### 2026-08-25 (evening)
 - Role-aware profile/settings, `idToEmail`, N/A remark + verify migrations, registrar email fix, snapshot rewrite

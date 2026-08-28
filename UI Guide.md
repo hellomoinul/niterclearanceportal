@@ -311,7 +311,7 @@ A comment field is planned (F20).
 ---
 
 ## Notes / known gaps
-- Several **admin sub-pages are stubs** (users, workflow, notices) and reports is hardcoded — pending teammate work (Shafin S11/S13). The **audit page (S12) is done** — `audit_log` table + trigger work and are populated, and the read-only page is live. Reports (S13) is blocked: `clearance_applications` has no `department`/`batch` columns, so it must be rebuilt against `department_reviews` rather than copied verbatim.
+- **Workflow (S7)**, **Notices (S11)**, **Audit (S12)**, **Reports (S13)** are all working and backed by real DB tables. The admin layout (`route.tsx`) now renders `<Outlet />` + sub-nav (PR #55, pending merge). **Users (S1)** is still a stub. **N/A revert (S14)** is pending (button to call `reopen_na_review` RPC). Queue upgrades (S6/S8/S9/S10) are pending.
 - The **"Certificate ID"** shown on the certificate is the raw certificate **UUID** (the QR encodes it correctly for `/verify/<id>`).
 - The **Department Head** has no separate login — it's handled by the **admin** in the queue.
 - **N/A declarations** extend to every office except Accounts + Department Head (not just hostel/library). Declared offices are auto-approved at submit; admin reviews them after the fact, with a rollback RPC available.
@@ -322,6 +322,6 @@ A comment field is planned (F20).
 |--------|------|
 | Moinul (architect) | Core, security, DB RPCs, docs |
 | Fatin | Certificate + student features (incl. resubmit comment field F20) |
-| Shafin | Admin panel + queue (incl. audit page S12, live reports S13, N/A revert UI S14) |
+| Shafin | Admin panel (S7/S11/S12/S13 done; S1/S6/S8/S9/S10/S14 pending) + queue upgrades |
 
 Full ownership + status: see `Snapshot.md`.
