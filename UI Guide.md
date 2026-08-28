@@ -261,12 +261,12 @@ Working feature: stats, quick links, and a filterable/sortable **N/A declaration
 | Page | Route | Status |
 |------|-------|--------|
 | User Management | `/admin/users` | **Coming soon** (stub) |
-| Workflow Config | `/admin/workflow` | **Coming soon** (stub) |
-| Notices | `/admin/notices` | **Coming soon** (stub) |
+| Workflow Config | `/admin/workflow` | **Working** — reorder/toggle/delete clearance stages, persisted to `workflow_steps` (S7) |
+| Notices | `/admin/notices` | **Working** — admin CRUD on `notices` table, RLS-restricted (S11) |
 | Audit Log | `/admin/audit` | **Working** — paginated searchable/filtered read-only table over `audit_log` (S12) |
-| Reports | `/admin/reports` | **Hardcoded** demo chart |
+| Reports | `/admin/reports` | **Working** — live data from `department_reviews` + `departments`; status pie + per-department bar + CSV (S13) |
 
-The reports page shows a bar chart (cleared vs pending by department) but the data is static — not yet wired to the database.
+Reports now reads real data: per-department approved/pending/rejected from `department_reviews`, an overall status pie, and total application count.
 
 ---
 
