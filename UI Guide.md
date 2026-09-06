@@ -9,10 +9,10 @@
 | Role | What they can do | Portal ID example |
 |------|------------------|-------------------|
 | **Student** | Apply, then walk the 10-step clearance in strict order, upload per active office, view status, download certificate | `cs2103021@niter.portal` |
-| **Registrar** | Review **their single assigned office/variant** queue, approve/reject with remarks | `700001@niter.portal` |
+| **Registrar** | Review **their single assigned office's** queue, approve/reject with remarks | `700001@niter.portal` |
 | **Admin** | Administration office — full queue visibility, Office Editor, users, final sign-off | `700000@niter.portal` |
 
-**Key fact:** everyone signs in with their **Student ID / Registrar ID / Admin ID** (e.g. `CS 2103021`, `700001`), their **portal ID**, or their **email** — same login box, one password. Each **office staff** account is bound to exactly **one office or variant** (e.g. "Lab – Textile", "Hostel – Female"), so its queue is filtered automatically.
+**Key fact:** everyone signs in with their **Student ID / Registrar ID / Admin ID** (e.g. `CS 2103021`, `700001`), their **portal ID**, or their **email** — same login box, one password. Each **office staff** account is bound to exactly **one of the 10 offices** (Laboratory, Dept. Head, Hostel Superintendent, Proctor, Store, Library, Caretaker & Security, Exam Section, Accounts), so after sign-in their queue is filtered to that office automatically. **Admin is superior over all offices** and reviews the Administration (final) step.
 
 ---
 
@@ -97,9 +97,9 @@ If not all offices approved: **"Not verified — go to NITER clearance portal"**
 │ Hello, Moinul ─── CS 2103021 · CSE · Academic year 2021   [View Certificate][Queue]│
 │ Overall progress                          Step 3 of 10 — Hostel Superintendent │
 │ [██████████░░░░░░░░░░░]  30%                                                     │
-│  ┌─ 1 Laboratory · CSE         ✓ Approved ──────────────┐                       │
+│  ┌─ 1 Laboratory              ✓ Approved ──────────────┐                        │
 │  └───────────────────────────────────────────────────────┘                       │
-│  ┌─ 2 Dept. Head · CSE         ✓ Approved ──────────────┐                       │
+│  ┌─ 2 Dept. Head              ✓ Approved ──────────────┐                        │
 │  └───────────────────────────────────────────────────────┘                       │
 │  ┌─ 3 Hostel Superintendent ▸ [Active] ───────────────┐                          │
 │  │   Office verifies: Room vacated, hostel dues paid.  │                          │
@@ -122,11 +122,10 @@ Sections in one form (no upload yet, that's per-office):
 ```
 Student details      Name, ID (read-only) · Registration no · Personal email (ro)
 Program (strict dropdown)  TE / IPE / FDAE / CSE / EEE
-Gender (purpose-stated)   used only to route your Hostel Superintendent clearance
 Guardian and address Guardian name · Guardian phone (11 digits) · addresses
 [Submit application]
 ```
-Submitting creates the application and opens **step 1 only** (Laboratory, program-matched). The next
+Submitting creates the application and opens **step 1 only** (Laboratory). The next
 step unlocks only when the current one approves. N/A is declared **per office** once it unlocks —
 not on this form.
 
@@ -179,11 +178,11 @@ not on this form.
 
 ### Queue `/queue`
 ```
-│ Queue — {Office name} (staff's assigned office/variant)           │
+│ Queue — {Office name} (staff's assigned office)            │
 │ [Pending (12)] [Rejected (3)]     [All offices ▾] {admin only}   │
 │  ☐ ┌─ M Moinul Hasan ─────────────── [Pending]      │
 │     │ ID CS 2103021 · CSE · Academic year 2021       │
-│     │ Office: Laboratory · CSE                       │
+│     │ Office: Laboratory                             │
 │     │ Proof documents (2)                            │
 │     │   slip.pdf  [Approved]                         │
 │     │ [Remark textarea]  [Reject] [Approve]          │
@@ -197,8 +196,8 @@ not on this form.
 ═════════════════════════════════════════════════════
 │ [Approve 3 students]   (bulk bar, bottom, when selected) │
 ```
-- A **registrar sees only their one assigned office/variant** (e.g. "Lab – CSE", "Hostel – Female").
-- **Admin** sees all 19 offices via the office filter.
+- A **registrar sees only their one assigned office** (e.g. "Laboratory", "Accounts").
+- **Admin** sees all 10 offices via the office filter.
 - **Pending/Rejected tabs** + search + pagination; rejection history shown on rejected cards (S9).
 - **Reject requires a remark** — otherwise a toast blocks it.
 - Bulk **approve** via checkbox + bottom action bar; completion shows a per-student summary (S10).
@@ -269,13 +268,13 @@ Working feature: stats, quick links, and a filterable/sortable **N/A declaration
 ### Admin sub-pages
 | Page | Route | Status |
 |------|-------|--------|
-| User Management | `/admin/users` | ⬜ **v2** — CRUD + roles + **one office-variant per staff** (S-v2.2) |
-| Office Editor | `/admin/offices` | ⬜ **v2** — CRUD over the 19 office rows (name/requirement/doc-hint/order/program/gender/final) (S-v2.1) |
+| User Management | `/admin/users` | ⬜ **v2** — CRUD + roles + **one office per staff** (S-v2.2) |
+| Office Editor | `/admin/offices` | ⬜ **v2** — CRUD over the 10 office rows (name/requirement/doc-hint/order/final) (S-v2.1) |
 | Notices | `/admin/notices` | ✅ **Working** — admin CRUD on `notices` table, RLS-restricted (S11) |
 | Audit Log | `/admin/audit` | ✅ **Working** — paginated searchable/filtered read-only table over `audit_log` (S12) |
 | Reports | `/admin/reports` | ✅ **Working** — live data from `department_reviews` + `departments`; status pie + per-office bar + CSV (S13) |
 
-Reports reads real data: per-office approved/pending/rejected from `department_reviews` (will reflect the new 19-office set after the v2 reseed), an overall status pie, and total application count.
+Reports reads real data: per-office approved/pending/rejected from `department_reviews` (will reflect the new 10-office set after the v2 reseed), an overall status pie, and total application count.
 
 ---
 
@@ -285,10 +284,10 @@ Reports reads real data: per-office approved/pending/rejected from `department_r
 Student applies
    │
    ▼
-Step 1 opens (Laboratory · program-matched)
+Step 1 opens (Laboratory)
    │
    ▼ (office approves)
-Step 2 opens (Dept. Head · program-matched)  → … → Step 9 (Accounts)
+Step 2 opens (Dept. Head)  → … → Step 9 (Accounts)
    │
    ▼ (all 9 steps approved/N-A)
 Step 10 opens — Administration (no document required)
