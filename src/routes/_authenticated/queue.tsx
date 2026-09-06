@@ -387,7 +387,7 @@ function QueuePage() {
   return (
     <PortalShell>
       <PageHeader
-        title={isAdmin ? "Department queue" : "Accounts queue"}
+        title={isAdmin ? "Department queue" : departments!.map((d) => d.name).join(", ")}
         description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
         breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
       />
