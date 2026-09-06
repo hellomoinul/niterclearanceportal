@@ -157,13 +157,15 @@ src/
 
 ## Roles
 
+A role is **not** an office. **Registrar** is the role of an office employee; the **10 offices** are the clearance sections (Laboratory … Administration). Each registrar is bound to exactly one office via `registrar_departments`.
+
 | Role | Who | Capabilities |
 |------|-----|-------------|
 | **Student** | Final-year students | Apply for clearance, walk the 10-step sequence, upload per active office, track progress, download certificate |
-| **Registrar** | Office staff — one account per office section | Review **their assigned office's** queue, approve/reject with remarks |
+| **Registrar** (office staff) | One account per office — bound to exactly one of the 10 offices | Review **their assigned office's** queue, approve/reject with remarks |
 | **Admin** | Administration office | Full queue visibility, user + office management, N/A audit, final sign-off |
 
-Student accounts are created via self-registration. Office staff and admin accounts are provisioned by the admin office — each registrar account is bound to **exactly one of the 10 office sections** (Laboratory … Accounts). After sign-in, a registrar sees only their own office's queue; admin sees all sections and acts as the Administration (final) sign-off.
+Student accounts are created via self-registration. Office staff (registrar) and admin accounts are provisioned separately — each registrar account is bound to **exactly one of the 10 office sections** (Laboratory … Administration). After sign-in, a registrar sees only their own office's queue; admin sees all sections and acts as the Administration (final) sign-off.
 
 ## Deployment
 
