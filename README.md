@@ -45,9 +45,9 @@ Student applies → Office 1 (Lab) … walks the 10-step sequence in order …
 
 | # | Section | Note |
 |---|---------|------|
-| 1 | Laboratory | split by program (TE / IPE / FDAE / CSE / EEE) |
-| 2 | Dept. Head | split by program (TE / IPE / FDAE / CSE / EEE) |
-| 3 | Hostel Superintendent | split by gender (Male / Female) |
+| 1 | Laboratory | |
+| 2 | Dept. Head | |
+| 3 | Hostel Superintendent | |
 | 4 | Proctor Office | |
 | 5 | Store | |
 | 6 | Library | |
@@ -56,9 +56,10 @@ Student applies → Office 1 (Lab) … walks the 10-step sequence in order …
 | 9 | Accounts Section | |
 | 10 | Administration | **final sign-off → issues certificate** |
 
-Each student is routed to their own program/gender variants, so their journey is always **10 steps
-in order**. A step stays locked — *"Clearance not received from [office]"* — until the one before it
-approves. The lock is enforced in the database, not just hidden in the UI.
+Each student walks the fixed **10 sections in order** — there is no per-variant routing; every
+office reviews every student's clearance. A step stays locked — *"Clearance not received from
+[office]"* — until the one before it approves. The lock is enforced in the database, not just
+hidden in the UI.
 
 ## Features
 
@@ -135,7 +136,7 @@ src/
 │       └── admin/                   # Admin-only pages
 │           ├── route.tsx            # Layout guard (admin role check)
 │           ├── index.tsx            # Admin dashboard + N/A audit table
-│           ├── offices.tsx          # Office Editor (19 office rows)
+│           ├── offices.tsx          # Office Editor (10 office rows)
 │           ├── users.tsx            # User management
 │           ├── reports.tsx          # Batch reports
 │           ├── audit.tsx            # Audit log viewer
@@ -159,10 +160,10 @@ src/
 | Role | Who | Capabilities |
 |------|-----|-------------|
 | **Student** | Final-year students | Apply for clearance, walk the 10-step sequence, upload per active office, track progress, download certificate |
-| **Registrar** | Office staff (one per office/variant) | Review their assigned office's queue, approve/reject with remarks |
+| **Registrar** | Office staff — one account per office section | Review **their assigned office's** queue, approve/reject with remarks |
 | **Admin** | Administration office | Full queue visibility, user + office management, N/A audit, final sign-off |
 
-Student accounts are created via self-registration. Office staff and admin accounts are provisioned by the admin office — each staff account is assigned **exactly one office or variant** (e.g. "Lab – Textile", "Hostel – Female").
+Student accounts are created via self-registration. Office staff and admin accounts are provisioned by the admin office — each registrar account is bound to **exactly one of the 10 office sections** (Laboratory … Accounts). After sign-in, a registrar sees only their own office's queue; admin sees all sections and acts as the Administration (final) sign-off.
 
 ## Deployment
 
