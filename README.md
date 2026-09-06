@@ -26,30 +26,55 @@
 
 ## What it does
 
-Students apply once. Eight offices review in parallel. When every office approves, a **QR-verifiable clearance certificate** is generated instantly — no walking between buildings, no lost papers, no bottlenecks.
+Students apply once. The ten clearance sections are reviewed **in strict order**, mirroring the
+physical Student Clearance Form — the next office only opens once the previous one approves.
+When the **Administration** section (the final sign-off) approves, a **QR-verifiable clearance
+certificate** is generated instantly.
 
 ```
-Student applies → 8 offices review in parallel → All approve → Certificate auto-issued
+Student applies → Office 1 (Lab) … walks the 10-step sequence in order …
+                  Each step: upload → office approves/rejects → next step opens
+                  Final step: Administration approves → Certificate auto-issued
                           ↓                              ↓
                     Reject with remark           QR code links to
                     → Student re-uploads         public verification page
                     → Escalates after 3 rejections
 ```
 
+## The 10 clearance sections
+
+| # | Section | Note |
+|---|---------|------|
+| 1 | Laboratory | split by program (TE / IPE / FDAE / CSE / EEE) |
+| 2 | Dept. Head | split by program (TE / IPE / FDAE / CSE / EEE) |
+| 3 | Hostel Superintendent | split by gender (Male / Female) |
+| 4 | Proctor Office | |
+| 5 | Store | |
+| 6 | Library | |
+| 7 | Caretaker & Security Inspector | |
+| 8 | Exam Section | |
+| 9 | Accounts Section | |
+| 10 | Administration | **final sign-off → issues certificate** |
+
+Each student is routed to their own program/gender variants, so their journey is always **10 steps
+in order**. A step stays locked — *"Clearance not received from [office]"* — until the one before it
+approves. The lock is enforced in the database, not just hidden in the UI.
+
 ## Features
 
 | Feature | Description |
 |---------|-------------|
-| **Single application** | One form fans out to all required offices automatically |
-| **Parallel review** | Eight offices review simultaneously — a slow desk never blocks the rest |
-| **Real-time tracking** | Students see approvals, rejections, and remarks as they happen |
-| **Auto-issued certificate** | Generated the moment all 8/8 approvals land, with a scannable QR code |
-| **Escalation** | Three rejected re-uploads auto-escalate to the Department Head |
+| **Single application** | One form starts a timed, ordered 10-step clearance |
+| **Sequential review** | Each office opens only after the previous one approves — a true mirror of the paper form |
+| **Backend lock** | Uploads to a locked office are rejected at the database level, not just hidden |
+| **Real-time tracking** | Students see locked / active / approved / not-applicable per step |
+| **Auto-issued certificate** | Generated the moment Administration approves, with a scannable QR code |
+| **Escalation** | Three rejected re-uploads auto-escalate to Administration |
 | **Audit trail** | Every decision stored with the reviewing officer's identity and timestamp |
 | **Email notifications** | Admins, reviewers, and students notified at each step |
-| **Role-based portals** | Dedicated dashboards for students, registrars, and admins |
+| **Role-based portals** | Dedicated dashboards for students, office staff, and admins |
 | **Bulk actions** | Reviewers can approve multiple pending requests at once |
-| **N/A declarations** | Students flag non-applicable departments; admin audit table catches false claims |
+| **N/A declarations** | Students flag the *active* office as not applicable (e.g. Hostel for a day-scholar); admin audit table catches false claims |
 | **Public verification** | Anyone can verify a certificate via QR code — no login required |
 
 ## Tech stack
@@ -105,13 +130,13 @@ src/
 │       ├── profile.tsx              # Student profile
 │       ├── settings.tsx             # Account settings
 │       ├── notifications.tsx        # In-app notifications
-│       ├── queue.tsx                # Registrar/admin review queue
+│       ├── queue.tsx                # Office queue (staff/admin review)
 │       ├── registrar/queue.tsx      # Registrar "Final Queue" (issuance view)
 │       └── admin/                   # Admin-only pages
 │           ├── route.tsx            # Layout guard (admin role check)
 │           ├── index.tsx            # Admin dashboard + N/A audit table
+│           ├── offices.tsx          # Office Editor (19 office rows)
 │           ├── users.tsx            # User management
-│           ├── workflow.tsx         # Workflow config
 │           ├── reports.tsx          # Batch reports
 │           ├── audit.tsx            # Audit log viewer
 │           └── notices.tsx          # Notices management
@@ -133,11 +158,11 @@ src/
 
 | Role | Who | Capabilities |
 |------|-----|-------------|
-| **Student** | Final-year students | Apply for clearance, upload documents per office, track progress, download certificate |
-| **Registrar** | Department staff | Review assigned department queues, approve/reject with remarks |
-| **Admin** | Admin office | Full queue visibility, user management, workflow configuration, N/A audit |
+| **Student** | Final-year students | Apply for clearance, walk the 10-step sequence, upload per active office, track progress, download certificate |
+| **Registrar** | Office staff (one per office/variant) | Review their assigned office's queue, approve/reject with remarks |
+| **Admin** | Administration office | Full queue visibility, user + office management, N/A audit, final sign-off |
 
-Student accounts are created via self-registration. Registrar and admin accounts are provisioned by the admin office.
+Student accounts are created via self-registration. Office staff and admin accounts are provisioned by the admin office — each staff account is assigned **exactly one office or variant** (e.g. "Lab – Textile", "Hostel – Female").
 
 ## Deployment
 
