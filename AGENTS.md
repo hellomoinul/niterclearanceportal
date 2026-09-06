@@ -20,12 +20,18 @@ Guidance for AI coding agents (and humans) working in this repository.
 - The project uses `@` path alias for `src/`.
 - Keep code comment-free unless the user asks for comments or the logic is genuinely
   non-obvious.
-- Do not commit secrets. `.env` contains only public publishable keys and stays committed.
+- Do not commit secrets. `.env` is gitignored; `.env.example` is the committed template
+  (public keys only, placeholders for the anon key). A fresh clone: `Copy-Item .env.example .env`
+  then fill the anon key.
+- Student **program** and **gender** are canonical select values, not free text: program is
+  strictly `TE | IPE | FDAE | CSE | EEE`, gender is `Male | Female`. These drive Lab/Dept-Head and
+  Hostel routing. Never free-text them in forms or seeds.
 
 ## Ownership
 
-Team members own separate files (see `Assignment.md`). When implementing a task, only touch
-files owned by the person who requested the work, plus shared files explicitly agreed on.
+Team members own separate files (see `Snapshot.md` for the v2 task map and lane ownership). When
+implementing a task, only touch files owned by the person who requested the work, plus shared files
+explicitly agreed on.
 
 ## Git
 
