@@ -92,7 +92,7 @@ function matchGlob(pattern, file) {
   return re.test(file);
 }
 
-function matchTaskIds(prTitle, files, tasks) {
+function matchTaskIds(prTitle, files, tasks, allowPathEvidence = false) {
   const ids = new Set();
   const tagRe = /(M|F|S)-v2\.\d+(?=:|\s|,|\]|\)|$)/g;
   let m;
@@ -100,9 +100,11 @@ function matchTaskIds(prTitle, files, tasks) {
     const id = m[0];
     if (tasks.some((t) => t.id === id)) ids.add(id);
   }
+  // Paths only reinforce explicitly-tagged tasks (safe against a stopgap PR
+  // accidentally completing a teammate's task by touching the same file).
   for (const task of tasks) {
     if (task.paths.some((p) => files.some((f) => matchGlob(p, f)))) {
-      if (ids.size === 0 || ids.has(task.id)) ids.add(task.id);
+      if (allowPathEvidence || ids.has(task.id)) ids.add(task.id);
     }
   }
   return [...ids];
@@ -215,7 +217,7 @@ async function main() {
   TASKS = loadTaskMap();
   STATE = loadState();
 
-  const matchedIds = matchTaskIds(prTitle, files, TASKS);
+  const matchedIds = matchTaskIds(prTitle, files, TASKS, force);
   console.log(`  matched tasks: ${matchedIds.join(", ") || "(none)"}`);
 
   if (matchedIds.length === 0 && !force) {
