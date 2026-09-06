@@ -23,15 +23,23 @@ Guidance for AI coding agents (and humans) working in this repository.
 - Do not commit secrets. `.env` is gitignored; `.env.example` is the committed template
   (public keys only, placeholders for the anon key). A fresh clone: `Copy-Item .env.example .env`
   then fill the anon key.
-- Student **program** and **gender** are canonical select values, not free text: program is
-  strictly `TE | IPE | FDAE | CSE | EEE`, gender is `Male | Female`. These drive Lab/Dept-Head and
-  Hostel routing. Never free-text them in forms or seeds.
+- Student **program** is a canonical select value, not free text: strictly
+  `TE | IPE | FDAE | CSE | EEE`. Never free-text it in forms or seeds. (Program does not route
+  reviews — every office reviews every student. It is shown on the form and certificate.)
 
 ## Ownership
 
 Team members own separate files (see `Snapshot.md` for the v2 task map and lane ownership). When
 implementing a task, only touch files owned by the person who requested the work, plus shared files
 explicitly agreed on.
+
+## Office login model
+
+Every clearance office has its own login role. A registrar staff account is bound to **exactly one
+of the 10 office sections** (Laboratory, Dept. Head, Hostel Superintendent, Proctor Office, Store,
+Library, Caretaker & Security Inspector, Exam Section, Accounts Section, Administration) via a
+single `registrar_departments` row. Their queue shows only that office's pending reviews. Admin is
+superior over all offices and reviews the Administration (final sign-off) step.
 
 ## Git
 
