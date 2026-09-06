@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-06 · **Phase:** v2 pivot in planning (teacher + physical form) · **Progress:** docs set, work not started
+> **Last updated:** 2026-09-06 · **Phase:** v2 pivot in planning (teacher + physical form) · **Progress:** ~0%
 
 ---
 
@@ -14,7 +14,8 @@
 
 The live system reviews **8 offices in parallel**, finishing with Department Head. The physical
 "Student Clearance Form" and the teacher's instruction change the model to **10 sequential
-sections** with a strict order, program/gender-specific variants, and a backend-enforced lock.
+sections** with a strict order and a backend-enforced lock. Each office keeps **its own login
+role** — a registrar staff account reviews only the office (queue) they are assigned to.
 
 ### Decisions locked
 
@@ -25,46 +26,66 @@ sections** with a strict order, program/gender-specific variants, and a backend-
 3. **N/A is declared per-office, only when that office unlocks** (day-scholar → Hostel).
 4. **Drop F13 + thesis fields** — Course Coordinator is gone; Exam Section checks exam/transcript,
    not thesis. `thesis_title`, `supervisor_name`, `expected_graduation` removed from apply form + schema.
-5. **S7 Workflow page re-scoped** — becomes an **Office Editor** over the 19 office rows
+5. **S7 Workflow page re-scoped** — becomes an **Office Editor** over the 10 office rows
    (no more decorative `workflow_steps` list).
-6. **Strict 5-program dropdown** (TE / IPE / FDAE / CSE / EEE) — normalize legacy values
-   (`Computer Science & Engineering` → CSE) so Lab/Dept-Head routing is reliable.
+6. **Strict 5-program dropdown** (TE / IPE / FDAE / CSE / EEE) — keep on `profiles` for the
+   form/certificate display; **no per-variant routing**.
+7. **One login role per office (teacher's instruction).** Exactly 10 office rows — Laboratory,
+   Dept. Head, Hostel Superintendent, Proctor Office, Store, Library, Caretaker & Security
+   Inspector, Exam Section, Accounts Section, Administration. **No `program`/`gender` columns, no
+   variant rows, no `profiles.gender`.** Each registrar account is bound to one of the 10 offices
+   (single `registrar_departments` row); the queue filters to that office; admin sees all offices
+   and is superior over all.
 
-### The physical-form office model (19 office rows)
+### The clearance office model (10 offices)
 
-`sleep_order` = position 1–10. Variants share a section's position. `is_final_signoff = true` on
-**Administration** only → certificate issues when Administration approves, not Department Head.
+`sleep_order` = position 1–10. `is_final_signoff = true` on **Administration** only → certificate
+issues when Administration approves, not Department Head.
 
-| pos | Section | Rows | program | gender |
-|-----|---------|------|---------|--------|
-| 1 | Laboratory | 5 | TE/IPE/FDAE/CSE/EEE | – |
-| 2 | Dept. Head | 5 | TE/IPE/FDAE/CSE/EEE | – |
-| 3 | Hostel Superintendent | 2 | – | Male / Female |
-| 4 | Proctor Office | 1 | – | – |
-| 5 | Store | 1 | – | – |
-| 6 | Library | 1 | – | – |
-| 7 | Caretaker & Security Inspector | 1 | – | – |
-| 8 | Exam Section | 1 | – | – |
-| 9 | Accounts Section | 1 | – | – |
-| 10 | Administration | 1 | – | – **(final sign-off)** |
+| pos | Office | note |
+|-----|--------|------|
+| 1 | Laboratory | |
+| 2 | Dept. Head | |
+| 3 | Hostel Superintendent | |
+| 4 | Proctor Office | |
+| 5 | Store | |
+| 6 | Library | |
+| 7 | Caretaker & Security Inspector | |
+| 8 | Exam Section | |
+| 9 | Accounts Section | |
+| 10 | Administration | **final sign-off → certificate** |
 
-**Total = 19 department rows.** Each student's route = 7 universal offices + their 1 Lab variant +
-their 1 Head variant + their 1 Hostel variant = **10 steps**, walked strictly in order.
+**Every student walks the same 10 offices in strict order** — no variant routing.
 
 ### Terminology changes vs. the old model
 
 | Old (8 offices) | New (10 sections) |
 |-----------------|-------------------|
-| Lab / Workshop | Laboratory (×5 program) |
-| Department Head (final) | Dept. Head (×5 program), now position 2 |
-| Hostel | Hostel Superintendent (×2 gender) |
+| Lab / Workshop | Laboratory |
+| Department Head (final) | Dept. Head, now position 2 |
+| Hostel | Hostel Superintendent |
 | — | **Proctor Office** (new) |
 | — | **Store** (new) |
 | Library | Library |
 | Security | Caretaker & Security Inspector |
 | Course Coordinator | Exam Section |
 | Accounts | Accounts Section |
-| Admin (position 2) | Administration (position 10, **final**) |
+| Admin (position 2) | Administration (position 10, **final**), reviewed by the admin role |
+
+### One login role per office (teacher's instruction)
+
+The teacher asked to keep a login role for **every office**. No per-program/per-gender logins are
+needed — each office section gets one login identity:
+
+- A registrar staff account is bound to **exactly one of the 10 offices** via a single
+  `registrar_departments` row (enforced in the Users page, **S-v2.2**).
+- After sign-in, the registrar lands on that office's queue **only** (e.g. Laboratory staff see
+  the Laboratory queue, Accounts staff see the Accounts queue) — same as the registrar/reviewer
+  model today, applied to all 10 offices.
+- **Admin is superior over all** — same as now: full queue visibility + the Administration (final)
+  step + user/office management.
+- No separate login page or URL per office — one shared sign-in box; the assigned role routes the
+  staff member to their office.
 
 ---
 
@@ -76,15 +97,14 @@ Split by each teammate's established lane. Build order: **Moinul PR A (backend) 
 ### 🟦 Moinul — Backend, migrations, integration, docs
 
 - ⬜ **M-v2.1** Migration `20260906000000_v2_sequential_clearance.sql`:
-  add `departments.program text NULL`, `departments.gender text NULL`; re-seed 19 rows;
-  `is_final_signoff` → Administration; drop legacy 8 rows (accounts/admin/coordinator/hostel/
-  security/library/lab/head UUIDs).
-- ⬜ **M-v2.2** `profiles.gender text` column + **program normalization** (legacy full name → CSE;
-  NULL → CSE default or excluded) + purge data (truncate all test records as decided).
+  re-seed **10 office rows** (no `program`/`gender` columns); `is_final_signoff` → Administration;
+  drop legacy 8 rows (accounts/admin/coordinator/hostel/security/library/lab/head UUIDs).
+- ⬜ **M-v2.2** Program normalization (legacy full name → CSE; NULL → CSE default or excluded) +
+  purge data (truncate all test records as decided). **No `profiles.gender` column.**
 - ⬜ **M-v2.3** Review-creation triggers: `create_department_reviews()` creates **only the first
-  eligible office** on submit (variant resolved by program/gender); new AFTER-UPDATE trigger creates
-  the **next** office's review on approval (skips N/A auto-approvals). Drop obsolete
-  `guard_head_approval_order` + `trigger_head_review` + `triggered` flag semantics.
+  office** on submit; new AFTER-UPDATE trigger creates the **next** office's review on approval
+  (skips N/A auto-approvals). Drop obsolete `guard_head_approval_order` + `trigger_head_review` +
+  `triggered` flag semantics.
 - ⬜ **M-v2.4** **Upload RLS gate** on `documents` INSERT: reject uploads to any review that is not
   the student's current unlocked step (no smaller-position non-approved review exists). Backend-enforced,
   not UI-only.
@@ -98,9 +118,9 @@ Split by each teammate's established lane. Build order: **Moinul PR A (backend) 
 
 ### 🟩 Fatin — Student / certificate lane
 
-- ⬜ **F-v2.1** Apply page: add **gender** field (purpose-stated: routes Hostel Superintendent) +
-  **program** dropdown (strict 5); **remove** thesis/supervisor/graduation fields; **remove** the
-  "Departments not applicable" multi-check block; update "parallel review" copy → sequential.
+- ⬜ **F-v2.1** Apply page: **program** dropdown (strict 5); **remove** gender field (no gender in
+  schema), thesis/supervisor/graduation fields, and the "Departments not applicable" multi-check
+  block; update "parallel review" copy → sequential.
 - ⬜ **F-v2.2** Dashboard → **sequential stepper**: locked / active / approved / N-A per step;
   locked office shows **"Clearance not received from [X] office"**; progress bar now = step position.
   (absorbs old **F5** timeline, **F16** "Uploaded", **F11** email greeting)
@@ -113,16 +133,17 @@ Split by each teammate's established lane. Build order: **Moinul PR A (backend) 
 
 ### 🟨 Shafin — Office / admin panel lane
 
-- ⬜ **S-v2.1** **Office Editor** (`/admin/workflow` re-scoped): CRUD over the 19 offices — name,
-  requirement, document_hint, sort_order, program/gender assignment, final-signoff toggle.
-  Single source of truth = `departments`. (replaces old **S7** workflow_steps CRUD)
+- ⬜ **S-v2.1** **Office Editor** (`/admin/workflow` re-scoped): CRUD over the 10 offices — name,
+  requirement, document_hint, sort_order, final-signoff toggle. Single source of truth =
+  `departments`. (replaces old **S7** workflow_steps CRUD)
 - ⬜ **S-v2.2** **Users page** (`/admin/users`, **S1**): real CRUD + role management; **enforce
-  exactly one office-variant per staff** (single `registrar_departments` row per staff).
-- ⬜ **S-v2.3** Queue: **variant-aware filtering** (staff sees only their assigned office/`gender`)
-  + **S8** search/pagination + **S9** rejection history + **S10** bulk summary toast.
+  exactly one office per staff** (single `registrar_departments` row) — this IS the teacher's
+  "every office has its own login role".
+- ⬜ **S-v2.3** Queue: filters to the staff's **single assigned office** + **S8** search/pagination
+  + **S9** rejection history + **S10** bulk summary toast.
 - ⬜ **S-v2.4** Admin index: **S6** override approve/reject (mandatory reason + audit_log) +
   **S14** N/A revert button (calls live `reopen_na_review` RPC).
-- ⬜ **S-v2.5** Reports/Audit/Notices: verify against the new 19-row set (mostly automatic via FK
+- ⬜ **S-v2.5** Reports/Audit/Notices: verify against the new 10-office set (mostly automatic via FK
   joins); fix any label/count drift.
 
 ### Dropped / superseded (confirmed with owner)
@@ -134,6 +155,7 @@ Split by each teammate's established lane. Build order: **Moinul PR A (backend) 
 | Old "parallel fan-out" review creation | 🗑 Replaced by sequential creation (M-v2.3) |
 | `triggered` / "7/8 approval" concept | 🗑 Obsolete in sequential model |
 | **S7** workflow_steps CRUD | ♻️ Re-scoped → Office Editor (S-v2.1) |
+| Program/gender variant rows (19-office model) | 🗑 Dropped — one login per office section, 10 offices (decision 7) |
 
 ---
 
@@ -151,8 +173,8 @@ Split by each teammate's established lane. Build order: **Moinul PR A (backend) 
 
 | # | File | Purpose |
 |---|------|---------|
-| 1 | `20260906000000_v2_sequential_clearance.sql` | departments re-seed (19 rows) + program/gender columns + final-signoff move |
-| 2 | (same migration) | profiles.gender + program normalization + **test-data purge** |
+| 1 | `20260906000000_v2_sequential_clearance.sql` | departments re-seed (10 offices) + final-signoff move |
+| 2 | (same migration) | program normalization + **test-data purge** |
 | 3 | (same migration) | sequential review triggers (replace fan-out/head-trigger) |
 | 4 | (same migration) | documents upload RLS gate |
 | 5 | (same migration) | `declare_review_na(review_id)` replaces bulk NA RPC |
@@ -163,14 +185,18 @@ Older migrations stay as historical record — never edit applied migrations.
 
 ## 📝 Work history
 
+- **Migration: 10-office reseed (M-v2.1):** completed via PR #60.
+
+
 ### 2026-09-06 — v2 pivot planning (docs)
 - Read revised plan `niter_clearance_portal_revised_plan_v2.md` (teacher + physical form).
 - Audited live DB + migrations + all frontend touchpoints; confirmed `profiles` has no gender,
   8 legacy offices, parallel fan-out trigger, `is_final_signoff` on `head`.
-- Locked 6 scope decisions with owner (priority, data purge, per-office N/A, drop F13, S7
-  re-scope → Office Editor, strict 5-program dropdown).
+- Locked scope decisions with owner (priority, data purge, per-office N/A, drop F13, S7
+  re-scope → Office Editor, strict 5-program dropdown, **one login role per office**).
 - Documented v2 task distribution (M-v2.x / F-v2.x / S-v2.x) across all lanes.
-- Updated `README.md`, `UI Guide.md`, `AGENTS.md`, `Snapshot.md` for the sequential model.
+- Updated `README.md`, `UI Guide.md`, `AGENTS.md`, `Snapshot.md` for the sequential 10-office
+  model; fixed the doc-sync GitHub Action to recognize v2 task IDs.
 
 ### Earlier
 - Admin panel completion (PRs #53–#57), env example (PR #58), Shafin local-repo re-sync.
@@ -183,4 +209,4 @@ Older migrations stay as historical record — never edit applied migrations.
   N/A must wait until step 3 unlocks (by design, mirrors the paper form).
 - Legacy program values sealed by M-v2.2; existing students with NULL program need a value set
   (or excluded from test data purge scope).
-- No gender anywhere in the current schema — collected fresh at apply time (F-v2.1), not retroactively.
+- No gender/program routing exists — all 10 offices review every student (decided, decision 7).

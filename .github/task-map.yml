@@ -1,358 +1,136 @@
-# Task registry for doc-sync
-# Bot regenerates: status cells, checkboxes, totals, header %, "What's left",
-#                  "Order of attack", progress table, work-history bullets
-# Human edits preserved: baseline paragraph, Definition of done, Deferred findings, How-to-update
+# Task registry for doc-sync (v2)
+# Bot regenerates: task bullets (⬜ → ✅), header progress %, work history.
+# Human edits preserved: everything else in Snapshot.md.
 #
 # Fields:
-#   id            - Task ID (matches Assignment.md + Snapshot.md markers)
+#   id            - Task ID (matches Snapshot.md task markers)
 #   title         - Display name
 #   owner         - Moinul | Fatin | Shafin
-#   order         - Sort key for "Order of attack" (lower = higher priority)
+#   order         - Sort key for "next work" hints (lower = higher priority)
 #   paths         - Evidence globs (matched against PR changed files)
 #   hint          - One-line description while task is not done
 #   also_completes - Other task IDs that get marked done when this merges (optional)
 #
-# Moinul — core + infrastructure (M1–M3)
+# v2 lanes: Moinul = backend/infra, Fatin = student/certificate, Shafin = admin/queue.
 tasks:
-  - id: M1
-    title: "Staff queue `/queue`"
+  # Moinul — backend, migrations, integration
+  - id: M-v2.1
+    title: "Migration: 10-office reseed"
     owner: Moinul
     order: 10
-    paths: ["src/routes/_authenticated/queue.tsx"]
-    hint: "Staff approve/reject with remarks, student sees green card + notification"
+    paths: ["supabase/migrations/*v2_sequential_clearance*", "supabase/migrations/*"]
+    hint: "Re-seed 10 office rows, is_final_signoff on Administration, drop legacy 8 rows"
 
-  - id: M2
-    title: "Escalation logic migration"
+  - id: M-v2.2
+    title: "Program normalization + data purge"
     owner: Moinul
+    order: 11
+    paths: ["supabase/migrations/*", "supabase/consolidated_setup.sql"]
+    hint: "Normalize program values (CSE), truncate all test data"
+
+  - id: M-v2.3
+    title: "Sequential review triggers"
+    owner: Moinul
+    order: 12
+    paths: ["supabase/migrations/*", "supabase/consolidated_setup.sql"]
+    hint: "create_department_reviews creates first office only; next review on approval; drop head-ordering/triggered"
+
+  - id: M-v2.4
+    title: "Upload RLS gate"
+    owner: Moinul
+    order: 13
+    paths: ["supabase/migrations/*", "supabase/consolidated_setup.sql"]
+    hint: "Reject document uploads to any review that is not the active unlocked step"
+
+  - id: M-v2.5
+    title: "declare_review_na RPC"
+    owner: Moinul
+    order: 14
+    paths: ["supabase/migrations/*", "supabase/*na*", "supabase/consolidated_setup.sql"]
+    hint: "Replace declare_departments_na(array) with declare_review_na(review_id)"
+
+  - id: M-v2.6
+    title: "Regenerate DB types + build verify"
+    owner: Moinul
+    order: 15
+    paths: ["supabase/types.ts", "supabase/types/*"]
+    hint: "npx tsc --noEmit + npx vite build + live spot-checks"
+
+  - id: M-v2.7
+    title: "Integration pass + e2e"
+    owner: Moinul
+    order: 16
+    paths: ["src/**/*", "supabase/migrations/*"]
+    hint: "Fix RLS/sequencing edges surfaced by UI PRs; end-to-end on live"
+
+  - id: M-v2.8
+    title: "Dead-code + copy cleanup"
+    owner: Moinul
+    order: 17
+    paths: ["src/**/*", "supabase/**/*"]
+    hint: "Remove 8-office model leftovers and obsolete strings"
+
+  # Fatin — student / certificate lane
+  - id: F-v2.1
+    title: "Apply form v2"
+    owner: Fatin
     order: 20
-    paths: ["supabase/migrations/*escalat*", "supabase/consolidated_setup.sql"]
-    hint: "Auto-escalates at 3 rejections, notifies Head + admins"
+    paths: ["src/routes/_authenticated/apply.tsx", "src/lib/departments.ts"]
+    hint: "Program dropdown (strict 5), drop gender/thesis/bulk-N-A, sequential copy"
 
-  - id: M3
-    title: "Audit trail writes"
-    owner: Moinul
+  - id: F-v2.2
+    title: "Dashboard stepper"
+    owner: Fatin
+    order: 21
+    paths: ["src/routes/_authenticated/dashboard.tsx"]
+    hint: "Vertical stepper: locked/active/approved/N-A; 'Clearance not received from [office]'"
+
+  - id: F-v2.3
+    title: "Section page lock + N/A"
+    owner: Fatin
+    order: 22
+    paths: ["src/routes/_authenticated/section.$code.tsx"]
+    hint: "Lock state (no upload) for non-unlocked offices; per-office N/A button"
+
+  - id: F-v2.4
+    title: "Guide / marketing copy"
+    owner: Fatin
+    order: 23
+    paths: ["src/routes/guide.tsx", "src/routes/about.tsx", "src/routes/index.tsx"]
+    hint: "Rewrite hardcoded 'Department Head / 7/8 / parallel' strings for the sequential model"
+
+  # Shafin — office / admin panel lane
+  - id: S-v2.1
+    title: "Office Editor"
+    owner: Shafin
     order: 30
-    paths: ["supabase/consolidated_setup.sql"]
-    hint: "Every approve/reject logged to audit_log with actor + remark"
+    paths: ["src/routes/_authenticated/admin/offices.tsx", "src/routes/_authenticated/admin/workflow.tsx"]
+    hint: "CRUD over the 10 offices (name/requirement/doc-hint/order/final)"
 
-  # Moinul — security patches (M4–M7)
-  - id: M4
-    title: "Security: admin route guard"
-    owner: Moinul
-    order: 100
-    paths: ["src/routes/_authenticated/admin/route.tsx"]
-    hint: "beforeLoad role check on /admin layout; redirect non-admins"
-    doc_note: "Security: admin route guard"
-
-  - id: M5
-    title: "Security: status-forgery patch"
-    owner: Moinul
-    order: 110
-    paths: ["supabase/migrations/*", "supabase/consolidated_setup.sql"]
-    hint: "BEFORE UPDATE trigger rejects status/cleared_at changes by non-admins"
-
-  - id: M6
-    title: "Security: admin honesty pass"
-    owner: Moinul
-    order: 120
-    paths: ["src/routes/_authenticated/admin/*"]
-    hint: "Replace 5 non-functional admin pages with Coming soon stubs"
-
-  - id: M7
-    title: "Security: head-ordering trigger"
-    owner: Moinul
-    order: 130
-    paths: ["supabase/migrations/*", "supabase/consolidated_setup.sql"]
-    hint: "DB trigger blocks Head approval until other 7 offices approved"
-
-  - id: M8
-    title: "Staff → Registrar full rename"
-    owner: Moinul
-    order: 135
-    paths: ["supabase/migrations/*", "src/**/*.tsx", "src/**/*.ts"]
-    hint: "Enum value, table, function, RLS policies, all client references"
-
-  - id: M9
-    title: "Accounts Queue hard rule"
-    owner: Moinul
-    order: 136
-    paths: ["src/routes/_authenticated/queue.tsx", "src/components/portal-shell.tsx"]
-    hint: "Registrar always sees Accounts queue (DB + client fallback)"
-
-  # Moinul — review feedback fixes (M10–M12)
-  - id: M10
-    title: "Wire personal_email flow"
-    owner: Moinul
-    order: 137
-    paths: ["src/routes/_authenticated/apply.tsx"]
-    hint: "Make personal email readonly in apply form; already saved at registration + settings"
-    also_completes: ["F11"]
-
-  - id: M11
-    title: "Fix N/A remarks rendering"
-    owner: Moinul
-    order: 138
-    paths: ["supabase/migrations/*", "supabase/migrations/20260824100500_na_and_reopen_rpcs.sql"]
-    hint: "Normalize em-dash to ASCII dash in RPC remarks text + existing DB rows"
-
-  - id: M12
-    title: "Public verify_clearance_status RPC"
-    owner: Moinul
-    order: 139
-    paths: ["supabase/migrations/*", "src/routes/verify.$code.tsx"]
-    hint: "SECURITY DEFINER RPC + updated /verify page: green if 8/8, red with portal link if not"
-
-  # Fatin — certificate pipeline (F1–F4)
-  - id: F1
-    title: "Certificate page `/certificate`"
-    owner: Fatin
-    order: 40
-    paths: ["src/routes/_authenticated/certificate.tsx"]
-    hint: "Certificate download page; conditional link on dashboard (enabled when 8/8 approved)"
-
-  - id: F2
-    title: "PDF download + QR code"
-    owner: Fatin
-    order: 50
-    paths: ["src/routes/_authenticated/certificate.tsx", "public/signature.png"]
-    hint: "jsPDF + qrcode, dynamic QR linking to /verify/$code, A4 scaling, signature image"
-
-  - id: F3
-    title: "Forgot password flow"
-    owner: Fatin
-    order: 140
-    paths: ["src/routes/auth.tsx", "src/routes/forgot-password*", "src/routes/reset*"]
-    hint: "Supabase resetPasswordForEmail + reset form"
-
-  - id: F4
-    title: "Profile page (read-only)"
-    owner: Fatin
-    order: 60
-    paths: ["src/routes/_authenticated/profile.tsx"]
-    hint: "Merged via PR #11; layout fixed by Moinul (PortalShell + back button + nav link)"
-
-  # Fatin — gap fixes (F5–F10)
-  - id: F5
-    title: "Student timeline/history"
-    owner: Fatin
-    order: 150
-    paths: ["src/routes/_authenticated/dashboard.tsx", "src/routes/_authenticated/profile.tsx"]
-    hint: "Every past rejection/resubmission/approval in order"
-
-  - id: F6
-    title: "Printable certificate view"
-    owner: Fatin
-    order: 160
-    paths: ["src/routes/_authenticated/certificate.tsx", "src/routes/verify*"]
-    hint: "Print-friendly route/CSS for physical copy"
-
-  - id: F7
-    title: "Deadline lock screen"
-    owner: Fatin
-    order: 170
-    paths: ["src/routes/_authenticated/apply.tsx"]
-    hint: "Block new submissions after batch deadline"
-
-  - id: F8
-    title: "Confirmation dialogs (student)"
-    owner: Fatin
-    order: 180
-    paths: ["src/routes/_authenticated/*"]
-    hint: "Confirm before deleting uploaded documents"
-
-  - id: F9
-    title: "Global error states"
-    owner: Fatin
-    order: 190
-    paths: ["src/routes/*", "src/components/*"]
-    hint: "Network drop / upload fail / session expiry"
-
-  - id: F10
-    title: "Registrar queue"
-    owner: Fatin
-    order: 200
-    paths: ["src/routes/_authenticated/dashboard.tsx"]
-    hint: "Ready for final processing — cleared students for pickup/sign-off"
-
-  # Fatin — review feedback fixes (F11–F18)
-  - id: F11
-    title: "Dashboard email display"
-    owner: Fatin
-    order: 201
-    paths: ["src/routes/_authenticated/dashboard.tsx"]
-    hint: "Show personal_email on dashboard header so students see it at a glance"
-
-  - id: F12
-    title: "Profile page cleanup"
-    owner: Fatin
-    order: 202
-    paths: ["src/routes/_authenticated/profile.tsx"]
-    hint: "Remove redundant readonly bg-muted inputs; show as clean text display"
-
-  - id: F13
-    title: "Section page N/A display"
-    owner: Fatin
-    order: 203
-    paths: ["src/routes/_authenticated/section.$code.tsx"]
-    hint: "Show N/A status with distinct styling when department is marked not applicable"
-
-  - id: F14
-    title: "Dashboard progress bar polish"
-    owner: Fatin
-    order: 204
-    paths: ["src/routes/_authenticated/dashboard.tsx"]
-    hint: "Fix progress bar percentage display and visual consistency"
-
-  - id: F15
-    title: "Apply form N/A UX"
-    owner: Fatin
-    order: 205
-    paths: ["src/routes/_authenticated/apply.tsx"]
-    hint: "Improve N/A checkbox UX: group, helper text, confirmation"
-
-  - id: F16
-    title: "Section page re-upload UX"
-    owner: Fatin
-    order: 206
-    paths: ["src/routes/_authenticated/section.$code.tsx"]
-    hint: "Clear file input after upload, show upload success state"
-
-  - id: F17
-    title: "Dashboard bell unread badge"
-    owner: Fatin
-    order: 207
-    paths: ["src/components/portal-shell.tsx"]
-    hint: "Show unread notification count badge on bell icon"
-
-  - id: F18
-    title: "Settings page consistency"
-    owner: Fatin
-    order: 208
-    paths: ["src/routes/_authenticated/settings.tsx"]
-    hint: "Consistent form layout, success/error states, loading skeleton"
-
-  - id: F19
-    title: "Certificate QR + verify flow fix"
-    owner: Fatin
-    order: 209
-    paths: ["src/routes/_authenticated/certificate.tsx", "src/routes/verify.tsx", "src/routes/verify.$code.tsx"]
-    hint: "Ensure QR encodes correct verify URL with certificate_code, verify page shows green/red verdict end-to-end"
-
-  # Shafin — admin panel (S1–S5)
-  - id: S1
-    title: "Admin: user management"
+  - id: S-v2.2
+    title: "Users page — one office per staff"
     owner: Shafin
-    order: 70
-    paths: ["src/routes/_authenticated/admin/users.tsx"]
-    hint: "Admin creates staff/admin accounts, assigns roles + departments"
+    order: 31
+    paths: ["src/routes/_authenticated/admin/users.tsx", "src/routes/_authenticated/admin/route.tsx"]
+    hint: "Real CRUD; bind each registrar account to exactly one of the 10 offices (teacher's role rule)"
 
-  - id: S2
-    title: "Admin: workflow config"
+  - id: S-v2.3
+    title: "Queue — office filter + search"
     owner: Shafin
-    order: 80
-    paths: ["src/routes/_authenticated/admin/workflow.tsx"]
-    hint: "Departments per program, batch deadlines"
-
-  - id: S3
-    title: "Admin: batch reports"
-    owner: Shafin
-    order: 90
-    paths: ["src/routes/_authenticated/admin/reports.tsx"]
-    hint: "Cleared vs pending per program/batch (recharts)"
-
-  - id: S4
-    title: "Admin: notices management"
-    owner: Shafin
-    order: 210
-    paths: ["src/routes/_authenticated/admin/notices.tsx"]
-    hint: "CRUD for notices shown on public home page"
-    # ⚠️ Broken in Snapshot.md — table doesn't exist. Rebuild tracked as S11.
-
-  - id: S5
-    title: "Admin: audit log viewer"
-    owner: Shafin
-    order: 220
-    paths: ["src/routes/_authenticated/admin/audit.tsx"]
-    hint: "Read-only table of audit_log"
-    # ✅ DONE as S12 — real paginated/searchable/filtered page lifted to main (PR #52).
-    # (Historically a stub with wrong columns.)
-
-  # Shafin — gap fixes (S6–S11)
-  - id: S6
-    title: "Override staff decision"
-    owner: Shafin
-    order: 230
-    paths: ["src/routes/_authenticated/admin/*", "src/routes/_authenticated/queue.tsx"]
-    hint: "Admin overturn + mandatory audit_log entry"
-
-  - id: S7
-    title: "Department config UI"
-    owner: Shafin
-    order: 240
-    paths: ["src/routes/_authenticated/admin/*"]
-    hint: "Enable/disable offices per program, no code edit"
-
-  - id: S8
-    title: "Queue search/filter/pagination"
-    owner: Shafin
-    order: 250
+    order: 32
     paths: ["src/routes/_authenticated/queue.tsx"]
-    hint: "Scale to 300+ students (inside queue.tsx)"
+    hint: "Role-scoped office queue, search/pagination, rejection history, bulk summary"
 
-  - id: S9
-    title: "Rejection history panel (staff)"
+  - id: S-v2.4
+    title: "Admin override + N/A revert"
     owner: Shafin
-    order: 260
-    paths: ["src/routes/_authenticated/queue.tsx"]
-    hint: "Past rejections/remarks per student in queue"
+    order: 33
+    paths: ["src/routes/_authenticated/admin/index.tsx"]
+    hint: "Override approve/reject (mandatory reason + audit), revert false N/A (reopen_na_review RPC)"
 
-  - id: S10
-    title: "Bulk approve summary modal"
+  - id: S-v2.5
+    title: "Reports / audit / notices verify"
     owner: Shafin
-    order: 270
-    paths: ["src/routes/_authenticated/queue.tsx"]
-    hint: "X approved, Y skipped (reason) feedback after bulk actions"
-
-  - id: S11
-    title: "Notices rebuild (S4 fix)"
-    owner: Shafin
-    order: 280
-    paths: ["src/routes/_authenticated/admin/notices.tsx", "src/routes/index.tsx", "supabase/migrations/*notices*"]
-    hint: "Create notices table + RLS (admin INSERT, public SELECT) + wire home page to DB"
-    also_completes: [S4, S5]
-
-  # Moinul — stretch pool (done)
-  - id: SP1
-    title: "Bulk approve in queue"
-    owner: Moinul
-    order: 50
-    paths: ["src/routes/_authenticated/queue.tsx"]
-    hint: "Checkboxes + Select all + bottom action bar"
-
-  - id: SP2
-    title: "Email notifications"
-    owner: Moinul
-    order: 51
-    paths: ["supabase/functions/*", "supabase/migrations/*"]
-    hint: "Edge Function + Resend + Database Webhook; triggers for admin/staff/student"
-
-  - id: SP3
-    title: "Notification pipeline"
-    owner: Moinul
-    order: 52
-    paths: ["supabase/migrations/*", "supabase/consolidated_setup.sql"]
-    hint: "3 DB triggers + Edge Function + Webhook"
-
-  - id: SP4
-    title: "Settings page"
-    owner: Moinul
-    order: 53
-    paths: ["src/routes/_authenticated/settings.tsx"]
-    hint: "/settings route for email entry"
-
-  - id: SP5
-    title: "Profile page fix"
-    owner: Moinul
-    order: 54
-    paths: ["src/routes/_authenticated/profile.tsx", "src/components/portal-shell.tsx"]
-    hint: "PortalShell wrapper, role-aware back button, nav link"
+    order: 34
+    paths: ["src/routes/_authenticated/admin/reports.tsx", "src/routes/_authenticated/admin/audit.tsx", "src/routes/_authenticated/admin/notices.tsx"]
+    hint: "Verify labels/counts against the 10-office set"

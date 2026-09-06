@@ -39,6 +39,6 @@ jobs:
           else
             git pull --rebase origin main
             PR=${{ github.event.pull_request.number }}
-            git commit -m "docs(bot): update assignment + snapshot (PR #${PR})"
+            git commit -m "docs(bot): update Snapshot.md (PR #${PR})"
             git push origin main
           fi
