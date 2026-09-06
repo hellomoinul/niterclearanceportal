@@ -60,8 +60,7 @@ export function PortalHeader() {
   const appLinks = session
     ? [
         ...(isRegistrar || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
-        ...(isRegistrar || isAdmin ? [{ to: "/queue", label: isAdmin ? "Department queue" : "Accounts queue" }] : []),
-        ...(isRegistrar ? [{ to: "/registrar/queue", label: "Final Queue" }] : []),
+        ...(isRegistrar || isAdmin ? [{ to: "/queue", label: isAdmin ? "Department queue" : "My office" }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];
