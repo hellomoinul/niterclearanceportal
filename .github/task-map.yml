@@ -53,7 +53,7 @@ tasks:
     title: "Regenerate DB types + build verify"
     owner: Moinul
     order: 15
-    paths: ["supabase/types.ts", "supabase/types/*"]
+    paths: ["supabase/types.ts", "supabase/types/*", "src/integrations/supabase/types.ts"]
     hint: "npx tsc --noEmit + npx vite build + live spot-checks"
 
   - id: M-v2.7
