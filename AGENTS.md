@@ -58,4 +58,3 @@ superior over all offices and reviews the Administration (final sign-off) step.
 
 - Work happens on feature branches (`<member>/<task>`), merged via PR into `main`.
 - Never force-push `main`. Never commit directly to `main`.
-- `REVIEW_RESPONSE_v2.md` is a **local-only working doc** — it is never staged, committed or pushed.

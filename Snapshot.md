@@ -208,7 +208,7 @@ Older migrations stay as historical record — never edit applied migrations.
 
 ## 📝 Work history
 
-### 2026-09-08 — Post-review verification + hardening (REVIEW_RESPONSE round 2)
+### 2026-09-08 — Post-review verification + hardening
 - **Live authenticated E2E (review §0):** created a student + Laboratory office staff via the Auth
   Admin API (non-browser UA), applied → **only Laboratory review created** (sequential confirmed),
   uploaded a doc, Lab approved → **Dept. Head review auto-created**. Cleaned up after.
@@ -230,8 +230,8 @@ Older migrations stay as historical record — never edit applied migrations.
 - **Types + build:** `src/integrations/supabase/types.ts` regenerated (resolver added,
   `workflow_steps` removed); `npx tsc --noEmit` + `npm run build` green (fresh `.output`).
 - **Data hygiene:** leftover RLS-test users cleaned → **0 test users/apps/reviews** on live.
-- `REVIEW_RESPONSE_v2.md` updated: §0/4b/4d/4e/`workflow_steps` all **RESOLVED with evidence**;
-  only item 2 (registrar confirmation) + email remain.
+- Review-response items §0/4b/4d/4e/`workflow_steps` closed with live evidence; only the registrar
+  confirmation (Section 2) + email remain.
 
 ### 2026-09-07 — Review-response groundwork (working tree)
 - Registrar→office rename migration `20260907000000`; thesis/supervisor/graduation dropped
@@ -275,7 +275,7 @@ Older migrations stay as historical record — never edit applied migrations.
   edge function/webhook is not wired (see `SYSTEM_FLOW.md` §7).
 - **Section 2 collapsed shared-office routing** — the reviewer's alternative model; awaiting
   written confirmation from the registrar. The current sequential model matches the physical form
-  and is what ships today (see `REVIEW_RESPONSE_v2.md`, item 2).
+  and is what ships today.
 - `declare_review_na` only works on the unlocked active office — day-scholar Hostel N/A must wait
   until step 3 unlocks (by design, mirrors the paper form).
 - No gender/program routing exists — all 10 offices review every student (decided, decision 7).

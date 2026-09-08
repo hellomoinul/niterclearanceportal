@@ -197,8 +197,8 @@ verified live at the API/DB level. Live E2E (M-v2.7) and the RLS negative matrix
 
 **Other known gaps:**
 - **Email pipeline** deferred (see Section 7) — in-app notifications are the working channel.
-- **Section 2 collapsed shared-office routing** — awaiting confirmation from the registrar (item 2
-  of `REVIEW_RESPONSE_v2.md`). Today's model keeps every office as its own sequential step, which
+- **Section 2 collapsed shared-office routing** — awaiting confirmation from the registrar. Today's
+  model keeps every office as its own sequential step, which
   mirrors the physical form.
 - Test data on the live project is wiped to **0** (students/apps/reviews/documents); E2E credential
   pairs are created on demand and removed after each run.
