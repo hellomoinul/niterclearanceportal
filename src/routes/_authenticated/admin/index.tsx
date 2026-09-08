@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -42,58 +43,75 @@ function AdminDashboard() {
 
   useEffect(() => {
     async function load() {
-      const [{ count: cleared }, { count: inReview }, { data: profiles }] = await Promise.all([
+      const [{ count: cleared }, { count: inReview }, { count: students }] = await Promise.all([
         supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'cleared'),
         supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'in_review'),
-        supabase.from('profiles').select('role'),
+        supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
       ]);
-      const students = profiles?.filter((p: any) => p.role === 'student').length ?? 0;
       setStats({ students: students ?? 0, cleared: cleared ?? 0, pending: inReview ?? 0 });
     }
     load();
   }, []);
 
   useEffect(() => {
-    async function loadNa() {
-      const { data, error } = await supabase
-        .from('department_reviews')
-        .select(`
-          id,
-          status,
-          departments(name),
-          clearance_applications(
-            status,
-            cleared_at,
-            profiles(full_name, user_code, program)
-          )
-        `)
-        .eq('is_na', true);
-      if (!error && data) {
-        const raw = data as unknown as {
-          id: string;
-          status: string;
-          departments: { name: string } | null;
-          clearance_applications: {
-            status: string;
-            cleared_at: string | null;
-            profiles: { full_name: string; user_code: string; program: string | null } | null;
-          } | null;
-        }[];
-        const rows: NaRow[] = raw.map((r) => ({
-          reviewId: r.id,
-          fullName: r.clearance_applications?.profiles?.full_name ?? 'Unknown',
-          userCode: r.clearance_applications?.profiles?.user_code ?? '—',
-          program: r.clearance_applications?.profiles?.program ?? null,
-          deptName: r.departments?.name ?? '—',
-          appStatus: r.clearance_applications?.status ?? '—',
-          clearedAt: r.clearance_applications?.cleared_at ?? null,
-        }));
-        setNaRows(rows);
-      }
-      setNaLoading(false);
-    }
     loadNa();
   }, []);
+
+  async function loadNa() {
+    const { data, error } = await supabase
+      .from('department_reviews')
+      .select(`
+        id,
+        status,
+        departments(name),
+        clearance_applications(
+          status,
+          cleared_at,
+          profiles(full_name, user_code, program)
+        )
+      `)
+      .eq('is_na', true);
+    if (!error && data) {
+      const raw = data as unknown as {
+        id: string;
+        status: string;
+        departments: { name: string } | null;
+        clearance_applications: {
+          status: string;
+          cleared_at: string | null;
+          profiles: { full_name: string; user_code: string; program: string | null } | null;
+        } | null;
+      }[];
+      const rows: NaRow[] = raw.map((r) => ({
+        reviewId: r.id,
+        fullName: r.clearance_applications?.profiles?.full_name ?? 'Unknown',
+        userCode: r.clearance_applications?.profiles?.user_code ?? '—',
+        program: r.clearance_applications?.profiles?.program ?? null,
+        deptName: r.departments?.name ?? '—',
+        appStatus: r.clearance_applications?.status ?? '—',
+        clearedAt: r.clearance_applications?.cleared_at ?? null,
+      }));
+      setNaRows(rows);
+    }
+    setNaLoading(false);
+  }
+
+  async function handleRevertNa(row: NaRow) {
+    if (
+      !window.confirm(
+        `Revert ${row.fullName}'s N/A declaration for ${row.deptName} back to pending review? This reopens the office for a real document check.`,
+      )
+    ) {
+      return;
+    }
+    const { error } = await supabase.rpc('reopen_na_review', { p_review_id: row.reviewId });
+    if (error) {
+      toast.error('Could not revert declaration', { description: error.message });
+      return;
+    }
+    toast.success('N/A declaration reverted to pending');
+    loadNa();
+  }
 
   const deptOptions = useMemo(
     () => [...new Set(naRows.map((r) => r.deptName))].sort(),
@@ -139,17 +157,17 @@ function AdminDashboard() {
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white p-4 rounded shadow-sm border">
+        <div className="bg-card p-4 rounded-lg border shadow-sm">
           <p className="text-sm text-muted-foreground">Total Students</p>
           <p className="text-2xl font-bold">{stats.students}</p>
         </div>
-        <div className="bg-white p-4 rounded shadow-sm border">
+        <div className="bg-card p-4 rounded-lg border shadow-sm">
           <p className="text-sm text-muted-foreground">Cleared</p>
-          <p className="text-2xl font-bold text-green-600">{stats.cleared}</p>
+          <p className="text-2xl font-bold text-status-approved">{stats.cleared}</p>
         </div>
-        <div className="bg-white p-4 rounded shadow-sm border">
+        <div className="bg-card p-4 rounded-lg border shadow-sm">
           <p className="text-sm text-muted-foreground">Pending</p>
-          <p className="text-2xl font-bold text-orange-600">{stats.pending}</p>
+          <p className="text-2xl font-bold text-status-pending">{stats.pending}</p>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -160,14 +178,14 @@ function AdminDashboard() {
           { to: '/admin/reports', label: 'Reports', desc: 'Academic year clearance statistics' },
           { to: '/admin/workflow', label: 'Office Editor', desc: 'Set office review order & final sign-off' },
         ].map((item) => (
-          <Link key={item.to} to={item.to} className="block bg-white p-4 rounded shadow-sm border hover:bg-gray-50 transition">
+          <Link key={item.to} to={item.to} className="block bg-card p-4 rounded-lg border shadow-sm hover:bg-muted/50 transition">
             <p className="font-semibold">{item.label}</p>
             <p className="text-sm text-muted-foreground">{item.desc}</p>
           </Link>
         ))}
       </div>
 
-      <div className="bg-white rounded shadow-sm border p-4">
+      <div className="bg-card rounded-lg border shadow-sm p-4">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
             <h3 className="text-lg font-bold">N/A declarations</h3>
@@ -224,6 +242,7 @@ function AdminDashboard() {
                   <th className="py-2 cursor-pointer select-none" onClick={() => toggleSort('clearedAt')}>
                     Certificate issued{sortIndicator('clearedAt')}
                   </th>
+                  <th className="py-2 pl-4">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -242,6 +261,15 @@ function AdminDashboard() {
                     </td>
                     <td className="py-2">
                       {r.clearedAt ? new Date(r.clearedAt).toLocaleDateString('en-GB') : 'Not yet'}
+                    </td>
+                    <td className="py-2 pl-4">
+                      {r.appStatus === 'cleared' ? (
+                        <span className="text-xs text-muted-foreground">Issued</span>
+                      ) : (
+                        <Button size="sm" variant="outline" onClick={() => handleRevertNa(r)}>
+                          Revert to pending
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -104,11 +104,10 @@ export default function AuditLogPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Actions</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-              <SelectItem value="submitted">Submitted</SelectItem>
-              <SelectItem value="escalated">Escalated</SelectItem>
-              <SelectItem value="uploaded doc">Uploaded Doc</SelectItem>
+              <SelectItem value="review_approved">Review approved</SelectItem>
+              <SelectItem value="review_rejected">Review rejected</SelectItem>
+              <SelectItem value="review_pending">Review reopened</SelectItem>
+              <SelectItem value="escalation_resolved">Escalation resolved</SelectItem>
             </SelectContent>
           </Select>
         </div>
