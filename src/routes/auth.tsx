@@ -43,7 +43,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (session) navigate({ to: "/", replace: true });
+    if (session) navigate({ to: "/dashboard", replace: true });
   }, [session, navigate]);
 
   async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
@@ -70,7 +70,7 @@ function AuthPage() {
       toast.error("Sign in failed", { description: "Check your ID and password and try again." });
       return;
     }
-    navigate({ to: "/" });
+    navigate({ to: "/dashboard" });
   }
 
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
@@ -134,7 +134,7 @@ function AuthPage() {
       return;
     }
     toast.success("Account created", { description: "Welcome to the clearance portal." });
-    navigate({ to: "/" });
+    navigate({ to: "/dashboard" });
   }
 
   return (
