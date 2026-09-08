@@ -60,7 +60,8 @@ function SettingsPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!profile) return;
+    const targetId = user?.id ?? profile?.id;
+    if (!targetId) return;
     const form = new FormData(event.currentTarget);
     setBusy(true);
 
@@ -96,8 +97,7 @@ function SettingsPage() {
 
     const { error } = await supabase
       .from("profiles")
-      .update(update)
-      .eq("id", profile.id);
+      .upsert({ id: targetId, ...update }, { onConflict: "id" });
 
     setBusy(false);
     if (error) {
