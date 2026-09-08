@@ -156,7 +156,7 @@ function VerifyResult() {
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
               This certificate ID exists but the student has not yet received clearance from all
-              departments ({result?.approved ?? 0} of {result?.total ?? 8} approved).
+              departments ({result?.approved ?? 0} of {result?.total ?? 10} approved).
             </p>
           </>
         )}
