@@ -69,14 +69,14 @@ hidden in the UI.
 | **Sequential review** | Each office opens only after the previous one approves — a true mirror of the paper form |
 | **Backend lock** | Uploads to a locked office are rejected at the database level, not just hidden |
 | **Real-time tracking** | Students see locked / active / approved / not-applicable per step |
-| **Auto-issued certificate** | Generated the moment Administration approves, with a scannable QR code |
+| **Auto-issued certificate** | Generated the moment Administration approves — scannable QR code + typeable ID (`NCP-XXXXXXXX`) |
 | **Escalation** | Three rejected re-uploads auto-escalate to Administration |
 | **Audit trail** | Every decision stored with the reviewing officer's identity and timestamp |
 | **Email notifications** | Admins, reviewers, and students notified at each step |
 | **Role-based portals** | Dedicated dashboards for students, office staff, and admins |
 | **Bulk actions** | Reviewers can approve multiple pending requests at once |
 | **N/A declarations** | Students flag the *active* office as not applicable (e.g. Hostel for a day-scholar); admin audit table catches false claims |
-| **Public verification** | Anyone can verify a certificate via QR code — no login required |
+| **Public verification** | Anyone can verify a certificate via QR code or the certificate ID (`NCP-XXXXXXXX`) — no login required |
 
 ## Tech stack
 
@@ -132,11 +132,10 @@ src/
 │       ├── settings.tsx             # Account settings
 │       ├── notifications.tsx        # In-app notifications
 │       ├── queue.tsx                # Office queue (staff/admin review)
-│       ├── registrar/queue.tsx      # Registrar "Final Queue" (issuance view)
 │       └── admin/                   # Admin-only pages
 │           ├── route.tsx            # Layout guard (admin role check)
 │           ├── index.tsx            # Admin dashboard + N/A audit table
-│           ├── offices.tsx          # Office Editor (10 office rows)
+│           ├── workflow.tsx         # Office Editor (10 office rows: order + final sign-off)
 │           ├── users.tsx            # User management
 │           ├── reports.tsx          # Batch reports
 │           ├── audit.tsx            # Audit log viewer
@@ -157,15 +156,15 @@ src/
 
 ## Roles
 
-A role is **not** an office. **Registrar** is the role of an office employee; the **10 offices** are the clearance sections (Laboratory … Administration). Each registrar is bound to exactly one office via `registrar_departments`.
+A role is **not** an office. **Office** is the role of an office employee; the **10 offices** are the clearance sections (Laboratory … Administration). Each office staff account is bound to exactly one office via `office_departments`.
 
 | Role | Who | Capabilities |
 |------|-----|-------------|
 | **Student** | Final-year students | Apply for clearance, walk the 10-step sequence, upload per active office, track progress, download certificate |
-| **Registrar** (office staff) | One account per office — bound to exactly one of the 10 offices | Review **their assigned office's** queue, approve/reject with remarks |
+| **Office** (staff) | One account per office — bound to exactly one of the 10 offices | Review **their assigned office's** queue, approve/reject with remarks |
 | **Admin** | Administration office | Full queue visibility, user + office management, N/A audit, final sign-off |
 
-Student accounts are created via self-registration. Office staff (registrar) and admin accounts are provisioned separately — each registrar account is bound to **exactly one of the 10 office sections** (Laboratory … Administration). After sign-in, a registrar sees only their own office's queue; admin sees all sections and acts as the Administration (final) sign-off.
+Student accounts are created via self-registration. Office staff and admin accounts are provisioned separately — each Office-staff account is bound to **exactly one of the 10 office sections** (Laboratory … Administration). After sign-in, an Office staff member sees only their own office's queue; admin sees all sections and acts as the Administration (final) sign-off.
 
 ## Deployment
 

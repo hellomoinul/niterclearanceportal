@@ -61,13 +61,13 @@ interface QueueReview {
   id: string;
   status: ReviewStatus;
   remarks: string | null;
+  resubmit_comment: string | null;
   attempts: number;
   escalated: boolean;
   triggered: boolean;
   departments: { code: string; name: string; is_final_signoff: boolean } | null;
   clearance_applications: {
     id: string;
-    thesis_title: string | null;
     profiles: QueueStudent | null;
   } | null;
 }
@@ -79,7 +79,7 @@ interface DepartmentInfo {
 }
 
 function QueuePage() {
-  const { user, isRegistrar, isAdmin, loading } = useAuth();
+  const { user, isOffice, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"pending" | "rejected">("pending");
@@ -88,23 +88,25 @@ function QueuePage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [resolveNotes, setResolveNotes] = useState<Record<string, string>>({});
+  const [resolveBusyId, setResolveBusyId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && user && !isRegistrar && !isAdmin) {
+    if (!loading && user && !isOffice && !isAdmin) {
       navigate({ to: "/dashboard", replace: true });
     }
-  }, [loading, user, isRegistrar, isAdmin, navigate]);
+  }, [loading, user, isOffice, isAdmin, navigate]);
 
-  const { data: registrarDepts } = useQuery({
+  const { data: officeDepts } = useQuery({
     enabled: !!user && !isAdmin,
-    queryKey: ["registrar-departments", user?.id],
+    queryKey: ["office-departments", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("registrar_departments")
+        .from("office_departments")
         .select("department_id, departments(code, name)")
         .eq("user_id", user!.id);
       if (error) throw error;
-      const depts = (data ?? [])
+      return (data ?? [])
         .map((row) => ({
           id: row.department_id,
           code: row.departments?.code,
@@ -113,18 +115,6 @@ function QueuePage() {
         .filter((d): d is DepartmentInfo & { id: string; code: string; name: string } =>
           Boolean(d.id && d.code && d.name),
         );
-      // Hard-rule fallback: registrar always sees accounts even with no explicit assignment
-      if (depts.length === 0) {
-        const { data: accountsDept } = await supabase
-          .from("departments")
-          .select("id, code, name")
-          .eq("code", "accounts")
-          .single();
-        if (accountsDept) {
-          depts.push({ id: accountsDept.id, code: accountsDept.code, name: accountsDept.name });
-        }
-      }
-      return depts;
     },
   });
 
@@ -141,7 +131,10 @@ function QueuePage() {
     },
   });
 
-  const departments = isAdmin ? allDepartments : registrarDepts;
+  const departments = isAdmin ? allDepartments : officeDepts;
+
+  const canResolveEscalations =
+    Boolean(isAdmin) || (officeDepts ?? []).some((d) => d.code === "admin");
 
   const scopedDeptIds = useMemo(() => {
     const list = departments ?? [];
@@ -157,7 +150,7 @@ function QueuePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("department_reviews")
-        .select("*, departments(code, name, is_final_signoff), clearance_applications(id, thesis_title, student_id)")
+        .select("*, departments(code, name, is_final_signoff), clearance_applications(id, student_id)")
         .in("status", ["pending", "rejected"])
         .in("department_id", scopedDeptIds);
       if (error) throw error;
@@ -166,13 +159,13 @@ function QueuePage() {
         id: string;
         status: ReviewStatus;
         remarks: string | null;
+        resubmit_comment: string | null;
         attempts: number;
         escalated: boolean;
         triggered: boolean;
         departments: { code: string; name: string; is_final_signoff: boolean } | null;
         clearance_applications: {
           id: string;
-          thesis_title: string | null;
           student_id: string;
         } | null;
       }[];
@@ -200,7 +193,6 @@ function QueuePage() {
         clearance_applications: r.clearance_applications
           ? {
               id: r.clearance_applications.id,
-              thesis_title: r.clearance_applications.thesis_title,
               profiles: studentsById[r.clearance_applications.student_id] ?? null,
             }
           : null,
@@ -240,7 +232,7 @@ function QueuePage() {
           ? tab === "rejected"
           : false;
       if (!matchesTab) return false;
-      // Final sign-off (Department Head) reviews show only once triggered (7/8 approved);
+      // Final sign-off (Administration) reviews show only once triggered (prior offices approved);
       // they never have documents, so exempt them from the zero-document rule.
       if (r.departments?.is_final_signoff) {
         if (!r.triggered) return false;
@@ -282,6 +274,7 @@ function QueuePage() {
       .update({
         status: decision,
         remarks: note || null,
+        resubmit_comment: null,
         reviewed_by: user.id,
         reviewed_at: now,
       })
@@ -335,7 +328,12 @@ function QueuePage() {
     const now = new Date().toISOString();
     const { error } = await supabase
       .from("department_reviews")
-      .update({ status: "approved", reviewed_by: user.id, reviewed_at: now })
+      .update({
+        status: "approved",
+        resubmit_comment: null,
+        reviewed_by: user.id,
+        reviewed_at: now,
+      })
       .in("id", ids);
     if (!error) {
       const { error: docError } = await supabase
@@ -355,7 +353,39 @@ function QueuePage() {
     toast.success(`Approved ${ids.length} student${ids.length === 1 ? "" : "s"}`);
   }
 
-  const deptsLoaded = isAdmin ? allDepartments !== undefined : registrarDepts !== undefined;
+  async function resolveEscalation(
+    review: QueueReview,
+    decision: "approved" | "rejected",
+  ) {
+    const note = (resolveNotes[review.id] ?? "").trim();
+    if (!note) {
+      toast.error("Note required", {
+        description: "Record the decision and reason before resolving this escalation.",
+      });
+      return;
+    }
+    setResolveBusyId(review.id);
+    const { error } = await supabase.rpc("resolve_escalation", {
+      p_review_id: review.id,
+      p_decision: decision,
+      p_note: note,
+    });
+    setResolveBusyId(null);
+    if (error) {
+      toast.error("Could not resolve escalation", { description: error.message });
+      return;
+    }
+    setResolveNotes((prev) => ({ ...prev, [review.id]: "" }));
+    await queryClient.invalidateQueries({ queryKey: ["queue-reviews"] });
+    await queryClient.invalidateQueries({ queryKey: ["queue-documents"] });
+    toast.success(
+      decision === "approved"
+        ? "Escalation approved — clearance continues"
+        : "Escalation closed as rejected",
+    );
+  }
+
+  const deptsLoaded = isAdmin ? allDepartments !== undefined : officeDepts !== undefined;
 
   if (loading || !deptsLoaded) {
     return (
@@ -502,16 +532,63 @@ function QueuePage() {
                     <span className="font-medium">Your remark:</span> {review.remarks || "—"}
                     <span className="ml-2 text-xs text-muted-foreground">
                       attempts used {Math.min(review.attempts, 3)}/3
-                      {review.escalated ? " · escalated to Department Head" : ""}
+                      {review.escalated ? " · escalated to Administration" : ""}
                     </span>
                   </p>
                 )}
+
+                {review.resubmit_comment ? (
+                  <p className="mt-3 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
+                    <span className="font-medium">Student re-submit note:</span>{" "}
+                    {review.resubmit_comment}
+                  </p>
+                ) : null}
+
+                {review.escalated && canResolveEscalations ? (
+                  <div className="mt-4 rounded-md border border-status-rejected p-4">
+                    <h3 className="text-sm font-semibold text-status-rejected">
+                      Escalated case — resolve
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      This review was rejected 3 times. Record the outcome and reason to close
+                      the escalation.
+                    </p>
+                    <Textarea
+                      rows={2}
+                      className="mt-3"
+                      placeholder="Decision reason (required)"
+                      value={resolveNotes[review.id] ?? ""}
+                      onChange={(e) =>
+                        setResolveNotes((prev) => ({ ...prev, [review.id]: e.target.value }))
+                      }
+                    />
+                    <div className="mt-3 flex flex-wrap justify-end gap-2">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={resolveBusyId === review.id}
+                        onClick={() => resolveEscalation(review, "rejected")}
+                      >
+                        Close as rejected
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={resolveBusyId === review.id}
+                        onClick={() => resolveEscalation(review, "approved")}
+                      >
+                        {resolveBusyId === review.id
+                          ? "Resolving…"
+                          : "Approve despite rejections"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
 
                 {review.departments?.is_final_signoff ? (
                   <div className="mt-4">
                     <h3 className="text-sm font-semibold">Final sign-off</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      No document required — the Department Head reviews this student's clearance.
+                      No document required — the Administration office reviews this student's clearance.
                     </p>
                   </div>
                 ) : (
