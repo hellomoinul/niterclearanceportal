@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth";
 import { DEPARTMENTS, academicYears } from "@/lib/departments";
-import { phoneInputHandler } from "@/lib/portal";
+import { phoneInputHandler, normalizeCode } from "@/lib/portal";
 
 import { PageHeader } from "@/components/page-header";
 
@@ -66,7 +66,7 @@ function SettingsPage() {
 
     const personalEmail = String(form.get("personalEmail") ?? "").trim();
     const fullName = String(form.get("fullName") ?? "").trim();
-    const userCode = String(form.get("userCode") ?? "").trim();
+    const userCode = normalizeCode(String(form.get("userCode") ?? ""));
 
     if (!fullName || !userCode) {
       setBusy(false);

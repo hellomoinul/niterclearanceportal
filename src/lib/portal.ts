@@ -15,6 +15,10 @@ export const MAX_FILE_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 
 /** Generate a portal ID (login email) from a user code. */
+export function normalizeCode(code: string): string {
+  return code.trim().toLowerCase().replace(/[^a-z0-9]/gi, "");
+}
+
 export function idToEmail(userCode: string) {
   return `${userCode
     .trim()
