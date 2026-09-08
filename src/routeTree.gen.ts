@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GuideRouteImport } from './routes/guide'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as UpdatePasswordRouteImport } from './routes/update-password'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
@@ -67,6 +68,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const GuideRoute = GuideRouteImport.update({
   id: '/guide',
   path: '/guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UpdatePasswordRoute = UpdatePasswordRouteImport.update({
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/guide': typeof GuideRoute
+  '/home': typeof HomeRoute
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/guide': typeof GuideRoute
+  '/home': typeof HomeRoute
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
@@ -226,6 +234,7 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/guide': typeof GuideRoute
+  '/home': typeof HomeRoute
   '/update-password': typeof UpdatePasswordRoute
   '/verify': typeof VerifyRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -254,6 +263,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/forgot-password'
     | '/guide'
+    | '/home'
     | '/update-password'
     | '/verify'
     | '/admin'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/forgot-password'
     | '/guide'
+    | '/home'
     | '/update-password'
     | '/verify'
     | '/apply'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/forgot-password'
     | '/guide'
+    | '/home'
     | '/update-password'
     | '/verify'
     | '/_authenticated/admin'
@@ -334,6 +346,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   GuideRoute: typeof GuideRoute
+  HomeRoute: typeof HomeRoute
   UpdatePasswordRoute: typeof UpdatePasswordRoute
   VerifyRoute: typeof VerifyRouteWithChildren
 }
@@ -387,6 +400,13 @@ declare module '@tanstack/react-router' {
       path: '/guide'
       fullPath: '/guide'
       preLoaderRoute: typeof GuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/update-password': {
@@ -588,6 +608,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   GuideRoute: GuideRoute,
+  HomeRoute: HomeRoute,
   UpdatePasswordRoute: UpdatePasswordRoute,
   VerifyRoute: VerifyRouteWithChildren,
 }
