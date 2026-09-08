@@ -25,7 +25,7 @@ export const Route = createFileRoute("/auth")({
       {
         name: "description",
         content:
-          "Sign in to the NITER clearance portal with your student or registrar ID to apply for and track final-year clearance.",
+          "Sign in to the NITER clearance portal with your student or office staff ID to apply for and track final-year clearance.",
       },
       { property: "og:title", content: "Sign in — NITER Clearance Portal" },
       {
@@ -158,11 +158,11 @@ function AuthPage() {
 
           <TabsContent value="signin" className="mt-5">
             <p className="text-center text-sm text-muted-foreground">
-              Universal sign in page for Students, Admin, Registrar.
+              Universal sign in page for Students, Office staff, Admin.
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="signin-id">Student / Admin / Registrar — ID, Portal ID, or Email</Label>
+                <Label htmlFor="signin-id">Student / Office staff / Admin — ID, Portal ID, or Email</Label>
                 <Input id="signin-id" name="userCode" required placeholder="CS 2103021, portal ID, or email" />
               </div>
               
@@ -286,7 +286,7 @@ function AuthPage() {
       </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Registrar and Admin accounts are created by the admin office.
+        Office staff and Admin accounts are created by the admin office.
       </p>
     </div>
   );

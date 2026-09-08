@@ -19,12 +19,12 @@ export const Route = createFileRoute("/_authenticated/apply")({
       {
         name: "description",
         content:
-          "Submit your NITER final-year clearance application once and every office receives it for parallel review.",
+          "Submit your NITER final-year clearance application once. The ten offices review it in strict order, mirroring the physical clearance form.",
       },
       { property: "og:title", content: "Start a clearance application — NITER" },
       {
         property: "og:description",
-        content: "One form, sent to every clearance office at the same time.",
+        content: "One form; the ten offices review your clearance in order.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -59,9 +59,6 @@ function ApplyPage() {
       .from("clearance_applications")
       .insert({
         student_id: user.id,
-        thesis_title: String(form.get("thesisTitle") ?? ""),
-        supervisor_name: String(form.get("supervisorName") ?? ""),
-        expected_graduation: String(form.get("expectedGraduation") ?? ""),
       })
       .select("id")
       .single();
@@ -153,28 +150,6 @@ function ApplyPage() {
                 id="permanentAddress"
                 name="permanentAddress"
                 defaultValue={profile?.permanent_address ?? ""}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-base font-semibold">Academic closing details</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="thesisTitle">Thesis/Project title or Internship company name</Label>
-              <Input id="thesisTitle" name="thesisTitle" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="supervisorName">Supervisor name</Label>
-              <Input id="supervisorName" name="supervisorName" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="expectedGraduation">Expected graduation</Label>
-              <Input
-                id="expectedGraduation"
-                name="expectedGraduation"
-                placeholder="December 2025"
               />
             </div>
           </div>

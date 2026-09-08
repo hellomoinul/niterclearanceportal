@@ -1,7 +1,14 @@
-export type AppRole = "student" | "registrar" | "admin";
+export type AppRole = "student" | "office" | "admin";
 export type ReviewStatus = "pending" | "approved" | "rejected";
 
 export const ID_DOMAIN = "niter.portal";
+
+/** Display-only certificate ID, derived from the certificate UUID (no stored copy).
+ *  `a83c2b1f-9a63-471d-bb04-1f2c3d4e5f60` -> `NCP-A83C2B1F` */
+export function formatCertificateId(id: string) {
+  const segment = id.split("-")[0] ?? "";
+  return `NCP-${segment.toUpperCase()}`;
+}
 export const MAX_ATTEMPTS = 3;
 export const DOCS_BUCKET = "clearance-docs";
 export const MAX_FILE_BYTES = 5 * 1024 * 1024;

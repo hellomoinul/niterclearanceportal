@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PortalShell } from "@/components/portal-shell";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
+import { formatCertificateId } from "@/lib/portal";
 
 export const Route = createFileRoute("/verify/$code")({
   head: () => ({
@@ -43,10 +44,18 @@ function VerifyResult() {
   const { data: cert, isLoading: certLoading } = useQuery({
     queryKey: ["certificate-lookup", code],
     queryFn: async () => {
+      // Accept a full UUID (QR) or the display code on the certificate
+      // (e.g. NCP-A83C2B1F) by resolving through the DB function.
+      const { data: resolved, error: resolveError } = await supabase.rpc(
+        "resolve_certificate_id",
+        { p_code: code }
+      );
+      if (resolveError) throw resolveError;
+      if (!resolved) return null;
       const { data, error } = await supabase
         .from("certificates")
         .select("id, student_code, student_name, program, batch, issued_at")
-        .eq("id", code)
+        .eq("id", resolved)
         .maybeSingle();
       if (error) throw error;
       return data;
@@ -99,7 +108,21 @@ function VerifyResult() {
             </p>
             <dl className="mt-6 divide-y divide-border text-sm">
               {[
-                ["Certificate ID", cert.id],
+                [
+                  "Certificate ID",
+                  cert.id
+                    ? (
+                        <span className="text-right">
+                          <span className="block font-semibold font-mono tracking-wide">
+                            {formatCertificateId(cert.id)}
+                          </span>
+                          <span className="block font-mono text-xs text-muted-foreground break-all">
+                            {cert.id}
+                          </span>
+                        </span>
+                      )
+                    : "—",
+                ],
                 ["Student name", result.student_name ?? cert.student_name],
                 ["Student ID", result.user_code ?? cert.student_code],
                 ["Program", result.program ?? cert.program ?? "—"],
@@ -115,7 +138,7 @@ function VerifyResult() {
                   cert.issued_at ? new Date(cert.issued_at).toLocaleDateString() : "—",
                 ],
               ].map(([label, value]) => (
-                <div key={label} className="flex justify-between gap-4 py-3">
+                <div key={String(label)} className="flex justify-between gap-4 py-3">
                   <dt className="text-muted-foreground">{label}</dt>
                   <dd className="font-semibold">{value}</dd>
                 </div>

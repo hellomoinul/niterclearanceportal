@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-06 · **Phase:** v2 backend shipped (DB live) — frontend lanes in progress · **Progress:** ~35%
+> **Last updated:** 2026-09-08 · **Phase:** v2 fully built + verified live (post-review hardening done) · **Progress:** ~100%
 
 ---
 
@@ -15,14 +15,14 @@
 The old system reviewed **8 offices in parallel**, finishing with Department Head. The physical
 "Student Clearance Form" and the teacher's instruction change the model to **10 sequential
 sections** with a strict order and a backend-enforced lock. Each office keeps **its own login
-role** — a registrar staff account reviews only the office (queue) they are assigned to.
+role** — an Office staff account reviews only the office (queue) they are assigned to.
 
 ### Decisions locked
 
 1. **v2 is #1 priority.** Previous 13 tasks are re-mapped onto it — kept where they survive,
    dropped where obsolete (asked + confirmed).
 2. **Purge all test data** — clean-slate migration (applications/reviews/documents/certificates/
-   notifications/audit_log/registrar_departments wiped, departments re-seeded). ✅ done in PR #61.
+   notifications/audit_log/office_departments wiped, departments re-seeded). ✅ done in PR #61.
 3. **N/A is declared per-office, only when that office unlocks** (day-scholar → Hostel).
 4. **Drop F13 + thesis fields** — Course Coordinator is gone; Exam Section checks exam/transcript,
    not thesis. `thesis_title`, `supervisor_name`, `expected_graduation` removed from apply form + schema.
@@ -33,8 +33,8 @@ role** — a registrar staff account reviews only the office (queue) they are as
 7. **One login role per office (teacher's instruction).** Exactly 10 office rows — Laboratory,
    Dept. Head, Hostel Superintendent, Proctor Office, Store, Library, Caretaker & Security
    Inspector, Exam Section, Accounts Section, Administration. **No `program`/`gender` columns, no
-   variant rows, no `profiles.gender`.** Each registrar account is bound to one of the 10 offices
-   (single `registrar_departments` row); the queue filters to that office; admin sees all offices
+   variant rows, no `profiles.gender`.** Each Office staff account is bound to one of the 10 offices
+   (single `office_departments` row); the queue filters to that office; admin sees all offices
    and is superior over all.
 
 ### The clearance office model (10 offices)
@@ -76,9 +76,9 @@ Use this table when rewriting old copy (F-v2.4 / M-v2.8).
 
 ### Login model (one role per office)
 
-- A registrar staff account is bound to **exactly one of the 10 offices** via a single
-  `registrar_departments` row (enforced in the Users page, **S-v2.2**).
-- After sign-in, the registrar lands on that office's queue **only**; **Admin is superior over
+- An Office staff account is bound to **exactly one of the 10 offices** via a single
+  `office_departments` row (enforced in the Users page, **S-v2.2**).
+- After sign-in, the Office staff member lands on that office's queue **only**; **Admin is superior over
   all** — full queue visibility + the Administration (final) step + user/office management.
 - No separate login page or URL per office — one shared sign-in box; the assigned role routes the
   staff member to their office.
@@ -88,7 +88,8 @@ Use this table when rewriting old copy (F-v2.4 / M-v2.8).
 ## 🎯 Task distribution (v2)
 
 Build order: **Moinul PR #61 (backend) ✅ shipped**, then **Fatin (student) + Shafin (admin) in
-parallel**, then **Moinul integration + docs (M-v2.7 / M-v2.8)**.
+parallel**, then **Moinul integration + docs (M-v2.7 / M-v2.8) + review hardening (M-v2.9–11)**.
+All lanes are ✅ as of 2026-09-08.
 
 ### 🟦 Moinul — Backend, migrations, integration, docs
 
@@ -108,41 +109,60 @@ parallel**, then **Moinul integration + docs (M-v2.7 / M-v2.8)**.
   (per-office, only on the active unlocked review). Kept `reopen_na_review` + `reopen_rejected_review`.
 - ✅ **M-v2.6** Regenerated `src/integrations/supabase/types.ts` (new columns + RPC). Verified with
   `npx tsc --noEmit` + `npx vite build` + live spot-checks.
-- ⬜ **M-v2.7** Integration pass — fix RLS/sequencing edges surfaced by UI PRs; end-to-end happy +
-  critical path on live (checklist in `scripts/e2e-v2-checklist.md`).
-- ⬜ **M-v2.8** Remove dead code from the 8-office model + obsolete copy; final cleanup. Storage
-  purge of orphaned `clearance-docs` objects already done (✅ 22 objects removed).
+- ✅ **M-v2.7** Integration pass — security-review fixes + end-to-end on live: authenticated E2E
+  (apply → **only Laboratory review** created → upload → Lab approves → Dept. Head review
+  auto-created), **RLS negative matrix** (cross-student reads 0 rows; PATCH/DELETE no-op; data
+  intact via API + SQL), and a **secret-value grep** across all 169 built bundle files (clean).
+  Checklist: `scripts/e2e-v2-checklist.md`.
+- ✅ **M-v2.8** Dead-code + copy cleanup — 8-office leftovers/obsolete strings removed; the
+  decorative `workflow_steps` **table + policy dropped** (migration `20260908000003`), types
+  regenerated, bundle rebuilt (no `workflow_steps`). Storage purge of orphaned `clearance-docs`
+  objects already done (✅ 22 objects removed).
+- ✅ **M-v2.9** Registrar→office rename (migration `20260907000000_rename_registrar_to_office.sql`);
+  thesis/supervisor/graduation fields dropped from schema + apply/settings
+  (migration `20260908000000_drop_thesis_fields.sql`). Applied live.
+- ✅ **M-v2.10** Resubmit comments + escalation audit —
+  `reopen_rejected_review(review_id, p_comment)` and `resolve_escalation(app, decision, note)`
+  writing a distinct **`escalation_resolved`** audit row (migration
+  `20260908000001_resubmit_comment_and_escalation.sql`). Verified live — audit rows
+  `review_rejected` / `review_approved` / `escalation_resolved`; state approved, escalated=false.
+- ✅ **M-v2.11** Certificate display ID — `formatCertificateId()` → `NCP-<first 8 hex>`, shown on
+  the certificate with the full UUID beneath, and `resolve_certificate_id(code)` accepting full
+  UUID / `NCP-` code / bare 8-hex (migration `20260908000002_certificate_display_id.sql`).
+  Verified live across 6 input forms via anon REST.
 
 ### 🟩 Fatin — Student / certificate lane
 
-- ⬜ **F-v2.1** Apply page: **program** dropdown (strict 5); **remove** gender field (no gender in
+- ✅ **F-v2.1** Apply page: **program** dropdown (strict 5); **remove** gender field (no gender in
   schema), thesis/supervisor/graduation fields, and the "Departments not applicable" multi-check
   block; update "parallel review" copy → sequential.
-- ⬜ **F-v2.2** Dashboard → **sequential stepper**: locked / active / approved / N-A per step;
+- ✅ **F-v2.2** Dashboard → **sequential stepper**: locked / active / approved / N-A per step;
   locked office shows **"Clearance not received from [X] office"**; progress bar now = step position.
   (absorbs old **F5** timeline, **F16** "Uploaded", **F11** email greeting)
-- ⬜ **F-v2.3** Section page: lock state (no upload) when office not yet unlocked; **"I have no
+- ✅ **F-v2.3** Section page: lock state (no upload) when office not yet unlocked; **"I have no
   record at [office]"** N/A button on the active office; remove hardcoded "7/8" and
   "Department Head final" strings. (absorbs **F20** resubmit comment + **F14** delete countdown)
-- ⬜ **F-v2.4** Guide/help + marketing copy: rewrite the 24 hardcoded "Department Head / 7/8 /
+- ✅ **F-v2.4** Guide/help + marketing copy: rewrite the 24 hardcoded "Department Head / 7/8 /
   parallel" strings in `guide.tsx`, `about.tsx`, `index.tsx` for the sequential model.
-- ✅ Certificate + verify pages — unchanged (issuance now fired by Administration approval trigger).
+- ✅ Certificate + verify pages — updated for the `NCP-` display ID (`verify.$code.tsx` +
+  `certificate.tsx`); issuance fired by Administration approval trigger.
 
 ### 🟨 Shafin — Office / admin panel lane
 
-- ⬜ **S-v2.1** **Office Editor** (`/admin/workflow` re-scoped): CRUD over the 10 offices — name,
+- ✅ **S-v2.1** **Office Editor** (`/admin/workflow` re-scoped): CRUD over the 10 offices — name,
   requirement, document_hint, sort_order, final-signoff toggle. Single source of truth =
-  `departments`. (replaces old **S7** workflow_steps CRUD)
-- ⬜ **S-v2.2** **Users page** (`/admin/users`, **S1**): real CRUD + role management; **enforce
-  exactly one office per staff** (single `registrar_departments` row) — this IS the teacher's
-  "every office has its own login role". ⚠️ reseed wiped all office assignments — re-bind staff
-  here.
-- ⬜ **S-v2.3** Queue: filters to the staff's **single assigned office** + **S8** search/pagination
+  `departments`. (replaces old **S7** workflow_steps CRUD) — built as a `sort_order` editor with
+  up/down reorder + exactly-one final-signoff toggle; save path E2E-verified live.
+- ✅ **S-v2.2** **Users page** (`/admin/users`, **S1**): real CRUD + role management; **enforce
+  exactly one office per staff** (single `office_departments` row) — this IS the teacher's
+  "every office has its own login role". Re-binds staff to offices (used to provision the E2E
+  Lab office account).
+- ✅ **S-v2.3** Queue: filters to the staff's **single assigned office** + **S8** search/pagination
   + **S9** rejection history + **S10** bulk summary toast.
-- ⬜ **S-v2.4** Admin index: **S6** override approve/reject (mandatory reason + audit_log) +
+- ✅ **S-v2.4** Admin index: **S6** override approve/reject (mandatory reason + audit_log) +
   **S14** N/A revert button (calls live `reopen_na_review` RPC).
-- ⬜ **S-v2.5** Reports/Audit/Notices: verify against the new 10-office set (mostly automatic via FK
-  joins); fix any label/count drift.
+- ✅ **S-v2.5** Reports/Audit/Notices: verified against the new 10-office set (FK joins); labels/
+  counts current.
 
 ### Dropped / superseded (confirmed with owner)
 
@@ -161,9 +181,9 @@ parallel**, then **Moinul integration + docs (M-v2.7 / M-v2.8)**.
 
 | Member | Lane | v2 done | v2 remaining |
 |--------|------|---------|--------------|
-| Moinul | Backend/infra/docs | ✅ 6 (M-v2.1–M-v2.6) | ⬜ 2 (M-v2.7, M-v2.8) |
-| Fatin | Student/certificate | ✅ 1 (certificate unchanged) | ⬜ 4 (F-v2.1–F-v2.4) |
-| Shafin | Admin panel/queue | ✅ 0 | ⬜ 5 (S-v2.1–S-v2.5) |
+| Moinul | Backend/infra/docs | ✅ 11 (M-v2.1–M-v2.11) | — |
+| Fatin | Student/certificate | ✅ 5 (F-v2.1–F-v2.4 + cert/verify) | — |
+| Shafin | Admin panel/queue | ✅ 5 (S-v2.1–S-v2.5) | — |
 
 ---
 
@@ -176,6 +196,11 @@ parallel**, then **Moinul integration + docs (M-v2.7 / M-v2.8)**.
 | 3 | (same migration) | sequential review triggers (replace fan-out/head-trigger) | ✅ applied (PR #61) |
 | 4 | (same migration) | documents upload RLS gate | ✅ applied (PR #61) |
 | 5 | (same migration) | `declare_review_na(review_id)` replaces bulk NA RPC | ✅ applied (PR #61) |
+| 6 | `20260907000000_rename_registrar_to_office.sql` | registrar role/route → **office** | ✅ applied to live |
+| 7 | `20260908000000_drop_thesis_fields.sql` | thesis/graduation columns dropped | ✅ applied to live |
+| 8 | `20260908000001_resubmit_comment_and_escalation.sql` | resubmit comment + `escalation_resolved` audit | ✅ applied to live |
+| 9 | `20260908000002_certificate_display_id.sql` | `resolve_certificate_id` (NCP- display ID) | ✅ applied to live |
+| 10 | `20260908000003_drop_workflow_steps.sql` | `workflow_steps` table + policy dropped | ✅ applied to live |
 
 Older migrations stay as historical record — never edit applied migrations.
 
@@ -183,13 +208,46 @@ Older migrations stay as historical record — never edit applied migrations.
 
 ## 📝 Work history
 
+### 2026-09-08 — Post-review verification + hardening (REVIEW_RESPONSE round 2)
+- **Live authenticated E2E (review §0):** created a student + Laboratory office staff via the Auth
+  Admin API (non-browser UA), applied → **only Laboratory review created** (sequential confirmed),
+  uploaded a doc, Lab approved → **Dept. Head review auto-created**. Cleaned up after.
+- **RLS negative matrix (§4e):** two student accounts with real JWTs — cross-student reads of
+  apps/reviews/documents/profiles returned **0 rows**; PATCH/DELETE returned 204 but changed
+  **0 rows** (verified via API read-back + direct SQL). Data intact. Grepped all 169 built bundle
+  files: **no secret values** (only SDK source text/JSDoc).
+- **§4d:** `resolve_escalation` now writes a distinct **`escalation_resolved`** audit row (decision
+  + note) alongside the generic trigger row; verified live (`review_rejected` / `review_approved` /
+  `escalation_resolved`, state approved/escalated=false). Migration `20260908000001` amended + re-applied.
+- **§4b:** certificate display ID — `formatCertificateId()` → `NCP-<first 8 hex>`; shown on the
+  certificate with the full UUID beneath; Verify accepts full UUID / `NCP-` code / bare 8-hex via
+  `resolve_certificate_id` RPC (migration `20260908000002`). Verified via anon REST across 6 forms
+  (all resolve, garbage → null).
+- **Office Editor (S-v2.1) + `workflow_steps` drop:** `/admin/workflow` rebuilt as an editor over
+  `departments.sort_order` (reorder up/down, exactly-one final-signoff toggle) and the admin index
+  link relabeled; `workflow_steps` table + policy **dropped** (migration `20260908000003`); save
+  path E2E-verified live (admin PATCH OK, student blocked).
+- **Types + build:** `src/integrations/supabase/types.ts` regenerated (resolver added,
+  `workflow_steps` removed); `npx tsc --noEmit` + `npm run build` green (fresh `.output`).
+- **Data hygiene:** leftover RLS-test users cleaned → **0 test users/apps/reviews** on live.
+- `REVIEW_RESPONSE_v2.md` updated: §0/4b/4d/4e/`workflow_steps` all **RESOLVED with evidence**;
+  only item 2 (registrar confirmation) + email remain.
+
+### 2026-09-07 — Review-response groundwork (working tree)
+- Registrar→office rename migration `20260907000000`; thesis/supervisor/graduation dropped
+  (migration `20260908000000`) from schema + apply/settings/profiles copy.
+- RLS audited + reworked per the security review; resubmit **comment** field on rejected sections.
+- Frontend lanes landed in the working tree: apply/dashboard/section/guide/about/index sequential
+  copy, per-office queue, users page (one office per staff), admin override + N/A revert,
+  reports/audit/notices.
+
 ### 2026-09-06 — v2 backend shipped (M-v2.1 → M-v2.6), via PR #61
 - Seeded the 10 offices in teacher order (Laboratory → Administration, final sign-off), normalized
   programs, purged all test data, swapped parallel fan-out for sequential review creation,
   gated uploads to the unlocked step, replaced the bulk N/A RPC with per-review
   `declare_review_na`, regenerated types, minimal apply-page edit to keep the build green.
 - Fixed two latent backend bugs discovered live: stale `staff_departments` ref in
-  `handle_review_rejection`, and `guard_clearance_status` blocking non-admin registrars from
+  `handle_review_rejection`, and `guard_clearance_status` blocking non-admin office staff from
   completing the final office (cert-issuance flag).
 - Purged 22 orphaned `clearance-docs` storage objects (via `storage.allow_delete_query` session
   flag). Repaired the doc-sync action so status flips commit even when a PR merge races the bot.
@@ -212,11 +270,16 @@ Older migrations stay as historical record — never edit applied migrations.
 
 ---
 
-## ⚠️ Known gaps (carried into v2)
+## ⚠️ Known gaps
+- **Email pipeline** is deferred — in-app notifications (SQL) are the fully working channel; the
+  edge function/webhook is not wired (see `SYSTEM_FLOW.md` §7).
+- **Section 2 collapsed shared-office routing** — the reviewer's alternative model; awaiting
+  written confirmation from the registrar. The current sequential model matches the physical form
+  and is what ships today (see `REVIEW_RESPONSE_v2.md`, item 2).
 - `declare_review_na` only works on the unlocked active office — day-scholar Hostel N/A must wait
   until step 3 unlocks (by design, mirrors the paper form).
-- Legacy program values sealed by M-v2.2; existing students with NULL program need a value set
-  (or excluded from test data purge scope).
 - No gender/program routing exists — all 10 offices review every student (decided, decision 7).
-- `triggered` column retained until F-v2.2 / S-v2.3 stop reading it — removal folded into M-v2.8.
-- Staff office assignments (`registrar_departments`) are empty after the reseed — S-v2.2 re-binds.
+- `triggered` column retained in the schema for backward-compat but is **not read by the UI**
+  (verified — no `triggered`-based filtering anywhere).
+- Live-project auth accounts created for E2E runs are removed after each run — **0 test data**
+  on live.
