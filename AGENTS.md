@@ -33,15 +33,29 @@ Team members own separate files (see `Snapshot.md` for the v2 task map and lane 
 implementing a task, only touch files owned by the person who requested the work, plus shared files
 explicitly agreed on.
 
+Lane ownership (v2 powered by Snapshot's task map):
+- **Moinul** — backend, migrations, RLS/RPC, integration, docs.
+- **Fatin** — student & certificate lane: `apply.tsx`, `dashboard.tsx`, `section.$code.tsx`,
+  `guide.tsx`, `about.tsx`, `index.tsx`, `certificate.tsx`, `verify.tsx`, `verify.$code.tsx`,
+  `profile.tsx`, `settings.tsx`.
+- **Shafin** — admin panel & queue: `admin/workflow.tsx` (Office Editor), `admin/users.tsx`,
+  `admin/index.tsx`, `queue.tsx`, `admin/reports.tsx`, `admin/audit.tsx`, `admin/notices.tsx`.
+
+**Do NOT implement or commit work inside another member's lane** (even if a task looks unfinished)
+unless that member or the owner explicitly asks. Teammates may hold uncommitted work in those files.
+If a change genuinely spans lanes (e.g. a shared helper or migration), touch only the shared file
+and flag the lane owner.
+
 ## Office login model
 
-Every clearance office has its own login role. A registrar staff account is bound to **exactly one
+Every clearance office has its own login role. An Office staff account is bound to **exactly one
 of the 10 office sections** (Laboratory, Dept. Head, Hostel Superintendent, Proctor Office, Store,
 Library, Caretaker & Security Inspector, Exam Section, Accounts Section, Administration) via a
-single `registrar_departments` row. Their queue shows only that office's pending reviews. Admin is
+single `office_departments` row. Their queue shows only that office's pending reviews. Admin is
 superior over all offices and reviews the Administration (final sign-off) step.
 
 ## Git
 
 - Work happens on feature branches (`<member>/<task>`), merged via PR into `main`.
 - Never force-push `main`. Never commit directly to `main`.
+- `REVIEW_RESPONSE_v2.md` is a **local-only working doc** — it is never staged, committed or pushed.

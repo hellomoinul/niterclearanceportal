@@ -13,15 +13,15 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 function ProfilePage() {
-  const { profile, isStudent, isRegistrar, isAdmin } = useAuth();
+  const { profile, isStudent, isOffice, isAdmin } = useAuth();
 
   return (
     <PortalShell className="max-w-3xl">
       <PageHeader
         title="My Profile"
         back={{
-          to: isRegistrar || isAdmin ? "/queue" : "/dashboard",
-          label: `Back to ${isRegistrar || isAdmin ? "queue" : "dashboard"}`,
+          to: isOffice || isAdmin ? "/queue" : "/dashboard",
+          label: `Back to ${isOffice || isAdmin ? "queue" : "dashboard"}`,
         }}
       />
 
@@ -37,7 +37,7 @@ function ProfilePage() {
                 {profile.full_name || "Not provided"}
               </div>
               <div>
-                <span className="font-semibold">{isRegistrar || isAdmin ? "Registrar ID: " : "Student ID: "}</span>
+                <span className="font-semibold">{isOffice || isAdmin ? "Office ID: " : "Student ID: "}</span>
                 {profile.user_code || "Not provided"}
               </div>
               <div>

@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { Button } from '@/components/ui/button'
+import { formatCertificateId } from '@/lib/portal'
 import { Download, Loader2, Printer } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
@@ -231,18 +232,19 @@ function CertificatePage() {
                 {certId && (
                   <>
                     <p className="text-xs font-semibold text-[#334155] uppercase tracking-wider mt-3">Certificate ID</p>
-                    <p className="text-[10px] font-mono text-[#64748b] mt-1 break-all">{certId}</p>
+                    <p className="text-sm font-bold font-mono text-[#0f172a] mt-1 tracking-wide">{formatCertificateId(certId)}</p>
+                    <p className="text-[8px] font-mono text-[#94a3b8] mt-0.5 break-all">{certId}</p>
                   </>
                 )}
               </div>
             </div>
             
-            {/* Right Area: Registrar Signature */}
+            {/* Right Area: Administration Signature */}
             <div className="text-center flex flex-col items-center justify-end">
               {isCleared ? (
                 <img 
                   src={signatureUrl}
-                  alt="Registrar Signature" 
+                  alt="Administration Signature" 
                   className="h-20 object-contain mb-2 opacity-80"
                 />
               ) : (
@@ -251,7 +253,7 @@ function CertificatePage() {
                 </div>
               )}
               <div className="border-t-[1.5px] border-[#1e293b] w-56 mb-2 mx-auto"></div>
-              <p className="text-sm font-bold text-[#1e293b] uppercase tracking-wider">Registrar</p>
+              <p className="text-sm font-bold text-[#1e293b] uppercase tracking-wider">Administration</p>
               <p className="text-xs text-[#64748b] tracking-widest mt-1">NITER</p>
             </div>
           </div>

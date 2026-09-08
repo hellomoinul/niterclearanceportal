@@ -24,7 +24,7 @@ const publicLinks = [
 const guideLink = { to: "/guide", label: "Guide" } as const;
 
 export function PortalHeader() {
-  const { session, profile, isRegistrar, isAdmin, signOut } = useAuth();
+  const { session, profile, isOffice, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -59,8 +59,8 @@ export function PortalHeader() {
 
   const appLinks = session
     ? [
-        ...(isRegistrar || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
-        ...(isRegistrar || isAdmin ? [{ to: "/queue", label: isAdmin ? "Department queue" : "My office" }] : []),
+        ...(isOffice || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
+        ...(isOffice || isAdmin ? [{ to: "/queue", label: isAdmin ? "Department queue" : "My office" }] : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];

@@ -70,6 +70,27 @@ tasks:
     paths: ["src/**/*", "supabase/**/*"]
     hint: "Remove 8-office model leftovers and obsolete strings"
 
+  - id: M-v2.9
+    title: "Registrar→office rename + thesis field drop"
+    owner: Moinul
+    order: 18
+    paths: ["supabase/migrations/20260907000000*", "supabase/migrations/20260908000000*", "src/**/*"]
+    hint: "Rename registrar to office; drop thesis/supervisor/graduation fields"
+
+  - id: M-v2.10
+    title: "Resubmit comment + escalation audit"
+    owner: Moinul
+    order: 19
+    paths: ["supabase/migrations/20260908000001*", "src/**/*"]
+    hint: "reopen_rejected_review comment; resolve_escalation writes escalation_resolved audit row"
+
+  - id: M-v2.11
+    title: "Certificate display ID (NCP-) + resolver"
+    owner: Moinul
+    order: 20
+    paths: ["supabase/migrations/20260908000002*", "src/lib/portal.ts", "src/routes/verify*", "src/routes/_authenticated/certificate.tsx"]
+    hint: "NCP- short ID on certificate/verify; resolve_certificate_id accepts full UUID / NCP- code / bare 8-hex"
+
   # Fatin — student / certificate lane
   - id: F-v2.1
     title: "Apply form v2"

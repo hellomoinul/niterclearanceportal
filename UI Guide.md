@@ -9,10 +9,10 @@
 | Role | What they can do | Portal ID example |
 |------|------------------|-------------------|
 | **Student** | Apply, then walk the 10-step clearance in strict order, upload per active office, view status, download certificate | `cs2103021@niter.portal` |
-| **Registrar** | Review **their single assigned office's** queue, approve/reject with remarks | `700001@niter.portal` |
+| **Office** | Review **their single assigned office's** queue, approve/reject with remarks | `700001@niter.portal` |
 | **Admin** | Administration office — full queue visibility, Office Editor, users, final sign-off | `700000@niter.portal` |
 
-**Key fact:** everyone signs in with their **Student ID / Registrar ID / Admin ID** (e.g. `CS 2103021`, `700001`), their **portal ID**, or their **email** — same login box, one password. Each **office staff** account is bound to exactly **one of the 10 offices** (Laboratory, Dept. Head, Hostel Superintendent, Proctor, Store, Library, Caretaker & Security, Exam Section, Accounts), so after sign-in their queue is filtered to that office automatically. **Admin is superior over all offices** and reviews the Administration (final) step.
+**Key fact:** everyone signs in with their **Student ID / Office ID / Admin ID** (e.g. `CS 2103021`, `700001`), their **portal ID**, or their **email** — same login box, one password. Each **office staff** account is bound to exactly **one of the 10 offices** (Laboratory, Dept. Head, Hostel Superintendent, Proctor, Store, Library, Caretaker & Security, Exam Section, Accounts), so after sign-in their queue is filtered to that office automatically. **Admin is superior over all offices** and reviews the Administration (final) step.
 
 ---
 
@@ -28,7 +28,7 @@
 - **Bell icon** = notifications, with an unread-count red badge (refreshes every 30s).
 - Nav links depend on role:
   - Student → **Dashboard**
-  - Registrar → **Queue** (their assigned office)
+  - Office → **Queue** (their assigned office)
   - Admin → **Queue** + **Admin**
 - On mobile it becomes a hamburger menu.
 
@@ -55,7 +55,7 @@ Marketing landing page + how-it-works + office list + notices.
 ```
 [Tabs: Sign in | New student]
 ── Sign in ────────────────────────────────
-│ Student/Admin/Registrar ID, Portal ID, or Email │
+│ Student/Office/Admin ID, Portal ID, or Email │
 │ Password                                        │
 │ [Sign in]  [Forgot password?]                   │
 ───────────────────────────────────────────────────
@@ -67,13 +67,13 @@ Marketing landing page + how-it-works + office list + notices.
 │ Password │ Confirm password │
 │ [Create account] │
 ```
-Footer note: *"Registrar and Admin accounts are created by the admin office."*
+Footer note: *"Office and Admin accounts are created by the admin office."*
 
 ### Verify certificate `/verify` → `/verify/<id>`
 ```
 │ Verify a clearance certificate │
 │ No account needed (for employers) │
-│ [Certificate ID ____________]  [Verify certificate] │
+│ [Certificate ID e.g. NCP-A83C2B1F] [Verify]      │
 
 Result page (verified):
 │ ✓ Verified — Clear to sign off from NITER │
@@ -83,10 +83,13 @@ Result page (verified):
 ```
 If not all offices approved: **"Not verified — go to NITER clearance portal"** with approved/total counts.
 
+The ID box accepts the **full certificate UUID**, the short **`NCP-` code** (first 8 hex digits,
+e.g. `NCP-A83C2B1F`), or the bare 8 hex digits — all resolved server-side via `resolve_certificate_id`.
+
 ### Also public
 - **About** `/about` — how clearance works + how decisions are recorded (hidden from nav once logged in).
 - **Academic calendar** `/calendar` — key dates (window opens, deadline, review deadline, certificate release).
-- **Guide** `/guide` — a **role-based** guide (Student / Registrar / Admin tabs). Step-by-step how-to for each role, plus a folded-in FAQ accordion whose questions switch by role. Replaces the old "FAQ" page.
+- **Guide** `/guide` — a **role-based** guide (Student / Office / Admin tabs). Step-by-step how-to for each role, plus a folded-in FAQ accordion whose questions switch by role. Replaces the old "FAQ" page.
 
 ---
 
@@ -163,9 +166,10 @@ not on this form.
 │   Program: CSE        Batch: 2021           │
 │                                              │
 │   [QR code]   Date Issued: 26 Aug 2026     │
-│   Certificate ID: f7ddbb0b-...              │
+│   Certificate ID: NCP-A83C2B1F             │
+│   Full ID: f7ddbb0b-…                      │
 │                                              │
-│                          (Registrar)        │
+│                          (Office)        │
 │                          signature          │
 └──────────────────────────────────────────────┘
 ```
@@ -174,7 +178,7 @@ not on this form.
 
 ---
 
-## Registrar / Admin page
+## Office / Admin page
 
 ### Queue `/queue`
 ```
@@ -196,28 +200,16 @@ not on this form.
 ═════════════════════════════════════════════════════
 │ [Approve 3 students]   (bulk bar, bottom, when selected) │
 ```
-- A **registrar sees only their one assigned office** (e.g. "Laboratory", "Accounts").
+- An **Office** staff member sees only their one assigned office (e.g. "Laboratory", "Accounts").
 - **Admin** sees all 10 offices via the office filter.
 - **Pending/Rejected tabs** + search + pagination; rejection history shown on rejected cards (S9).
 - **Reject requires a remark** — otherwise a toast blocks it.
 - Bulk **approve** via checkbox + bottom action bar; completion shows a per-student summary (S10).
 - Admin-only **Override** (force approve/reject with mandatory reason + audit trail — S6).
 
-### Final Queue `/registrar/queue` (registrar only)
-```
-Final Clearance Queue — Monitor and filter student certificate issuance
-[Search by NITER ID or Name...]  [All Statuses ▾]
-┌──────────┬───────────────┬──────────────────┬──────────┬──────────────┐
-│ NITER ID │ Student Name  │ Program / Batch  │ Status   │ Cleared Date │
-├──────────┼───────────────┼──────────────────┼──────────┼──────────────┤
-│ ...      │ ...           │ ...              │ Issued   │ 2026-09-06   │
-│ ...      │ ...           │ ...              │ Pending  │ —            │
-└──────────┴───────────────┴──────────────────┴──────────┴──────────────┘
-```
-- Lists **all** clearance applications joined with student profiles.
-- Status filter: **All statuses / Issued only / Not Issued only**; search by NITER ID or name; sortable + paginated (25/page).
-- **Issued** badge = application `status == 'cleared'`; **Pending** = anything else.
-- Added to the registrar's nav as **Final Queue**.
+> Removed in v2: the separate office "Final Queue" page (formerly `/registrar/queue`). The final certificate
+> sign-off is now the **Administration** office's step inside the same ordered queue — no dedicated
+> issuance page exists anymore.
 
 ---
 
@@ -226,18 +218,18 @@ Final Clearance Queue — Monitor and filter student certificate issuance
 ### Settings `/settings`
 ```
 ── Profile details ──────────────────────
-Full name * | Registrar ID *   (Student: role label swaps)
+Full name * | Office ID *   (Student: role label swaps)
 Personal email (full width)
 Phone (11 digits)
 [Student extra:] Registration no · Program · Academic year
                   Guardian name · Guardian phone · addresses
-[Registrar/Admin:] Role / Office (read-only)
+[Office/Admin:] Role / Office (read-only)
 [Save profile]
 ```
 Personal email is edited here directly.
 
 ### Profile `/profile`
-Read-only card: Name, ID, **Portal ID**, Department+Session (student) or Role/Office (registrar/admin), Phone, Email, and **Account UUID** at the bottom.
+Read-only card: Name, ID, **Portal ID**, Department+Session (student) or Role/Office (office/admin), Phone, Email, and **Account UUID** at the bottom.
 
 ### Notifications `/notifications`
 ```
@@ -268,11 +260,22 @@ Working feature: stats, quick links, and a filterable/sortable **N/A declaration
 ### Admin sub-pages
 | Page | Route | Status |
 |------|-------|--------|
-| User Management | `/admin/users` | ⬜ **v2** — CRUD + roles + **one office per staff** (S-v2.2) |
-| Office Editor | `/admin/offices` | ⬜ **v2** — CRUD over the 10 office rows (name/requirement/doc-hint/order/final) (S-v2.1) |
+| User Management | `/admin/users` | ✅ **Working** — CRUD + roles + **exactly one office per staff** (S-v2.2) |
+| Office Editor | `/admin/workflow` | ✅ **Working** — reorder the 10 offices, set one **final sign-off** (S-v2.1) |
 | Notices | `/admin/notices` | ✅ **Working** — admin CRUD on `notices` table, RLS-restricted (S11) |
 | Audit Log | `/admin/audit` | ✅ **Working** — paginated searchable/filtered read-only table over `audit_log` (S12) |
 | Reports | `/admin/reports` | ✅ **Working** — live data from `department_reviews` + `departments`; status pie + per-office bar + CSV (S13) |
+
+### Office Editor `/admin/workflow` (S-v2.1)
+
+Edits the same table the app reads — `departments` — so the queue, dashboard, section pages and
+home page always agree:
+
+- **Reorder rows up/down** — saves real `sort_order`; the save button is blocked while the order is invalid.
+- **Exactly one final sign-off** — the final-signoff toggle refuses a second final office and the
+  save step re-validates (Administration is the final step).
+- Editing a name/requirement/document-hint flows through to every page that renders offices.
+  `workflow_steps` is gone — this editor is the single source of truth.
 
 Reports reads real data: per-office approved/pending/rejected from `department_reviews` (will reflect the new 10-office set after the v2 reseed), an overall status pie, and total application count.
 
@@ -316,11 +319,13 @@ opening a database action, not a waiting state.
 ---
 
 ## Notes / known gaps
-- **v2 pivot in progress.** The UI is being rebuilt around the sequential 10-step model: dashboard
-  becomes a stepper, apply drops thesis fields + bulk N/A, section page gets a per-office N/A button
-  and lock state, and `/admin/workflow` becomes an **Office Editor** (S-v2.1). See `Snapshot.md`.
-- The **"Certificate ID"** shown on the certificate is the raw certificate **UUID** (the QR encodes it correctly for `/verify/<id>`).
-- **Administration** (final office) is handled in the admin queue — the Administration office staff sign in with the same credentials used for any registrar account assigned to that office.
+- **v2 is fully built** — sequential stepper dashboard, thesis-free apply, per-office N/A + lock
+  state, and the **Office Editor** (S-v2.1) are all live. See `Snapshot.md`.
+- The certificate shows a friendly short ID (**`NCP-` + first 8 hex**, e.g. `NCP-A83C2B1F`) with
+  the full certificate UUID beneath it; both verify at `/verify`.
+- **Resubmit comment (F20)** is implemented — reopening a rejected section can carry a short
+  comment for the office (visible in the queue).
+- **Administration** (final office) is handled in the admin queue — the Administration office staff sign in with the same credentials used for any office staff account assigned to that office.
 - **N/A is declared per office, only once it unlocks** (e.g. Hostel for a day-scholar). Declared offices auto-approve; an admin can revert a false claim via the N/A table (S14).
 - Labels are standardized on **"Academic year"** (stored as `batch`) across all pages.
 

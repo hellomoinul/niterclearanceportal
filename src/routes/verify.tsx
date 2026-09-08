@@ -34,7 +34,7 @@ function VerifyPage() {
     <PortalShell className="max-w-2xl">
       <PageHeader
         title="Certificate verification"
-        description="Enter the certificate ID printed on the clearance certificate, or scan its QR code."
+        description="Enter the certificate ID printed on the clearance certificate (e.g. NCP-A83C2B1F), or scan its QR code."
       />
       <div className="card-surface mt-4 p-6">
         <form
@@ -51,7 +51,7 @@ function VerifyPage() {
               id="code"
               value={code}
               onChange={(event) => setCode(event.target.value)}
-              placeholder="e.g. f7ddbb0b-a436-491e-804b-3d48e6670124"
+              placeholder="e.g. NCP-A83C2B1F"
               required
             />
           </div>

@@ -34,18 +34,18 @@ export const Route = createFileRoute("/_authenticated/settings")({
 });
 
 function SettingsPage() {
-  const { profile, refresh, user, isStudent, isRegistrar, isAdmin } = useAuth();
+  const { profile, refresh, user, isStudent, isOffice, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [program, setProgram] = useState(profile?.program ?? "");
   const [batch, setBatch] = useState(profile?.batch ?? "");
 
-  const { data: registrarDepts } = useQuery({
+  const { data: officeDepts } = useQuery({
     enabled: !!user && !isStudent,
-    queryKey: ["registrar-departments", user?.id],
+    queryKey: ["office-departments", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("registrar_departments")
+        .from("office_departments")
         .select("departments(name)")
         .eq("user_id", user!.id);
       if (error) throw error;
@@ -55,8 +55,8 @@ function SettingsPage() {
     },
   });
 
-  const roleLabel = isAdmin ? "Admin" : "Registrar";
-  const roleOffice = isAdmin ? "Admin" : registrarDepts?.join(", ") || "Registrar";
+  const roleLabel = isAdmin ? "Admin" : "Office";
+  const roleOffice = isAdmin ? "Admin" : officeDepts?.join(", ") || "Office";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
