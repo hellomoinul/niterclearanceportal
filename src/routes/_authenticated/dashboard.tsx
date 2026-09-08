@@ -121,7 +121,7 @@ function DashboardPage() {
           <FileCheck2 className="mx-auto size-7 text-primary" aria-hidden />
           <h2 className="mt-3 text-lg font-semibold">No clearance application yet</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Submit one application and every office receives it at the same time.
+            Submit once and offices unlock in strict order — the first one opens the moment you apply.
           </p>
           <Button asChild className="mt-6">
             <Link to="/apply">

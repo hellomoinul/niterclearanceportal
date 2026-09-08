@@ -90,7 +90,7 @@ export function PortalHeader() {
                 "after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:scale-x-0 after:transition-transform hover:after:scale-x-100",
                 "[&[data-active]]:text-foreground [&[data-active]]:after:scale-x-100",
               )}
-              activeOptions={{ exact: link.to === "/" }}
+              activeOptions={{ exact: link.to === "/home" }}
             >
               {link.label}
             </Link>

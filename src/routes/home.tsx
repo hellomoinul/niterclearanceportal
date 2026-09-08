@@ -13,7 +13,7 @@ export const Route = createFileRoute("/home")({
       {
         name: "description",
         content:
-          "Apply once and track clearance from Accounts, Hostel, Library, Security, Lab and your department head — then download a verifiable NITER clearance certificate.",
+          "Apply once and track clearance through every office — then download a verifiable NITER clearance certificate.",
       },
       { property: "og:title", content: "NITER Clearance Portal" },
       {
@@ -34,8 +34,8 @@ const steps = [
   },
   {
     icon: Building2,
-    title: "Parallel review",
-    body: "All eight offices review at the same time, so one slow desk cannot block the rest.",
+    title: "Strict sequential review",
+    body: "All ten offices review your file in strict order — each one unlocks only after the previous office approves.",
   },
   {
     icon: BadgeCheck,
@@ -78,7 +78,7 @@ function HomePage() {
           National Institute of Textile Engineering and Research
         </p>
 <h1 className="mt-4 max-w-2xl text-3xl font-semibold font-display text-white sm:text-4xl">
-          Final-year clearance, without walking to eight offices
+          Final-year clearance, without walking to ten offices
         </h1>
       </section>
 

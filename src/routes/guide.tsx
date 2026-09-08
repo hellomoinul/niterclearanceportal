@@ -172,7 +172,7 @@ const faqs: Record<RoleKey, { q: string; a: string }[]> = {
     },
     {
       q: "Where is the audit trail?",
-      a: "Every approval and rejection is written to the audit log with the actor, office, student and remark. The audit page is being built on this data for full accountability.",
+      a: "Every approval and rejection is written to the audit log with the actor, office, student and remark. The Admin Dashboard's Audit page reports this data for full accountability.",
     },
   ],
 };
