@@ -26,21 +26,6 @@ export const Route = createFileRoute("/home")({
   component: HomePage,
 });
 
-const notices = [
-  {
-    title: "Clearance window for Academic year 2021 is open",
-    body: "Final-year students of all programs may submit their clearance application until 30 September.",
-  },
-  {
-    title: "Library fine desk timing changed",
-    body: "The Library no-dues desk now operates 10:00–15:00 on working days.",
-  },
-  {
-    title: "Hostel vacate receipts go digital",
-    body: "Upload your room vacate receipt directly in the Hostel section — no office visit required.",
-  },
-];
-
 const steps = [
   {
     icon: FileCheck2,
@@ -70,6 +55,19 @@ function HomePage() {
         .order("sort_order");
       if (error) throw error;
       return data;
+    },
+  });
+
+  const { data: notices } = useQuery({
+    queryKey: ["notices"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("notices")
+        .select("id, title, content, created_at")
+        .order("created_at", { ascending: false })
+        .limit(3);
+      if (error) throw error;
+      return data ?? [];
     },
   });
 
@@ -109,14 +107,21 @@ function HomePage() {
 
         <div className="card-surface p-6">
           <h2 className="text-lg font-semibold">Latest notices</h2>
-          <ul className="mt-4 space-y-4">
-            {notices.map((notice) => (
-              <li key={notice.title}>
-                <p className="text-sm font-semibold">{notice.title}</p>
-                <p className="text-sm text-muted-foreground">{notice.body}</p>
-              </li>
-            ))}
-          </ul>
+          {(notices ?? []).length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">No notices published yet.</p>
+          ) : (
+            <ul className="mt-4 space-y-4">
+              {notices!.map((notice) => (
+                <li key={notice.id}>
+                  <p className="text-sm font-semibold">{notice.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{notice.content}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {new Date(notice.created_at).toLocaleDateString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
     </PortalShell>
