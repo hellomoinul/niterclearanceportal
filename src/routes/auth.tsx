@@ -4,7 +4,7 @@ import { GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { idToEmail, phoneInputHandler } from "@/lib/portal";
+import { idToEmail, normalizeCode, phoneInputHandler } from "@/lib/portal";
 import { DEPARTMENTS, academicYears } from "@/lib/departments";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,10 +58,11 @@ function AuthPage() {
       email = userCode.trim();
     } else {
       // Lookup real email via RPC; fall back to portal ID for legacy accounts
+      const code = normalizeCode(userCode);
       const { data: rpcEmail } = await supabase.rpc("login_email_for_user_code", {
-        p_user_code: userCode.trim(),
+        p_user_code: code,
       });
-      email = (typeof rpcEmail === "string" && rpcEmail) || idToEmail(userCode);
+      email = (typeof rpcEmail === "string" && rpcEmail) || idToEmail(code);
     }
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -76,7 +77,7 @@ function AuthPage() {
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const userCode = String(form.get("userCode") ?? "").trim();
+    const userCode = normalizeCode(String(form.get("userCode") ?? ""));
     const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
     const confirmPassword = String(form.get("confirmPassword") ?? "").trim();
@@ -97,6 +98,21 @@ function AuthPage() {
       setBusy(false);
       toast.error("Passwords do not match", {
         description: "Please enter the same password in both fields.",
+      });
+      return;
+    }
+
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("user_code", userCode)
+      .maybeSingle();
+
+    if (existing) {
+      setBusy(false);
+      toast.error("This Student ID is already registered", {
+        description:
+          "Student IDs are unique regardless of case or spacing. Use the ID printed on your ID card.",
       });
       return;
     }

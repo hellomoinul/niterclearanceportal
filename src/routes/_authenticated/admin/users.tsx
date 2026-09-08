@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
-import { idToEmail } from '@/lib/portal';
+import { idToEmail, normalizeCode } from '@/lib/portal';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -108,13 +108,13 @@ function UsersPage() {
   const portalEmail = useMemo(() => idToEmail(form.userCode), [form.userCode]);
 
   const visible = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = normalizeCode(search);
     return rows.filter((r) => {
       if (roleFilter !== 'all' && r.role !== roleFilter) return false;
       if (!q) return true;
       return (
         (r.full_name ?? '').toLowerCase().includes(q) ||
-        (r.user_code ?? '').toLowerCase().includes(q)
+        normalizeCode(r.user_code ?? '').includes(q)
       );
     });
   }, [rows, search, roleFilter]);
