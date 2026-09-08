@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, Link, Outlet } from '@tanstack/react-router'
 import { supabase } from '@/integrations/supabase/client'
 import { cn } from '@/lib/utils'
+import { PortalShell } from '@/components/portal-shell'
 
 export const Route = createFileRoute('/_authenticated/admin')({
   beforeLoad: async () => {
@@ -32,24 +33,26 @@ const adminLinks: { to: string; label: string; exact?: boolean }[] = [
 
 function AdminLayout() {
   return (
-    <div className="space-y-6">
-      <nav className="flex flex-wrap items-center gap-2 border-b border-border pb-4">
-        {adminLinks.map((link) => (
-          <Link
-            key={link.label}
-            to={link.to}
-            activeOptions={{ exact: !!link.exact }}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors",
-              "hover:bg-secondary hover:text-foreground",
-              "data-[status=active]:bg-primary data-[status=active]:text-primary-foreground"
-            )}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
-      <Outlet />
-    </div>
+    <PortalShell>
+      <div className="space-y-6">
+        <nav className="flex flex-wrap items-center gap-2 border-b border-border pb-4">
+          {adminLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.to}
+              activeOptions={{ exact: !!link.exact }}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors",
+                "hover:bg-secondary hover:text-foreground",
+                "data-[status=active]:bg-primary data-[status=active]:text-primary-foreground"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <Outlet />
+      </div>
+    </PortalShell>
   )
 }

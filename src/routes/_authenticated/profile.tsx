@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { idToEmail } from "@/lib/portal";
 import { PortalShell } from "@/components/portal-shell";
@@ -13,7 +15,22 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 function ProfilePage() {
-  const { profile, isStudent, isOffice, isAdmin } = useAuth();
+  const { profile, user, isStudent, isOffice, isAdmin } = useAuth();
+
+  const { data: officeNames } = useQuery({
+    enabled: !!user && !isStudent,
+    queryKey: ["office-profile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("office_departments")
+        .select("departments(name)")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return (data ?? [])
+        .map((row) => row.departments?.name)
+        .filter(Boolean) as string[];
+    },
+  });
 
   return (
     <PortalShell className="max-w-3xl">
@@ -58,7 +75,7 @@ function ProfilePage() {
               ) : (
                 <div>
                   <span className="font-semibold">Role / Office: </span>
-                  {isAdmin ? "Admin" : "Accounts"}
+                  {isAdmin ? "Admin" : officeNames?.length ? officeNames.join(", ") : "Office"}
                 </div>
               )}
               <div>
