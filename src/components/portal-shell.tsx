@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const publicLinks = [
-  { to: "/", label: "Home" },
+  { to: "/home", label: "Home" },
   { to: "/about", label: "About" },
   { to: "/calendar", label: "Academic calendar" },
   { to: "/verify", label: "Verify certificate" },
