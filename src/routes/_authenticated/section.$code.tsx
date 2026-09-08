@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
 import { DOCS_BUCKET, MAX_FILE_BYTES, validateUpload } from "@/lib/portal";
 import { PageHeader } from "@/components/page-header";
@@ -48,6 +49,7 @@ function SectionPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [resubmitComment, setResubmitComment] = useState("");
 
   const { data: review, isLoading } = useQuery({
     enabled: !!user,
@@ -138,7 +140,7 @@ function SectionPage() {
         .eq("id", review.id)
         .single();
       if (freshReview?.status === "rejected") {
-        // RLS only lets registrar/admin update reviews directly — students must go
+        // RLS only lets office/admin update reviews directly — students must go
         // through this ownership-checked RPC to flip a rejected section back to pending.
         const { error: flipError } = await supabase.rpc("reopen_rejected_review", {
           p_review_id: review.id,
@@ -163,17 +165,22 @@ function SectionPage() {
   async function handleResubmit() {
     if (!review || !user) return;
     setBusy(true);
-    const { error } = await supabase.rpc("reopen_rejected_review", {
-      p_review_id: review.id,
-    });
+    const comment = resubmitComment.trim();
+    const { error } = await supabase.rpc(
+      "reopen_rejected_review",
+      comment
+        ? { p_review_id: review.id, p_comment: comment }
+        : { p_review_id: review.id },
+    );
     setBusy(false);
     if (error) {
       toast.error("Could not resubmit", { description: error.message });
       return;
     }
+    setResubmitComment("");
     await queryClient.invalidateQueries();
     toast.success("Resubmitted", {
-      description: "Your clearance is back under final review by the Department Head.",
+      description: "Your clearance is back under final review by the Administration office.",
     });
   }
 
@@ -229,7 +236,7 @@ function SectionPage() {
 
             {review.escalated ? (
               <p className="mt-4 text-sm font-medium text-status-rejected">
-                This section has been escalated to the Department Head after repeated rejections.
+                This section has been escalated to the Administration office after repeated rejections.
               </p>
             ) : null}
 
@@ -242,26 +249,39 @@ function SectionPage() {
 
           {review.department.is_final_signoff ? (
             <div className="card-surface mt-6 space-y-2 p-6">
-              <h2 className="text-base font-semibold">Department Head sign-off</h2>
+              <h2 className="text-base font-semibold">Administration sign-off</h2>
               {review.status === "rejected" ? (
                 <>
                   <p className="text-sm text-muted-foreground">
-                    The Department Head did not approve your clearance. You can resubmit below.
+                    The Administration office did not approve your clearance. Tell them what changed
+                    before resubmitting below.
                   </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="resubmit-comment">What changed since the rejection?</Label>
+                    <Textarea
+                      id="resubmit-comment"
+                      rows={3}
+                      placeholder="Explain what is different this time (e.g. corrected document, payment made)."
+                      value={resubmitComment}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        setResubmitComment(e.target.value)
+                      }
+                    />
+                  </div>
                   <Button size="sm" onClick={handleResubmit} disabled={busy} className="mt-1">
                     {busy ? "Resubmitting…" : "Re-submit for final approval"}
                   </Button>
                 </>
               ) : !review.triggered ? (
                 <p className="text-sm text-muted-foreground">
-                  Waiting for 7/8 approval. No document is required — this final step opens once
-                  all other offices have approved.
+                  Waiting for the previous offices to approve. No document is required — this final
+                  step opens once all other offices have approved.
                 </p>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  No document is required for this step. The Department Head will review your
-                  clearance once all other offices have finished. If there is an objection, the
-                  Head will not approve it.
+                  No document is required for this step. The Administration office will review your
+                  clearance once all other offices have finished. If there is an objection, it will
+                  not approve.
                 </p>
               )}
             </div>

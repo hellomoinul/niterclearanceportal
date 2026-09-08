@@ -23,23 +23,23 @@ export const Route = createFileRoute("/guide")({
       {
         name: "description",
         content:
-          "A role-based guide to the NITER clearance portal — how to apply, track and review clearance for students, registrars and admins.",
+          "A role-based guide to the NITER clearance portal — how to apply, track and review clearance for students, office staff and admins.",
       },
       { property: "og:title", content: "Guide — NITER Clearance Portal" },
       {
         property: "og:description",
-        content: "Step-by-step guide for students, registrars and admins using the NITER clearance portal.",
+        content: "Step-by-step guide for students, office staff and admins using the NITER clearance portal.",
       },
     ],
   }),
   component: GuidePage,
 });
 
-type RoleKey = "student" | "registrar" | "admin";
+type RoleKey = "student" | "office" | "admin";
 
 const roleTabs: { value: RoleKey; label: string }[] = [
   { value: "student", label: "Student" },
-  { value: "registrar", label: "Registrar" },
+  { value: "office", label: "Office" },
   { value: "admin", label: "Admin" },
 ];
 
@@ -50,26 +50,30 @@ const studentSteps = [
   },
   {
     title: "Start your application",
-    body: "Open the Dashboard and click \u201cStart my application\u201d. Fill in your guardian, address, and thesis/internship details. Mark any department that genuinely doesn't apply to you (for example, if you never used the hostel).",
+    body: "Open the Dashboard and click \u201cStart my application\u201d. Fill in your guardian and address details. One application walks all 10 clearance offices in order.",
   },
   {
-    title: "Upload your documents",
-    body: "After submitting, one review is created for every office in parallel. Open each office card and upload the document it asks for (JPG, PNG or PDF up to 5 MB).",
+    title: "Clear each office in order",
+    body: "Offices unlock one at a time, starting with the Laboratory. Open the currently active office card and upload the document it asks for. When it approves, the next office opens.",
+  },
+  {
+    title: "Declare non-applicable offices",
+    body: "If an office genuinely doesn't apply to you (for example the Hostel for a day-scholar), mark it Not Applicable and the sequence advances. The final Administration office can never be declared N/A.",
   },
   {
     title: "Fix rejections",
-    body: "If an office rejects your section, read the remark, upload a corrected document and the office reviews it again. You have three attempts per office before it escalates to the Department Head.",
+    body: "If an office rejects your section, read the remark, upload a corrected document and the office reviews it again. You have three attempts per office before the case escalates to the Administration office.",
   },
   {
     title: "Get your certificate",
-    body: "When all offices — including the final Department Head sign-off — approve, your certificate is issued automatically. Download the PDF with its QR code, or print it.",
+    body: "When all 10 offices approve — including the final Administration sign-off — your certificate is issued automatically. Download the PDF with its QR code, or print it.",
   },
 ];
 
-const registrarSteps = [
+const officeSteps = [
   {
     title: "Open your queue",
-    body: "Sign in and you\u2019ll land on the Accounts / Department queue. You only see students whose application includes the office(s) assigned to your account.",
+    body: "Sign in and you\u2019ll land on \u201cMy office\u201d — the single clearance office your account is bound to. You only see students whose review has reached your office.",
   },
   {
     title: "Review documents",
@@ -88,11 +92,11 @@ const registrarSteps = [
 const adminSteps = [
   {
     title: "Review every office",
-    body: "Sign in and you\u2019ll land on the Department queue. Use the office filter to view any single department or all offices at once.",
+    body: "Sign in and you\u2019ll land on the Department queue. Use the office filter to view any single office or all 10 at once.",
   },
   {
-    title: "Final sign-off (Department Head)",
-    body: "The Department Head review appears in the queue once all 7 other offices approve, labeled \u201capplied for final approval\u201d. No document is required — approve it to issue the certificate.",
+    title: "Final sign-off (Administration)",
+    body: "The Administration review — the last of the 10 offices — appears in the queue once offices 1\u20139 approve. No document is required; approve it to issue the certificate.",
   },
   {
     title: "Admin dashboard",
@@ -108,7 +112,7 @@ const faqs: Record<RoleKey, { q: string; a: string }[]> = {
   student: [
     {
       q: "Do I have to apply separately to each office?",
-      a: "No. One application is sent to every required office at the same time. You only interact with an individual office if it rejects your section.",
+      a: "No. One application starts a single, ordered sequence through the 10 clearance offices. Offices unlock one at a time, and you only interact with the currently active office.",
     },
     {
       q: "An office rejected my section. Do I start over?",
@@ -120,21 +124,21 @@ const faqs: Record<RoleKey, { q: string; a: string }[]> = {
     },
     {
       q: "How many times can I re-upload?",
-      a: "Three attempts per office. After that the case is escalated to the Department Head so you are not stuck in a rejection loop.",
+      a: "Three attempts per office. After that the case is escalated to the Administration office so you are not stuck in a rejection loop.",
     },
     {
       q: "When do I get my certificate?",
-      a: "The moment the last office approves (including the Department Head). The certificate is generated automatically with a unique code and QR link, and the admin office is notified.",
+      a: "The moment the last office approves (including the Administration final sign-off). The certificate is generated automatically with a unique code and QR link, and the admin office is notified.",
     },
     {
       q: "How can an employer check my certificate is genuine?",
       a: "They scan the QR code or enter the certificate code on the public verification page — no login needed.",
     },
   ],
-  registrar: [
+  office: [
     {
       q: "How do I review pending students?",
-      a: "Go to the Department Queue. You'll see pending and rejected students filtered to the department(s) assigned to your account. Click a student to see their uploaded documents and take action.",
+      a: "Go to your office queue. You'll see pending and rejected students whose review has reached the office bound to your account. Click a student to see their uploaded documents and take action.",
     },
     {
       q: "How do bulk approve and rejection remarks work?",
@@ -142,15 +146,15 @@ const faqs: Record<RoleKey, { q: string; a: string }[]> = {
     },
     {
       q: "What happens when I reject a section?",
-      a: "The student is notified immediately and the section reopens for re-upload. They have three attempts per office. After that the case escalates automatically to the Department Head.",
+      a: "The student is notified immediately and the section reopens for re-upload. They have three attempts per office. After that the case escalates automatically to the Administration office.",
     },
     {
       q: "What does 'escalated' mean?",
-      a: "When a student exceeds three re-upload attempts, the case is marked escalated. The Department Head handles it from there so you are not stuck in a rejection loop.",
+      a: "When a student exceeds three re-upload attempts, the case is marked escalated. The Administration office handles it from there so you are not stuck in a rejection loop.",
     },
     {
-      q: "How is the department queue filtered?",
-      a: "The queue shows only students whose application includes your assigned department. If no students appear, either nobody has applied yet or all pending items are with a different department.",
+      q: "How is my office queue filtered?",
+      a: "The queue shows only students whose review has reached your office. If no students appear, either nobody has applied yet or all pending items are with an earlier office.",
     },
   ],
   admin: [
@@ -159,8 +163,8 @@ const faqs: Record<RoleKey, { q: string; a: string }[]> = {
       a: "Use the office filter \u201cAll offices\u201d in the Department queue to review every department's pending and rejected students from one place.",
     },
     {
-      q: "How does the Department Head final sign-off work?",
-      a: "The Head review unlocks automatically once the other 7 offices approve. No document is required. Approve it to issue the certificate, or reject it with a remark for the student to resubmit.",
+      q: "How does the final Administration sign-off work?",
+      a: "The Administration review — the 10th office — unlocks automatically once the previous 9 offices approve. No document is required. Approve it to issue the certificate, or reject it with a remark for the student to resubmit.",
     },
     {
       q: "How are N/A declarations handled?",
@@ -174,12 +178,12 @@ const faqs: Record<RoleKey, { q: string; a: string }[]> = {
 };
 
 function GuidePage() {
-  const { session, isRegistrar, isAdmin } = useAuth();
-  const sessionRole: RoleKey = isAdmin ? "admin" : isRegistrar ? "registrar" : "student";
+  const { session, isOffice, isAdmin } = useAuth();
+  const sessionRole: RoleKey = isAdmin ? "admin" : isOffice ? "office" : "student";
   const [role, setRole] = useState<RoleKey>(sessionRole);
   const showTabs = !session;
 
-  const steps = role === "student" ? studentSteps : role === "registrar" ? registrarSteps : adminSteps;
+  const steps = role === "student" ? studentSteps : role === "office" ? officeSteps : adminSteps;
 
   return (
     <PortalShell className="max-w-3xl">
@@ -231,7 +235,7 @@ function GuidePage() {
 
       <div className="card-surface mt-6 px-6 py-2">
         <h2 className="py-3 text-base font-semibold">
-          Frequently asked questions{role !== "student" ? ` — ${role === "admin" ? "Admin" : "Registrar"}` : ""}
+          Frequently asked questions{role !== "student" ? ` — ${role === "admin" ? "Admin" : "Office"}` : ""}
         </h2>
         <Accordion type="single" collapsible>
           {faqs[role].map((item, index) => (

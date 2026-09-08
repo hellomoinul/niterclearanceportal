@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function DashboardPage() {
-  const { user, profile, isRegistrar, isAdmin, loading } = useAuth();
+  const { user, profile, isOffice, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
   const { data: application, isLoading } = useQuery({
@@ -78,10 +78,10 @@ function DashboardPage() {
   });
 
   useEffect(() => {
-    if (!loading && (isRegistrar || isAdmin)) {
+    if (!loading && (isOffice || isAdmin)) {
       navigate({ to: "/queue", replace: true });
     }
-  }, [loading, isRegistrar, isAdmin, navigate]);
+  }, [loading, isOffice, isAdmin, navigate]);
 
   const approved = (reviews ?? []).filter((r) => r.status === "approved").length;
   const total = reviews?.length ?? 0;
@@ -107,7 +107,7 @@ function DashboardPage() {
             View Certificate
           </Button>
         )}
-        {(isRegistrar || isAdmin) && (
+        {(isOffice || isAdmin) && (
           <Button asChild variant="outline">
             <Link to="/queue">Go to department queue</Link>
           </Button>
@@ -171,7 +171,7 @@ function DashboardPage() {
                   review.status === "pending" &&
                   !review.triggered ? (
                     <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-                      Waiting for 7/8 approval
+                      Waiting for prior offices
                     </span>
                   ) : (
                     <StatusBadge status={review.is_na ? "na" : review.status} />
@@ -182,7 +182,7 @@ function DashboardPage() {
                 ) : null}
                 {review.escalated ? (
                   <p className="mt-3 text-sm font-medium text-status-rejected">
-                    Escalated to Department Head
+                    Escalated to Administration
                   </p>
                 ) : null}
               </Link>

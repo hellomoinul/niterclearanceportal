@@ -2,15 +2,7 @@ import { useState, useEffect } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -20,117 +12,100 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, ArrowUp, ArrowDown, Trash2, GitCommit, Save } from 'lucide-react';
+import {
+  ArrowUp,
+  ArrowDown,
+  Loader2,
+  Save,
+  Workflow,
+} from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/admin/workflow')({
-  component: WorkflowConfigPage,
+  component: OfficeEditorPage,
 });
 
-interface WorkflowStep {
+interface DepartmentRow {
   id: string;
-  step_name: string;
-  department: string;
-  step_order: number;
-  is_required: boolean;
-  auto_approve: boolean;
+  code: string;
+  name: string;
+  requirement: string | null;
+  sort_order: number;
+  is_final_signoff: boolean;
 }
 
-export default function WorkflowConfigPage() {
-  const [steps, setSteps] = useState<WorkflowStep[]>([]);
+export default function OfficeEditorPage() {
+  const [rows, setRows] = useState<DepartmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [newStepName, setNewStepName] = useState('');
-  const [newDept, setNewDept] = useState('LIBRARY');
-
   useEffect(() => {
-    fetchWorkflow();
+    fetchOffices();
   }, []);
 
-  const fetchWorkflow = async () => {
+  const fetchOffices = async () => {
     setLoading(true);
-    const { data, error } = await (supabase as any)
-      .from('workflow_steps')
-      .select('*')
-      .order('step_order', { ascending: true });
-
-    if (!error && data && data.length > 0) {
-      setSteps(data as WorkflowStep[]);
-    } else {
-      setSteps([
-        { id: crypto.randomUUID(), step_name: 'Library Dues Check', department: 'LIBRARY', step_order: 1, is_required: true, auto_approve: false },
-        { id: crypto.randomUUID(), step_name: 'Accounts & Tuition Fee', department: 'ACCOUNTS', step_order: 2, is_required: true, auto_approve: false },
-        { id: crypto.randomUUID(), step_name: 'Departmental Head Approval', department: 'CSE', step_order: 3, is_required: true, auto_approve: false },
-        { id: crypto.randomUUID(), step_name: 'Central Registrar Sign-off', department: 'REGISTRAR', step_order: 4, is_required: true, auto_approve: false },
-      ]);
+    const { data, error } = await supabase
+      .from('departments')
+      .select('id, code, name, requirement, sort_order, is_final_signoff')
+      .order('sort_order', { ascending: true });
+    if (!error && data) {
+      setRows(data as DepartmentRow[]);
     }
     setLoading(false);
   };
 
-  const handleAddStep = () => {
-    if (!newStepName.trim()) return;
-
-    const newStep: WorkflowStep = {
-      id: crypto.randomUUID(),
-      step_name: newStepName,
-      department: newDept,
-      step_order: steps.length + 1,
-      is_required: true,
-      auto_approve: false,
-    };
-
-    setSteps([...steps, newStep]);
-    setNewStepName('');
+  const moveRow = (index: number, direction: 'up' | 'down') => {
+    setRows((prev) => {
+      const target = direction === 'up' ? index - 1 : index + 1;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      const [item] = next.splice(index, 1);
+      if (!item) return prev;
+      next.splice(target, 0, item);
+      return next.map((row, i) => ({ ...row, sort_order: i + 1 }));
+    });
   };
 
-  const handleMoveStep = (index: number, direction: 'up' | 'down') => {
-    const updated = [...steps];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-
-    if (targetIndex < 0 || targetIndex >= updated.length) return;
-
-    const currentItem = updated[index];
-    const targetItem = updated[targetIndex];
-
-    if (!currentItem || !targetItem) return;
-
-    updated[index] = targetItem;
-    updated[targetIndex] = currentItem;
-
-    const reordered = updated.map((step, idx) => ({
-      ...step,
-      step_order: idx + 1,
-    }));
-
-    setSteps(reordered);
-  };
-
-  const handleToggleRequired = (id: string, checked: boolean) => {
-    setSteps(
-      steps.map((s) => (s.id === id ? { ...s, is_required: checked } : s))
+  const toggleFinalSignoff = (id: string, checked: boolean) => {
+    if (!checked) {
+      // Keep exactly one final sign-off office at all times.
+      const target = rows.find((row) => row.id === id);
+      if (target?.is_final_signoff && rows.filter((row) => row.is_final_signoff).length === 1) {
+        return;
+      }
+    }
+    setRows((prev) =>
+      prev.map((row) => {
+        if (row.id === id) return { ...row, is_final_signoff: checked, sort_order: row.sort_order };
+        // Exactly one final sign-off office: enabling one clears the others.
+        if (checked) return { ...row, is_final_signoff: false, sort_order: row.sort_order };
+        return row;
+      })
     );
   };
 
-  const handleDeleteStep = (id: string) => {
-    const filtered = steps.filter((s) => s.id !== id);
-    const reordered = filtered.map((step, idx) => ({
-      ...step,
-      step_order: idx + 1,
-    }));
-    setSteps(reordered);
-  };
-
-  const handleSaveWorkflow = async () => {
+  const handleSave = async () => {
+    if (rows.filter((row) => row.is_final_signoff).length !== 1) {
+      alert('Exactly one office must be marked as the final sign-off.');
+      return;
+    }
     setSaving(true);
-    const { error } = await (supabase as any)
-      .from('workflow_steps')
-      .upsert(steps, { onConflict: 'id' });
-
+    let error: unknown = null;
+    for (const row of rows) {
+      const { error: e } = await supabase
+        .from('departments')
+        .update({ sort_order: row.sort_order, is_final_signoff: row.is_final_signoff })
+        .eq('id', row.id);
+      if (e) {
+        error = e;
+        break;
+      }
+    }
     setSaving(false);
-    if (!error) {
-      alert('Workflow configuration saved successfully!');
+    if (error) {
+      alert('Failed to save office order: ' + (error as Error).message);
     } else {
-      alert('Failed to save workflow: ' + error.message);
+      alert('Office order saved successfully!');
     }
   };
 
@@ -138,93 +113,75 @@ export default function WorkflowConfigPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clearance Workflow Configuration</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Office Editor</h1>
           <p className="text-muted-foreground text-sm">
-            Define approval stages, step execution sequence, and departmental responsibilities.
+            Set the order in which offices review every clearance application, and mark the
+            final sign-off office (fires certificate issuance).
           </p>
         </div>
 
-        <Button onClick={handleSaveWorkflow} disabled={saving} className="flex items-center gap-2">
-          <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Configuration'}
+        <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
+          {saving ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+          ) : (
+            <><Save className="w-4 h-4" /> Save Office Order</>
+          )}
         </Button>
-      </div>
-
-      <div className="p-4 border rounded-lg bg-card shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          <GitCommit className="w-5 h-5 text-blue-500" /> Add Workflow Stage
-        </h2>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Input
-            placeholder="Stage Title (e.g., Hall Clearance)"
-            value={newStepName}
-            onChange={(e) => setNewStepName(e.target.value)}
-            className="flex-1"
-          />
-          <Select value={newDept} onValueChange={setNewDept}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Department" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="LIBRARY">Library</SelectItem>
-              <SelectItem value="ACCOUNTS">Accounts</SelectItem>
-              <SelectItem value="CSE">CSE Dept</SelectItem>
-              <SelectItem value="EEE">EEE Dept</SelectItem>
-              <SelectItem value="HALL">Hall / Hostel</SelectItem>
-              <SelectItem value="REGISTRAR">Registrar</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={handleAddStep} variant="secondary" className="flex items-center gap-2">
-            <Plus className="w-4 h-4" /> Add Stage
-          </Button>
-        </div>
       </div>
 
       <div className="border rounded-lg bg-card shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16">Order</TableHead>
-              <TableHead>Stage Name</TableHead>
-              <TableHead>Assigned Department</TableHead>
-              <TableHead>Mandatory</TableHead>
-              <TableHead className="text-right">Reorder / Actions</TableHead>
+              <TableHead className="w-16">Step</TableHead>
+              <TableHead>Office</TableHead>
+              <TableHead>Requirement</TableHead>
+              <TableHead>Final sign-off</TableHead>
+              <TableHead className="text-right">Reorder</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                  Loading workflow configuration...
+                  Loading offices...
                 </TableCell>
               </TableRow>
-            ) : steps.length === 0 ? (
+            ) : rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                  No workflow steps configured yet.
+                  No offices configured yet.
                 </TableCell>
               </TableRow>
             ) : (
-              steps.map((step, index) => (
-                <TableRow key={step.id}>
+              rows.map((row, index) => (
+                <TableRow key={row.id}>
                   <TableCell className="font-bold text-center">
                     <Badge variant="outline" className="w-7 h-7 rounded-full flex items-center justify-center p-0">
-                      {step.step_order}
+                      {row.sort_order}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="font-semibold">{step.step_name}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{step.department}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Switch
-                        checked={step.is_required}
-                        onCheckedChange={(checked) => handleToggleRequired(step.id, checked)}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        {step.is_required ? 'Required' : 'Optional'}
-                      </span>
+                      <span className="font-semibold">{row.name}</span>
+                      <Badge variant="secondary">{row.code}</Badge>
+                      {row.is_final_signoff && (
+                        <Badge className="bg-emerald-100 text-emerald-700">Final sign-off</Badge>
+                      )}
                     </div>
+                  </TableCell>
+                  <TableCell className="max-w-md">
+                    {row.requirement ? (
+                      <span className="text-sm text-muted-foreground line-clamp-2">{row.requirement}</span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground italic">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={row.is_final_signoff}
+                      onCheckedChange={(checked) => toggleFinalSignoff(row.id, checked)}
+                    />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -232,25 +189,17 @@ export default function WorkflowConfigPage() {
                         variant="ghost"
                         size="icon"
                         disabled={index === 0}
-                        onClick={() => handleMoveStep(index, 'up')}
+                        onClick={() => moveRow(index, 'up')}
                       >
                         <ArrowUp className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        disabled={index === steps.length - 1}
-                        onClick={() => handleMoveStep(index, 'down')}
+                        disabled={index === rows.length - 1}
+                        onClick={() => moveRow(index, 'down')}
                       >
                         <ArrowDown className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteStep(step.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -259,6 +208,15 @@ export default function WorkflowConfigPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex items-start gap-2 text-sm text-muted-foreground">
+        <Workflow className="w-4 h-4 mt-0.5" />
+        <p>
+          This order is what actually drives every clearance: a student cannot move to the
+          next office until the current one approves. Exactly one office should be the final
+          sign-off — it is the one whose approval issues the certificate.
+        </p>
       </div>
     </div>
   );

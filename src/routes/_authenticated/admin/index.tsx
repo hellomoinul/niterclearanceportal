@@ -158,7 +158,7 @@ function AdminDashboard() {
           { to: '/admin/audit', label: 'Audit Log', desc: 'View approval/rejection history' },
           { to: '/admin/notices', label: 'Notices', desc: 'Manage public notices' },
           { to: '/admin/reports', label: 'Reports', desc: 'Academic year clearance statistics' },
-          { to: '/admin/workflow', label: 'Workflow', desc: 'Configure deadlines and departments' },
+          { to: '/admin/workflow', label: 'Office Editor', desc: 'Set office review order & final sign-off' },
         ].map((item) => (
           <Link key={item.to} to={item.to} className="block bg-white p-4 rounded shadow-sm border hover:bg-gray-50 transition">
             <p className="font-semibold">{item.label}</p>

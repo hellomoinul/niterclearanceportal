@@ -45,7 +45,7 @@ function AboutPage() {
           Every approval or rejection is stored with the reviewing officer's identity and a timestamp in
           an audit log. If an office rejects a section, only that section reopens — the rest of your
           application keeps its approvals. After three rejected re-uploads, the case is escalated to
-          the Department Head automatically.
+          the Administration office automatically.
         </p>
       </div>
     </PortalShell>
