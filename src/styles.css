@@ -44,6 +44,8 @@
   --color-pending-foreground: var(--pending-foreground);
   --color-rejected: var(--rejected);
   --color-rejected-foreground: var(--rejected-foreground);
+  --color-status-approved: #16a34a;
+  --color-status-rejected: #dc2626;
   --color-surface: var(--surface);
   --color-brand-accent: var(--brand-accent);
   --color-brand-accent-foreground: var(--brand-accent-foreground);
