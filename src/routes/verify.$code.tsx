@@ -101,7 +101,7 @@ function VerifyResult() {
           <p className="text-sm text-muted-foreground">Checking certificate…</p>
         ) : hasError ? (
           <>
-            <XCircle className="size-7 text-status-rejected" aria-hidden />
+            <XCircle className="size-7 fill-status-rejected text-white" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold">Verification temporarily unavailable</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               We could not check this certificate right now. Please try again in a moment.
@@ -120,7 +120,7 @@ function VerifyResult() {
           </>
         ) : !cert ? (
           <>
-            <XCircle className="size-7 text-status-rejected" aria-hidden />
+            <XCircle className="size-7 fill-status-rejected text-white" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold">No certificate found</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               No NITER clearance certificate matches the ID{" "}
@@ -130,7 +130,7 @@ function VerifyResult() {
           </>
         ) : verified ? (
           <>
-            <BadgeCheck className="size-7 text-status-approved" aria-hidden />
+            <BadgeCheck className="size-7 fill-status-approved text-white" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold text-status-approved">
               Verified — Clear to sign off from NITER
             </h1>
@@ -175,7 +175,7 @@ function VerifyResult() {
           </>
         ) : (
           <>
-            <XCircle className="size-7 text-status-rejected" aria-hidden />
+            <XCircle className="size-7 fill-status-rejected text-white" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold text-status-rejected">
               Not verified — go to{" "}
               <Link to="/" className="underline hover:text-primary">
