@@ -155,3 +155,74 @@ tasks:
     order: 34
     paths: ["src/routes/_authenticated/admin/reports.tsx", "src/routes/_authenticated/admin/audit.tsx", "src/routes/_authenticated/admin/notices.tsx"]
     hint: "Verify labels/counts against the 10-office set"
+
+  # Shafin — Round 2: Admin UX polish (2026-09-11)
+  - id: S-v2.6
+    title: "Password-reset notification"
+    owner: Shafin
+    order: 40
+    paths: ["src/routes/_authenticated/admin/users.tsx"]
+    hint: "Admin-reset passwords never reach the user; email recovery link or show new password in toast"
+
+  - id: S-v2.7
+    title: "Audit entity_id column"
+    owner: Shafin
+    order: 41
+    paths: ["src/routes/_authenticated/admin/audit.tsx"]
+    hint: "Entity column always shows 'department_review'; render entity + short entity_id"
+
+  - id: S-v2.8
+    title: "Notice delete confirmation"
+    owner: Shafin
+    order: 42
+    paths: ["src/routes/_authenticated/admin/notices.tsx"]
+    hint: "One-click notice delete has no confirm; add AlertDialog"
+
+  - id: S-v2.9
+    title: "N/A filters + stat label"
+    owner: Shafin
+    order: 43
+    paths: ["src/routes/_authenticated/admin/index.tsx"]
+    hint: "Hide empty N/A filters; relabel 'Total Students' to 'Registered students'"
+
+  - id: S-v2.10
+    title: "Dashboard quick-links -> needs attention"
+    owner: Shafin
+    order: 44
+    paths: ["src/routes/_authenticated/admin/index.tsx", "src/routes/_authenticated/admin/route.tsx"]
+    hint: "Cards duplicate the tab bar; replace with escalated/pending/recent-activity panel"
+
+  - id: S-v2.11
+    title: "Unify metrics units"
+    owner: Shafin
+    order: 45
+    paths: ["src/routes/_authenticated/admin/index.tsx", "src/routes/_authenticated/admin/reports.tsx"]
+    hint: "Dashboard counts applications, Reports counts reviews; align units and labels"
+
+  - id: S-v2.12
+    title: "Users pagination"
+    owner: Shafin
+    order: 46
+    paths: ["src/routes/_authenticated/admin/users.tsx"]
+    hint: "All accounts render at once; add paging (audit.tsx pattern)"
+
+  - id: S-v2.13
+    title: "Reports filters"
+    owner: Shafin
+    order: 47
+    paths: ["src/routes/_authenticated/admin/reports.tsx"]
+    hint: "No date/batch filter despite copy; add date-range feeding charts"
+
+  - id: S-v2.14
+    title: "Audit log date filter + dynamic actions"
+    owner: Shafin
+    order: 48
+    paths: ["src/routes/_authenticated/admin/audit.tsx"]
+    hint: "Action dropdown hardcoded (4) + no date range; derive actions from DB, add from/to"
+
+  - id: S-v2.15
+    title: "Consistent confirm / toast patterns"
+    owner: Shafin
+    order: 49
+    paths: ["src/routes/_authenticated/admin/workflow.tsx", "src/routes/_authenticated/admin/users.tsx", "src/routes/_authenticated/admin/notices.tsx"]
+    hint: "Replace window.confirm/prompt/alert with AlertDialog/Dialog + sonner toasts"
