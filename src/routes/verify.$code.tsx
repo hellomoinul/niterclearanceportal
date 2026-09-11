@@ -146,9 +146,16 @@ function VerifyResult() {
                       <span className="block font-semibold font-mono tracking-wide">
                         {formatCertificateId(cert.id)}
                       </span>
-                      <span className="block font-mono text-xs text-muted-foreground break-all">
-                        {cert.id}
-                      </span>
+                    </span>
+                  ) : (
+                    "—"
+                  ),
+                ],
+                [
+                  "UUID",
+                  cert.id ? (
+                    <span className="block font-mono text-xs text-muted-foreground break-all text-right">
+                      {cert.id}
                     </span>
                   ) : (
                     "—"
