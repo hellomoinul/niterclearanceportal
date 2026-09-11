@@ -41,6 +41,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [busy, setBusy] = useState(false);
+  const [activeTab, setActiveTab] = useState("signin");
 
   useEffect(() => {
     if (session) navigate({ to: "/dashboard", replace: true });
@@ -165,12 +166,14 @@ function AuthPage() {
         </span>
       </Link>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Universal sign in page for Students, Office & Admin.
-      </p>
+      {activeTab === "signin" && (
+        <p className="text-center text-sm text-muted-foreground">
+          Universal sign in page for Students, Office & Admin.
+        </p>
+      )}
 
       <div className="card-surface w-full max-w-md p-6">
-        <Tabs defaultValue="signin">
+        <Tabs value={activeTab} defaultValue="signin" onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">Sign in</TabsTrigger>
             <TabsTrigger value="register">Create account</TabsTrigger>
