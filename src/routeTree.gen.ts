@@ -18,7 +18,6 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as UpdatePasswordRouteImport } from './routes/update-password'
-import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedApplyRouteImport } from './routes/_authenticated/apply'
 import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
@@ -27,6 +26,7 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedQueueRouteImport } from './routes/_authenticated/queue'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as VerifyIndexRouteImport } from './routes/verify.index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
@@ -80,11 +80,6 @@ const UpdatePasswordRoute = UpdatePasswordRouteImport.update({
   path: '/update-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VerifyRoute = VerifyRouteImport.update({
-  id: '/verify',
-  path: '/verify',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -127,10 +122,15 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const VerifyIndexRoute = VerifyIndexRouteImport.update({
+  id: '/verify/',
+  path: '/verify/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyCodeRoute = VerifyCodeRouteImport.update({
-  id: '/$code',
-  path: '/$code',
-  getParentRoute: () => VerifyRoute,
+  id: '/verify/$code',
+  path: '/verify/$code',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
@@ -181,7 +181,6 @@ export interface FileRoutesByFullPath {
   '/guide': typeof GuideRoute
   '/home': typeof HomeRoute
   '/update-password': typeof UpdatePasswordRoute
-  '/verify': typeof VerifyRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
   '/certificate': typeof AuthenticatedCertificateRoute
@@ -191,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/queue': typeof AuthenticatedQueueRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/verify/': typeof VerifyIndexRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/notices': typeof AuthenticatedAdminNoticesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -208,7 +208,6 @@ export interface FileRoutesByTo {
   '/guide': typeof GuideRoute
   '/home': typeof HomeRoute
   '/update-password': typeof UpdatePasswordRoute
-  '/verify': typeof VerifyRouteWithChildren
   '/apply': typeof AuthenticatedApplyRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -217,6 +216,7 @@ export interface FileRoutesByTo {
   '/queue': typeof AuthenticatedQueueRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/verify': typeof VerifyIndexRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/notices': typeof AuthenticatedAdminNoticesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -236,7 +236,6 @@ export interface FileRoutesById {
   '/guide': typeof GuideRoute
   '/home': typeof HomeRoute
   '/update-password': typeof UpdatePasswordRoute
-  '/verify': typeof VerifyRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/apply': typeof AuthenticatedApplyRoute
   '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
@@ -246,6 +245,7 @@ export interface FileRoutesById {
   '/_authenticated/queue': typeof AuthenticatedQueueRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/verify/': typeof VerifyIndexRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/notices': typeof AuthenticatedAdminNoticesRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -265,7 +265,6 @@ export interface FileRouteTypes {
     | '/guide'
     | '/home'
     | '/update-password'
-    | '/verify'
     | '/admin'
     | '/apply'
     | '/certificate'
@@ -275,6 +274,7 @@ export interface FileRouteTypes {
     | '/queue'
     | '/settings'
     | '/verify/$code'
+    | '/verify/'
     | '/admin/audit'
     | '/admin/notices'
     | '/admin/reports'
@@ -292,7 +292,6 @@ export interface FileRouteTypes {
     | '/guide'
     | '/home'
     | '/update-password'
-    | '/verify'
     | '/apply'
     | '/certificate'
     | '/dashboard'
@@ -301,6 +300,7 @@ export interface FileRouteTypes {
     | '/queue'
     | '/settings'
     | '/verify/$code'
+    | '/verify'
     | '/admin/audit'
     | '/admin/notices'
     | '/admin/reports'
@@ -319,7 +319,6 @@ export interface FileRouteTypes {
     | '/guide'
     | '/home'
     | '/update-password'
-    | '/verify'
     | '/_authenticated/admin'
     | '/_authenticated/apply'
     | '/_authenticated/certificate'
@@ -329,6 +328,7 @@ export interface FileRouteTypes {
     | '/_authenticated/queue'
     | '/_authenticated/settings'
     | '/verify/$code'
+    | '/verify/'
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/notices'
     | '/_authenticated/admin/reports'
@@ -348,7 +348,8 @@ export interface RootRouteChildren {
   GuideRoute: typeof GuideRoute
   HomeRoute: typeof HomeRoute
   UpdatePasswordRoute: typeof UpdatePasswordRoute
-  VerifyRoute: typeof VerifyRouteWithChildren
+  VerifyCodeRoute: typeof VerifyCodeRoute
+  VerifyIndexRoute: typeof VerifyIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -416,13 +417,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UpdatePasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/verify': {
-      id: '/verify'
-      path: '/verify'
-      fullPath: '/verify'
-      preLoaderRoute: typeof VerifyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -479,12 +473,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/verify/': {
+      id: '/verify/'
+      path: '/verify'
+      fullPath: '/verify/'
+      preLoaderRoute: typeof VerifyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify/$code': {
       id: '/verify/$code'
-      path: '/$code'
+      path: '/verify/$code'
       fullPath: '/verify/$code'
       preLoaderRoute: typeof VerifyCodeRouteImport
-      parentRoute: typeof VerifyRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -589,17 +590,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface VerifyRouteChildren {
-  VerifyCodeRoute: typeof VerifyCodeRoute
-}
-
-const VerifyRouteChildren: VerifyRouteChildren = {
-  VerifyCodeRoute: VerifyCodeRoute,
-}
-
-const VerifyRouteWithChildren =
-  VerifyRoute._addFileChildren(VerifyRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -610,7 +600,8 @@ const rootRouteChildren: RootRouteChildren = {
   GuideRoute: GuideRoute,
   HomeRoute: HomeRoute,
   UpdatePasswordRoute: UpdatePasswordRoute,
-  VerifyRoute: VerifyRouteWithChildren,
+  VerifyCodeRoute: VerifyCodeRoute,
+  VerifyIndexRoute: VerifyIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
