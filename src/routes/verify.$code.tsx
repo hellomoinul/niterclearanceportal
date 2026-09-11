@@ -41,15 +41,20 @@ interface VerifyResult {
 function VerifyResult() {
   const { code } = Route.useParams();
 
-  const { data: cert, isLoading: certLoading } = useQuery({
+  const {
+    data: cert,
+    isLoading: certLoading,
+    isError: certError,
+    refetch: refetchCert,
+  } = useQuery({
+    retry: 1,
     queryKey: ["certificate-lookup", code],
     queryFn: async () => {
       // Accept a full UUID (QR) or the display code on the certificate
       // (e.g. NCP-A83C2B1F) by resolving through the DB function.
-      const { data: resolved, error: resolveError } = await supabase.rpc(
-        "resolve_certificate_id",
-        { p_code: code }
-      );
+      const { data: resolved, error: resolveError } = await supabase.rpc("resolve_certificate_id", {
+        p_code: code,
+      });
       if (resolveError) throw resolveError;
       if (!resolved) return null;
       const { data, error } = await supabase
@@ -62,7 +67,13 @@ function VerifyResult() {
     },
   });
 
-  const { data: result, isLoading: verifyLoading } = useQuery({
+  const {
+    data: result,
+    isLoading: verifyLoading,
+    isError: verifyError,
+    refetch: refetchStatus,
+  } = useQuery({
+    retry: 1,
     enabled: !!cert?.student_code,
     queryKey: ["verify-status", cert?.student_code],
     queryFn: async () => {
@@ -74,7 +85,8 @@ function VerifyResult() {
     },
   });
 
-  const isLoading = certLoading || (cert && verifyLoading);
+  const isLoading = certLoading || (cert && !certError && verifyLoading);
+  const hasError = !certLoading && (certError || (cert && verifyError));
   const verified = result?.verified === true;
 
   return (
@@ -87,9 +99,28 @@ function VerifyResult() {
       <div className="card-surface mt-4 p-6">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Checking certificate…</p>
+        ) : hasError ? (
+          <>
+            <XCircle className="size-7 fill-status-rejected text-white" aria-hidden />
+            <h1 className="mt-3 text-2xl font-semibold">Verification temporarily unavailable</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              We could not check this certificate right now. Please try again in a moment.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-6"
+              onClick={() => {
+                if (certError) refetchCert();
+                if (verifyError) refetchStatus();
+              }}
+            >
+              Try again
+            </Button>
+          </>
         ) : !cert ? (
           <>
-            <XCircle className="size-7 text-status-rejected" aria-hidden />
+            <XCircle className="size-7 fill-status-rejected text-white" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold">No certificate found</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               No NITER clearance certificate matches the ID{" "}
@@ -99,7 +130,7 @@ function VerifyResult() {
           </>
         ) : verified ? (
           <>
-            <BadgeCheck className="size-7 text-status-approved" aria-hidden />
+            <BadgeCheck className="size-7 fill-status-approved text-white" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold text-status-approved">
               Verified — Clear to sign off from NITER
             </h1>
@@ -110,18 +141,18 @@ function VerifyResult() {
               {[
                 [
                   "Certificate ID",
-                  cert.id
-                    ? (
-                        <span className="text-right">
-                          <span className="block font-semibold font-mono tracking-wide">
-                            {formatCertificateId(cert.id)}
-                          </span>
-                          <span className="block font-mono text-xs text-muted-foreground break-all">
-                            {cert.id}
-                          </span>
-                        </span>
-                      )
-                    : "—",
+                  cert.id ? (
+                    <span className="text-right">
+                      <span className="block font-semibold font-mono tracking-wide">
+                        {formatCertificateId(cert.id)}
+                      </span>
+                      <span className="block font-mono text-xs text-muted-foreground break-all">
+                        {cert.id}
+                      </span>
+                    </span>
+                  ) : (
+                    "—"
+                  ),
                 ],
                 ["Student name", result.student_name ?? cert.student_name],
                 ["Student ID", result.user_code ?? cert.student_code],
@@ -133,10 +164,7 @@ function VerifyResult() {
                     ? `${result.approved} / ${result.total}`
                     : "—",
                 ],
-                [
-                  "Issued on",
-                  cert.issued_at ? new Date(cert.issued_at).toLocaleDateString() : "—",
-                ],
+                ["Issued on", cert.issued_at ? new Date(cert.issued_at).toLocaleDateString() : "—"],
               ].map(([label, value]) => (
                 <div key={String(label)} className="flex justify-between gap-4 py-3">
                   <dt className="text-muted-foreground">{label}</dt>
@@ -147,7 +175,7 @@ function VerifyResult() {
           </>
         ) : (
           <>
-            <XCircle className="size-7 text-status-rejected" aria-hidden />
+            <XCircle className="size-7 fill-status-rejected text-white" aria-hidden />
             <h1 className="mt-3 text-2xl font-semibold text-status-rejected">
               Not verified — go to{" "}
               <Link to="/" className="underline hover:text-primary">
