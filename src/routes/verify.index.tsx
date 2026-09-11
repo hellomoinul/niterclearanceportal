@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export const Route = createFileRoute('/verify/')({
+export const Route = createFileRoute("/verify/")({
   head: () => ({
     meta: [
       { title: "Verify a clearance certificate — NITER" },
