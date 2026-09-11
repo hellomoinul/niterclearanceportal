@@ -9,7 +9,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_app record;
+  v_app_id uuid;
   v_total int;
   v_approved int;
   v_student_name text;
@@ -19,14 +19,14 @@ DECLARE
 BEGIN
   -- Find the student's latest clearance application
   SELECT ca.id, ca.cleared_at, p.full_name, p.program, p.batch
-  INTO v_app.id, v_cleared_at, v_student_name, v_program, v_batch
+  INTO v_app_id, v_cleared_at, v_student_name, v_program, v_batch
   FROM clearance_applications ca
   JOIN profiles p ON p.id = ca.student_id
   WHERE p.user_code = p_user_code
   ORDER BY ca.submitted_at DESC
   LIMIT 1;
 
-  IF v_app.id IS NULL THEN
+  IF v_app_id IS NULL THEN
     RETURN jsonb_build_object(
       'verified', false,
       'reason', 'no_application'
@@ -39,7 +39,7 @@ BEGIN
     count(*)
   INTO v_approved, v_total
   FROM department_reviews dr
-  WHERE dr.application_id = v_app.id;
+  WHERE dr.application_id = v_app_id;
 
   IF v_total = 0 THEN
     RETURN jsonb_build_object(
