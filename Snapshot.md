@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-08 · **Phase:** v2 fully built + verified live (post-review hardening done) · **Progress:** ~100%
+> **Last updated:** 2026-09-11 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~67%
 
 ---
 
@@ -164,6 +164,67 @@ All lanes are ✅ as of 2026-09-08.
 - ✅ **S-v2.5** Reports/Audit/Notices: verified against the new 10-office set (FK joins); labels/
   counts current.
 
+### 🟨 Shafin — Round 2: Admin UX polish (assigned 2026-09-11)
+
+10 tasks from the `/admin` UI/UX review. Each has a **What** (problem) and **How**
+(implementation). Branch pattern: `shafin/admin-r2-<task-id>`; tag the PR title with the
+task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
+
+- ⬜ **S-v2.6** Password-reset never notifies the user —
+  **What:** `admin_reset_password` updates the password silently; only the admin sees a toast.
+  **How:** (a, recommended) use Supabase recovery — generate link via RPC or edge call, email
+  it via `send-notification-email`; user sets their own password. (b, minimal) show the new
+  password clearly in the toast, add an `audit_log` row, and replace `window.prompt` with a
+  Dialog in `admin/users.tsx`.
+
+- ⬜ **S-v2.7** Audit "Entity" column is useless —
+  **What:** Every row shows `department_review`; the real `entity_id` is hidden.
+  **How:** in `admin/audit.tsx`, render `entity · <first 8 hex of entity_id>` with full uuid as
+  a `title` tooltip; or drop the column and rely on Details.
+
+- ⬜ **S-v2.8** Notice delete has no confirmation —
+  **What:** single-click, no undo.
+  **How:** wrap the delete button in `admin/notices.tsx` with `AlertDialog` (component exists);
+  keep the sonner toast on success.
+
+- ⬜ **S-v2.9** N/A filters dead when empty + stat label wrong —
+  **What:** Dept dropdown is derived from loaded rows → only "All departments" when 0 declarations;
+  "Total Students" counts accounts, not applications.
+  **How:** hide search + dept filter when no N/A rows in `admin/index.tsx`; relabel stat to
+  "Registered students" with subtle "(accounts, not applications)".
+
+- ⬜ **S-v2.10** Dashboard quick-links duplicate the tab bar —
+  **What:** 5 cards ≡ 5 tabs, pure duplication.
+  **How:** replace the card grid in `admin/index.tsx` with a live "needs attention" panel
+  (escalated count, oldest pending N/A, last 5 audit rows).
+
+- ⬜ **S-v2.11** Conflicting metrics across pages —
+  **What:** Dashboard uses application counts (Cleared/Pending); Reports uses review-level counts
+  (Approved/Pending) — same labels, different numbers.
+  **How:** align units and add explicit labels ("Pending applications", "Pending reviews") in
+  `admin/index.tsx` + `admin/reports.tsx`.
+
+- ⬜ **S-v2.12** Users page has no pagination —
+  **What:** all accounts render at once; scales badly.
+  **How:** add page-size (25) + Previous/Next using the `audit.tsx` pattern in `admin/users.tsx`.
+
+- ⬜ **S-v2.13** Reports has no filters despite the copy —
+  **What:** promises "academic year statistics" but no date/batch filter.
+  **How:** add a date-range or batch selector in `admin/reports.tsx` feeding chart queries;
+  default "All time".
+
+- ⬜ **S-v2.14** Audit log hardcoded action list + no date filter —
+  **What:** action dropdown lists exactly 4 hardcoded values; no date range.
+  **How:** derive options from `select distinct action`; add from/to date filters in
+  `admin/audit.tsx`.
+
+- ⬜ **S-v2.15** Mixed confirm / prompt / alert patterns —
+  **What:** `window.confirm`/`window.prompt`/`alert()` across Workflow + Users; toasts elsewhere.
+  **How:** standardize on `AlertDialog`/`Dialog` + sonner in `admin/workflow.tsx`,
+  `admin/users.tsx`, `admin/notices.tsx`.
+
+---
+
 ### Dropped / superseded (confirmed with owner)
 
 | Task | Verdict |
@@ -184,6 +245,7 @@ All lanes are ✅ as of 2026-09-08.
 | Moinul | Backend/infra/docs | ✅ 11 (M-v2.1–M-v2.11) | — |
 | Fatin | Student/certificate | ✅ 5 (F-v2.1–F-v2.4 + cert/verify) | — |
 | Shafin | Admin panel/queue | ✅ 5 (S-v2.1–S-v2.5) | — |
+| Shafin (round 2) | Admin UX polish | — | 🚧 10 assigned (S-v2.6–S-v2.15) |
 
 ---
 
@@ -201,12 +263,24 @@ All lanes are ✅ as of 2026-09-08.
 | 8 | `20260908000001_resubmit_comment_and_escalation.sql` | resubmit comment + `escalation_resolved` audit | ✅ applied to live |
 | 9 | `20260908000002_certificate_display_id.sql` | `resolve_certificate_id` (NCP- display ID) | ✅ applied to live |
 | 10 | `20260908000003_drop_workflow_steps.sql` | `workflow_steps` table + policy dropped | ✅ applied to live |
+| 11 | `20260909120000_normalize_student_ids.sql` | student IDs normalized (canonical `lower(alnum)`) + `profiles_user_code_norm_key` unique index | ✅ applied to live (PR #70) |
+| 12 | `20260911140000_notify_office_on_document_upload.sql` | office email fires on document upload (dropped review-open + resubmit notice triggers) | ✅ applied to live (PR #72) |
 
 Older migrations stay as historical record — never edit applied migrations.
 
 ---
 
 ## 📝 Work history
+
+### 2026-09-11 — Admin UX review, email-notification fix, Fatin QR autofill
+- **PR #67** copy fixes re-landed (10-office sequential copy, `/home` active rule) — merged `bb255ac`.
+- **PR #68** `/home` route added (`/` redirects there) — merged `6186594`.
+- **PR #69** settings save fix — upserts `profiles` so office accounts without a profile row work; 9 office profiles seeded live — merged `ca1db9c`.
+- **PR #70** student-ID normalization — canonical IDs (`lower`, alnum), unique index `profiles_user_code_norm_key`, register-time duplicate guard; migration `20260909120000` applied live — merged `3cd4d28`.
+- **PR #71** footer address → "Savar, Dhaka-1350, Bangladesh" — merged `7d7608e`.
+- **PR #72** office email now fires **on document upload**, not on review-open — dropped `trg_notify_offices_on_review` + `trg_notify_on_resubmit`, added `trg_notify_office_on_document_upload`; 17 stale notifications soft-deleted. Root cause: DB webhook emails the monitoring mailbox for every `notifications` insert — merged `778c28c`.
+- **PR #73 (Fatin)** certificate QR now points to `/verify?id=<NCP-…>` and the verify page autofills that code from `?id`/`?code` — merged `8684638`.
+- **Admin UI/UX review** (as a designer lens): gaps found → password-reset never notifies the user; Audit "Entity" column is meaningless; notice delete has no confirm; N/A filter is dead when empty; dashboard quick-links duplicate the tab bar; conflicting metrics across pages; no Users pagination; no Reports/Audit filters; mixed confirm/alert patterns. Turned into the Shafin Round-2 task list (S-v2.6–S-v2.15).
 
 ### 2026-09-08 — Post-review verification + hardening (REVIEW_RESPONSE round 2)
 - **Live authenticated E2E (review §0):** created a student + Laboratory office staff via the Auth
@@ -271,8 +345,7 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## ⚠️ Known gaps
-- **Email pipeline** is deferred — in-app notifications (SQL) are the fully working channel; the
-  edge function/webhook is not wired (see `SYSTEM_FLOW.md` §7).
+- **Email pipeline** is wired — DB webhook on `notifications` insert → `send-notification-email` edge function (Resend) to a single monitoring mailbox (`akash.moinulhasan@gmail.com`). Office emails fire **on document upload** (PR #72); known limits: one hardcoded recipient and all office accounts share one `personal_email`.
 - **Section 2 collapsed shared-office routing** — the reviewer's alternative model; awaiting
   written confirmation from the registrar. The current sequential model matches the physical form
   and is what ships today (see `REVIEW_RESPONSE_v2.md`, item 2).
