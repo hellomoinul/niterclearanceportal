@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShieldCheck } from "lucide-react";
 import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
@@ -29,6 +29,14 @@ export const Route = createFileRoute("/verify")({
 function VerifyPage() {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const queryCode = params.get("id") || params.get("code");
+    if (queryCode) {
+      setCode(queryCode.trim());
+    }
+  }, []);
 
   return (
     <PortalShell className="max-w-2xl">
