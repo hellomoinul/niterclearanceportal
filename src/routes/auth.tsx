@@ -165,29 +165,35 @@ function AuthPage() {
         </span>
       </Link>
 
+      <p className="text-center text-sm text-muted-foreground">
+        Universal sign in page for Students, Office & Admin.
+      </p>
+
       <div className="card-surface w-full max-w-md p-6">
         <Tabs defaultValue="signin">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">Sign in</TabsTrigger>
-            <TabsTrigger value="register">New student</TabsTrigger>
+            <TabsTrigger value="register">Create account</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin" className="mt-5">
-            <p className="text-center text-sm text-muted-foreground">
-              Universal sign in page for Students, Office staff, Admin.
-            </p>
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="signin-id">Student / Office staff / Admin — ID, Portal ID, or Email</Label>
-                <Input id="signin-id" name="userCode" required placeholder="CS 2103021, portal ID, or email" />
+                <Label htmlFor="signin-id">Student/Office/Admin — ID, Portal ID, or Email</Label>
+                <Input
+                  id="signin-id"
+                  name="userCode"
+                  required
+                  placeholder="CS 2103021, portal ID, or email"
+                />
               </div>
-              
+
               {/* --- NEW FORGOT PASSWORD SECTION START --- */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="signin-password">Password</Label>
-                  <Link 
-                    to="/forgot-password" 
+                  <Link
+                    to="/forgot-password"
                     className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline"
                   >
                     Forgot password?
@@ -204,26 +210,39 @@ function AuthPage() {
           </TabsContent>
 
           <TabsContent value="register" className="mt-5">
-            <h1 className="text-lg font-semibold">Register</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              First time here? Create your portal account with your NITER student ID.
+            <p className="text-center text-sm text-muted-foreground">
+              Create your portal account with your NITER student ID.
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleRegister}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="reg-id">Student ID<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Label htmlFor="reg-id">
+                    Student ID<span className="text-red-500 ml-0.5">*</span>
+                  </Label>
                   <Input id="reg-id" name="userCode" required placeholder="CS 2103021" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-name">Full name<span className="text-red-500 ml-0.5">*</span></Label>
-                  <Input id="reg-name" name="fullName" required placeholder="CAPITAL BLOCK LETTER" />
+                  <Label htmlFor="reg-name">
+                    Full name<span className="text-red-500 ml-0.5">*</span>
+                  </Label>
+                  <Input id="reg-name" name="fullName" required placeholder="CAPITAL LETTER" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-email">Email<span className="text-red-500 ml-0.5">*</span></Label>
-                  <Input id="reg-email" name="email" type="email" required placeholder="you@email.com" />
+                  <Label htmlFor="reg-email">
+                    Email<span className="text-red-500 ml-0.5">*</span>
+                  </Label>
+                  <Input
+                    id="reg-email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="you@email.com"
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-phone">Phone<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Label htmlFor="reg-phone">
+                    Phone<span className="text-red-500 ml-0.5">*</span>
+                  </Label>
                   <Input
                     id="reg-phone"
                     name="phone"
@@ -236,10 +255,10 @@ function AuthPage() {
                   />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="reg-program">Program<span className="text-red-500 ml-0.5">*</span></Label>
-                  <Select
-                    name="program"
-                  >
+                  <Label htmlFor="reg-program">
+                    Program<span className="text-red-500 ml-0.5">*</span>
+                  </Label>
+                  <Select name="program">
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
@@ -253,10 +272,10 @@ function AuthPage() {
                   </Select>
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="reg-session">Academic year<span className="text-red-500 ml-0.5">*</span></Label>
-                  <Select
-                    name="session"
-                  >
+                  <Label htmlFor="reg-session">
+                    Academic year<span className="text-red-500 ml-0.5">*</span>
+                  </Label>
+                  <Select name="session">
                     <SelectTrigger>
                       <SelectValue placeholder="Select academic year" />
                     </SelectTrigger>
@@ -270,17 +289,15 @@ function AuthPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-password">Password<span className="text-red-500 ml-0.5">*</span></Label>
-                  <Input
-                    id="reg-password"
-                    name="password"
-                    type="password"
-                    required
-                    minLength={8}
-                  />
+                  <Label htmlFor="reg-password">
+                    Password<span className="text-red-500 ml-0.5">*</span>
+                  </Label>
+                  <Input id="reg-password" name="password" type="password" required minLength={8} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reg-confirm-password">Confirm password<span className="text-red-500 ml-0.5">*</span></Label>
+                  <Label htmlFor="reg-confirm-password">
+                    Confirm password<span className="text-red-500 ml-0.5">*</span>
+                  </Label>
                   <Input
                     id="reg-confirm-password"
                     name="confirmPassword"
@@ -288,22 +305,19 @@ function AuthPage() {
                     required
                     minLength={8}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Passwords must match
-                  </p>
+                  <p className="text-xs text-muted-foreground">Passwords must match</p>
                 </div>
               </div>
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy ? "Creating account…" : "Create account"}
               </Button>
             </form>
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              Office staff and Admin accounts are created by the admin office.
+            </p>
           </TabsContent>
         </Tabs>
       </div>
-
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        Office staff and Admin accounts are created by the admin office.
-      </p>
     </div>
   );
 }
