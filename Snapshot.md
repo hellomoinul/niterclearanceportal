@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-11 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~67%
+> **Last updated:** 2026-09-11 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~70%
 
 ---
 
@@ -218,7 +218,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** derive options from `select distinct action`; add from/to date filters in
   `admin/audit.tsx`.
 
-- ⬜ **S-v2.15** Mixed confirm / prompt / alert patterns —
+- ✅ **S-v2.15** Mixed confirm / prompt / alert patterns —
   **What:** `window.confirm`/`window.prompt`/`alert()` across Workflow + Users; toasts elsewhere.
   **How:** standardize on `AlertDialog`/`Dialog` + sonner in `admin/workflow.tsx`,
   `admin/users.tsx`, `admin/notices.tsx`.
@@ -271,6 +271,9 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #74.
+
 
 ### 2026-09-11 — Admin UX review, email-notification fix, Fatin QR autofill
 - **PR #67** copy fixes re-landed (10-office sequential copy, `/home` active rule) — merged `bb255ac`.
