@@ -54,11 +54,12 @@ function CertificatePage() {
             .maybeSingle()
           
           if (certData?.id) {
-            // Generate QR code pointing to the public verification page (uses certificate UUID)
-            const verifyUrl = `${window.location.origin}/verify/${certData.id}`
             setCertId(certData.id)
+            const formattedCode = formatCertificateId(certData.id)
+            const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(formattedCode)}`
+
             try {
-              const url = await QRCode.toDataURL(verifyUrl, { width: 100, margin: 0 })
+              const url = await QRCode.toDataURL(verifyUrl, { width: 120, margin: 0 })
               setQrCodeUrl(url)
             } catch (err) {
               console.error("Failed to generate QR code", err)
