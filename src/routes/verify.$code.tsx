@@ -154,7 +154,7 @@ function VerifyResult() {
                 [
                   "UUID",
                   cert.id ? (
-                    <span className="block font-mono text-xs text-muted-foreground break-all text-right">
+                    <span className="block font-mono text-[8px] text-muted-foreground text-right whitespace-nowrap">
                       {cert.id}
                     </span>
                   ) : (
