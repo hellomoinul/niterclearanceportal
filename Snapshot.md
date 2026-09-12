@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-12 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~70%
+> **Last updated:** 2026-09-12 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~73%
 
 ---
 
@@ -177,7 +177,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   password clearly in the toast, add an `audit_log` row, and replace `window.prompt` with a
   Dialog in `admin/users.tsx`.
 
-- ⬜ **S-v2.7** Audit "Entity" column is useless —
+- ✅ **S-v2.7** Audit "Entity" column is useless —
   **What:** Every row shows `department_review`; the real `entity_id` is hidden.
   **How:** in `admin/audit.tsx`, render `entity · <first 8 hex of entity_id>` with full uuid as
   a `title` tooltip; or drop the column and rely on Details.
@@ -271,6 +271,10 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Password-reset notification (S-v2.6):** completed via PR #84.
+- **Audit entity_id column (S-v2.7):** completed via PR #85.
+
 
 - **Password-reset notification (S-v2.6):** completed via PR #84.
 
