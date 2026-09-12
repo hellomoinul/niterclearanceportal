@@ -94,7 +94,6 @@ function VerifyResult() {
       <PageHeader
         title="Certificate verification"
         description={`Checking certificate ID: ${code}`}
-        breadcrumbs={[{ label: "Verify", to: "/verify" }]}
       />
       <div className="card-surface mt-4 p-6">
         {isLoading ? (
