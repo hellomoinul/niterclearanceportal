@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-11 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~67%
+> **Last updated:** 2026-09-12 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~70%
 
 ---
 
@@ -170,7 +170,7 @@ All lanes are ✅ as of 2026-09-08.
 (implementation). Branch pattern: `shafin/admin-r2-<task-id>`; tag the PR title with the
 task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
 
-- ⬜ **S-v2.6** Password-reset never notifies the user —
+- ✅ **S-v2.6** Password-reset never notifies the user —
   **What:** `admin_reset_password` updates the password silently; only the admin sees a toast.
   **How:** (a, recommended) use Supabase recovery — generate link via RPC or edge call, email
   it via `send-notification-email`; user sets their own password. (b, minimal) show the new
@@ -271,6 +271,9 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Password-reset notification (S-v2.6):** completed via PR #84.
+
 
 ### 2026-09-11 — Admin UX review, email-notification fix, Fatin QR autofill
 - **PR #67** copy fixes re-landed (10-office sequential copy, `/home` active rule) — merged `bb255ac`.
