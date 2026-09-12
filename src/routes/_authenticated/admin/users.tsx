@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { KeyRound } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -17,6 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export const Route = createFileRoute('/_authenticated/admin/users')({
   component: UsersPage,
@@ -53,6 +62,12 @@ function UsersPage() {
   });
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+
+  // S-v2.6 Password Reset Dialog States
+  const [resetRow, setResetRow] = useState<AccountRow | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['admin-accounts'],
@@ -134,7 +149,7 @@ function UsersPage() {
       return;
     }
     setCreating(true);
-    const { data: uid, error } = await (supabase as any).rpc('admin_create_account', {
+    const { error } = await (supabase as any).rpc('admin_create_account', {
       p_full_name: form.fullName.trim(),
       p_user_code: form.userCode.trim(),
       p_email: portalEmail,
@@ -195,24 +210,53 @@ function UsersPage() {
     refetch();
   }
 
-  async function resetPassword(row: AccountRow) {
-    const pwd = window.prompt(
-      `Set a new password for ${row.full_name ?? row.user_code} (min 6 characters):`,
-    );
-    if (pwd === null) return;
-    if (pwd.length < 6) {
+  // S-v2.6 Password Reset Handler
+  async function handlePasswordReset() {
+    if (!resetRow || !newPassword) {
+      toast.error('Please enter a new password');
+      return;
+    }
+    if (newPassword.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
     }
-    const { error } = await (supabase as any).rpc('admin_reset_password', {
-      p_user_id: row.id,
-      p_password: pwd,
-    });
-    if (error) {
-      toast.error('Could not reset password', { description: error.message });
-      return;
+
+    setIsSubmitting(true);
+    try {
+      // 1. RPC Call with standard parameters
+      const { error: resetError } = await (supabase as any).rpc('admin_reset_password', {
+        user_id: resetRow.id,
+        new_password: newPassword,
+      });
+
+      if (resetError) throw resetError;
+
+     // 2. Insert into audit_log
+const targetEmail = resetRow.user_code ? idToEmail(resetRow.user_code) : 'N/A';
+const { error: auditError } = await supabase.from('audit_log').insert({
+  action: 'user_password_reset',
+  entity: 'users',
+  entity_id: resetRow.id,
+  details: JSON.stringify({
+    reset_by: user?.id,
+    target_user_code: resetRow.user_code,
+    target_email: targetEmail,
+  }),
+});
+
+      if (auditError) {
+        console.error('Failed to insert audit log for password reset:', auditError);
+      }
+
+      toast.success('Password updated successfully');
+      setIsResetOpen(false);
+      setNewPassword('');
+      setResetRow(null);
+    } catch (err: any) {
+      toast.error('Could not reset password', { description: err.message });
+    } finally {
+      setIsSubmitting(false);
     }
-    toast.success('Password updated');
   }
 
   return (
@@ -401,7 +445,15 @@ function UsersPage() {
                               </SelectContent>
                             </Select>
                           )}
-                          <Button size="sm" variant="outline" onClick={() => resetPassword(row)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setResetRow(row);
+                              setNewPassword('');
+                              setIsResetOpen(true);
+                            }}
+                          >
                             Reset password
                           </Button>
                         </div>
@@ -414,6 +466,57 @@ function UsersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* S-v2.6 Password Reset Dialog Modal */}
+      <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-primary" />
+              Reset User Password
+            </DialogTitle>
+            <DialogDescription>
+              Set a new password for{' '}
+              <span className="font-semibold text-foreground">
+                {resetRow?.full_name ?? resetRow?.user_code}
+              </span>
+              .
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                placeholder="Min 6 characters"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsResetOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handlePasswordReset}
+              disabled={!newPassword || isSubmitting}
+            >
+              {isSubmitting ? 'Resetting…' : 'Confirm Reset'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
