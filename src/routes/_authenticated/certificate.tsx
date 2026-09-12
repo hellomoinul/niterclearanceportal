@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { formatCertificateId } from '@/lib/portal'
 import { Download, Loader2, Printer } from 'lucide-react'
 import { jsPDF } from 'jspdf'
-import html2canvas from 'html2canvas'
+import html2canvas from 'html2canvas-pro'
 import QRCode from 'qrcode'
 
 export const Route = createFileRoute('/_authenticated/certificate')({
