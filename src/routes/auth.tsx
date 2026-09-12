@@ -168,7 +168,7 @@ function AuthPage() {
 
       {activeTab === "signin" && (
         <p className="text-center text-sm text-muted-foreground">
-          Universal sign in page for Students, Office & Admin.
+          Universal sign in page for Students, Office & Admin
         </p>
       )}
 
@@ -182,12 +182,12 @@ function AuthPage() {
           <TabsContent value="signin" className="mt-5">
             <form className="mt-5 space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="signin-id">Student/Office/Admin — ID, Portal ID, or Email</Label>
+                <Label htmlFor="signin-id">Student/Office/Admin — ID, Portal ID or Email</Label>
                 <Input
                   id="signin-id"
                   name="userCode"
                   required
-                  placeholder="CS 2103021, portal ID, or email"
+                  placeholder="CS 2103021/portal ID or email"
                 />
               </div>
 
@@ -214,7 +214,7 @@ function AuthPage() {
 
           <TabsContent value="register" className="mt-5">
             <p className="text-center text-sm text-muted-foreground">
-              Create your portal account with your NITER student ID.
+              Create your portal account with your NITER student ID
             </p>
             <form className="mt-5 space-y-4" onSubmit={handleRegister}>
               <div className="grid gap-4 sm:grid-cols-2">
