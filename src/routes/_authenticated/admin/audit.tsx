@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -22,7 +23,7 @@ interface AuditEntry {
   actor_name: string | null;
   entity: string | null;
   entity_id: string | null;
-  details: string | null;
+  details: string | Record<string, any> | null;
   ip_address: string | null;
   created_at: string;
 }
@@ -71,6 +72,20 @@ export default function AuditLogPage() {
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
 
+  const renderDetails = (details: AuditEntry['details']) => {
+    if (!details) return '-';
+    if (typeof details === 'object') {
+      return JSON.stringify(details);
+    }
+    return details;
+  };
+
+  const getActionBadgeVariant = (action: string) => {
+    if (action.includes('approved') || action.includes('resolved')) return 'default';
+    if (action.includes('rejected')) return 'destructive';
+    return 'secondary';
+  };
+
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -104,6 +119,7 @@ export default function AuditLogPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Actions</SelectItem>
+              <SelectItem value="user_password_reset">Password Reset</SelectItem>
               <SelectItem value="review_approved">Review approved</SelectItem>
               <SelectItem value="review_rejected">Review rejected</SelectItem>
               <SelectItem value="review_pending">Review reopened</SelectItem>
@@ -141,21 +157,21 @@ export default function AuditLogPage() {
               logs.map((log) => (
                 <tr key={log.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
-                    {new Date(log.created_at).toLocaleString()}
+                    {new Date(log.created_at).toLocaleString('en-GB')}
                   </td>
                   <td className="px-4 py-3 font-medium">
                     {log.actor_name || 'System / Unknown'}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-secondary border">
+                    <Badge variant={getActionBadgeVariant(log.action)}>
                       {log.action}
-                    </span>
+                    </Badge>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
                     {log.entity || 'N/A'}
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground max-w-xs truncate">
-                    {log.details || '-'}
+                  <td className="px-4 py-3 text-xs text-muted-foreground max-w-xs truncate font-mono">
+                    {renderDetails(log.details)}
                   </td>
                 </tr>
               ))
