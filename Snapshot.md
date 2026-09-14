@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-14 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~77%
+> **Last updated:** 2026-09-14 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~80%
 
 ---
 
@@ -187,7 +187,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** wrap the delete button in `admin/notices.tsx` with `AlertDialog` (component exists);
   keep the sonner toast on success.
 
-- ⬜ **S-v2.9** N/A filters dead when empty + stat label wrong —
+- ✅ **S-v2.9** N/A filters dead when empty + stat label wrong —
   **What:** Dept dropdown is derived from loaded rows → only "All departments" when 0 declarations;
   "Total Students" counts accounts, not applications.
   **How:** hide search + dept filter when no N/A rows in `admin/index.tsx`; relabel stat to
@@ -271,6 +271,10 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Notice delete confirmation (S-v2.8):** completed via PR #86.
+- **N/A filters + stat label (S-v2.9):** completed via PR #87.
+
 
 - **Notice delete confirmation (S-v2.8):** completed via PR #86.
 
