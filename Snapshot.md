@@ -223,6 +223,26 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** standardize on `AlertDialog`/`Dialog` + sonner in `admin/workflow.tsx`,
   `admin/users.tsx`, `admin/notices.tsx`.
 
+- ⬜ **S-v2.16** Calendar page — manage events from admin (like Notices) —
+  **What:** the portal has no academic calendar; students need to see important dates.
+  **How:** add a new `/admin/calendar` page (same CRUD pattern as Notices): admin can create,
+  edit, delete calendar events (title, description, start date, end date, event type like
+  "Exam", "Holiday", "Deadline"). Display events on a calendar view for students. Table
+  shows all events with search/filter. New table `calendar_events` (or reuse/extend `notices`
+  if appropriate). Branch: `shafin/admin-r2-S-v2.16`.
+
+- ⬜ **S-v2.17** Registrar signature upload for certificates —
+  **What:** the certificate currently uses a hardcoded signature. If the registrar changes,
+  the old signature stays — unprofessional. A registrar may leave or transfer; a new
+  registrar has a new signature.
+  **How:** add a signature upload section in the admin panel (new page or in Workflow/Users).
+  Accept `image/jpeg` or `image/png` only. Store in Supabase Storage (`signatures` bucket).
+  Exactly one signature must exist at all times — if the admin deletes the current one, they
+  must upload a replacement before the delete is allowed (or the previous one is restored if
+  the upload fails). Link the signature to the certificate so `certificate.tsx` renders it.
+  Show current signature preview + delete button + upload new button. Branch:
+  `shafin/admin-r2-S-v2.17`.
+
 ---
 
 ### Dropped / superseded (confirmed with owner)
@@ -245,7 +265,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
 | Moinul | Backend/infra/docs | ✅ 11 (M-v2.1–M-v2.11) | — |
 | Fatin | Student/certificate | ✅ 5 (F-v2.1–F-v2.4 + cert/verify) | — |
 | Shafin | Admin panel/queue | ✅ 5 (S-v2.1–S-v2.5) | — |
-| Shafin (round 2) | Admin UX polish | — | 🚧 10 assigned (S-v2.6–S-v2.15) |
+| Shafin (round 2) | Admin UX polish | — | 🚧 12 assigned (S-v2.6–S-v2.17) |
 
 ---
 
@@ -272,24 +292,17 @@ Older migrations stay as historical record — never edit applied migrations.
 
 ## 📝 Work history
 
+- **Audit Log Shadcn table (S-v2.11):** completed via PR #89.
+- **Reports type-safe refactor (S-v2.9):** completed via PR #87.
+- **Settings page cleanup:** dead `settings.tsx` removed via PR #88 (replaced by `/profile`).
 - **Notice delete confirmation (S-v2.8):** completed via PR #86.
-- **N/A filters + stat label (S-v2.9):** completed via PR #87.
-- **Unify metrics units (S-v2.11):** completed via PR #89.
-
-
-- **Notice delete confirmation (S-v2.8):** completed via PR #86.
-- **N/A filters + stat label (S-v2.9):** completed via PR #87.
-
-
-- **Notice delete confirmation (S-v2.8):** completed via PR #86.
-
-
-- **Password-reset notification (S-v2.6):** completed via PR #84.
 - **Audit entity_id column (S-v2.7):** completed via PR #85.
-
-
 - **Password-reset notification (S-v2.6):** completed via PR #84.
+- **Git history rewrite:** Lovable + gpt-engineer commits re-attributed to Moinul; identities unified. Backup tag `backup/pre-reattribution` preserved. ✅ `397a14c` → `dd73cfd`.
 
+### 2026-09-14 — New tasks assigned
+- **S-v2.16** Calendar page (admin CRUD like Notices, student calendar view) — ⬜ assigned to Shafin.
+- **S-v2.17** Registrar signature upload for certificates (image upload, replace, delete-require-upload, link to certificate) — ⬜ assigned to Shafin.
 
 ### 2026-09-11 — Admin UX review, email-notification fix, Fatin QR autofill
 - **PR #67** copy fixes re-landed (10-office sequential copy, `/home` active rule) — merged `bb255ac`.
