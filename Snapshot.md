@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-12 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~73%
+> **Last updated:** 2026-09-14 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~77%
 
 ---
 
@@ -182,7 +182,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** in `admin/audit.tsx`, render `entity · <first 8 hex of entity_id>` with full uuid as
   a `title` tooltip; or drop the column and rely on Details.
 
-- ⬜ **S-v2.8** Notice delete has no confirmation —
+- ✅ **S-v2.8** Notice delete has no confirmation —
   **What:** single-click, no undo.
   **How:** wrap the delete button in `admin/notices.tsx` with `AlertDialog` (component exists);
   keep the sonner toast on success.
@@ -271,6 +271,9 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Notice delete confirmation (S-v2.8):** completed via PR #86.
+
 
 - **Password-reset notification (S-v2.6):** completed via PR #84.
 - **Audit entity_id column (S-v2.7):** completed via PR #85.
