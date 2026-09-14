@@ -245,6 +245,81 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
 
 ---
 
+### 🧪 Expert review — Admin panel redesign (reviewed 2026-09-14)
+
+External expert review of `niter_clearance_portal_admin.md`. Claims verified against code —
+all confirmed **except** "homepage shows hardcoded notices" (already fixed via
+`20260909000000_notices_public_read.sql`; `home.tsx` reads the `notices` table). Tasks
+distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id>` etc.
+
+**🟦 Moinul — Backend (schema, RPCs, migrations)**
+- ⬜ **M-v3.1** Soft-delete for users — add `profiles.is_active` (boolean, default true);
+  `admin_set_user_active(user_id, active)` RPC; guard login/behavior; audit_log entries.
+  Enables Users deactivate/activate (see S-v3.6). Migration `20260914_users_soft_delete`.
+- ⬜ **M-v3.2** Escalation aggregation — RPC/view `open_escalations` (all escalated reviews +
+  age in days + office + student) for the dashboard + Escalations page (see S-v3.4).
+  Reuse existing `escalated` column + `resolve_escalation` RPC. Migration
+  `20260914_escalation_view`.
+- ⬜ **M-v3.3** Signature snapshot data model — `signatures` table (id, storage_path, uploaded_by,
+  created_at, active boolean) in Supabase Storage (`signatures` bucket); on certificate
+  issuance, **store `certificates.signature_id` referencing the active signature at issue
+  time** (not a live pointer) so re-verifying an old certificate still shows that year's
+  registrar. Migration `20260914_signature_snapshot.sql`.
+- ⬜ **M-v3.4** Calendar events backend — `calendar_events` table (title, description,
+  event_type, start_date, end_date, target_audience) + RLS (public read, admin write).
+  Migration `20260914_calendar_events.sql`.
+- ⬜ **M-v3.5** Workflow add/remove office RPCs — `admin_add_office(name, code, requirement,
+  sort_order)` + `admin_remove_office(dept_id)` with safe cascade (office_departments,
+  department_reviews handling) so the Workflow UI can add/remove offices without direct DB
+  access (see S-v3.8). Migration `20260914_workflow_crud_rpcs.sql`.
+
+**🟩 Fatin — Student / public-facing**
+- ⬜ **F-v3.1** Public calendar — rewire `src/routes/calendar.tsx` to read live
+  `calendar_events` (grouped maybe) instead of the hardcoded array; date-range display
+  ("1–15 Sep") for multi-day events; connects the consumer side of S-v2.16/M-v3.4.
+- ⬜ **F-v3.2** Certificate signature rendering — in `certificate.tsx` + dashboard PDF
+  template, render the **stored snapshot signature** (`certificates.signature_id` →
+  storage path) instead of the hardcoded `/signature.png`; fallback to the active signature
+  if the snapshot is missing.
+
+**🟨 Shafin — Admin panel (UI/UX)**
+- ⬜ **S-v3.1** Grouped sidebar — replace the 6-tab (soon 8) horizontal bar with a grouped
+  sidebar: Overview (Dashboard) / Operations (Workflow, Escalations, Users) / Content
+  (Notices, Calendar) / Records (Audit Log, Reports) / Settings (Signature). Update
+  `admin/route.tsx`.
+- ⬜ **S-v3.2** Dashboard "Needs Attention" panel — replace the 5 redundant quick-link cards
+  in `admin/index.tsx` with: escalated cases (count + oldest, red), pending N/A
+  declarations, oldest pending review, last 5 audit entries (links to their pages, all powered
+  by M-v3.2 view + existing queries).
+- ⬜ **S-v3.3** Escalated stat card — 4th stat card "Escalated" (distinct red/amber styling)
+  linking to the new Escalations page.
+- ⬜ **S-v3.4** Escalations page — new `/admin/escalations` listing all open escalations
+  across offices, oldest-first (from M-v3.2 view); resolve action (calls `resolve_escalation`
+  with required decision + note).
+- ⬜ **S-v3.5** Users pagination + remove student rows — page-size 25 + Previous/Next (use `admin/audit.tsx` pattern); **remove student rows** from `admin/users.tsx` (this page = staff/admin lifecycle only); fix `as any` on RPC calls while editing.
+- ⬜ **S-v3.6** Users deactivate/activate — enable/disable button per account calling
+  M-v3.1 RPC; disabled accounts shown with an "Inactive" badge; cannot deactivate self.
+- ⬜ **S-v3.7** Notices edit + structured audience — add edit (update existing notice) to
+  `admin/notices.tsx`; replace free-text `target_audience` with a structured selector
+  (All / Students only / Specific office / Specific batch). Confirm notices still render on
+  `home.tsx` (already DB-backed — keep connected).
+- ⬜ **S-v3.8** Workflow add/remove + atomic save — UI for add/remove offices (via
+  M-v3.5 RPCs) + editable requirement text + atomic batch save (single transaction instead of
+  the current sequential loop) in `admin/workflow.tsx`.
+- ⬜ **S-v3.9** Audit log dynamic actions + date filter + expandable Details —
+  `admin/audit.tsx`: derive action options from `select distinct action`; from/to date
+  filters; expandable/formatted Details JSON (not raw inline string).
+- ⬜ **S-v3.10** Reports date/semester filter + time-to-approve — `admin/reports.tsx`: date-range
+  or batch selector (default All time, feeds chart queries) + **avg days-to-approve per office**
+  bar chart (from `department_reviews.created_at/approved_at`) — the one actionable
+  bottleneck metric.
+- ⬜ **S-v2.16** (inherited) Calendar CRUD — admin create/edit/delete events backed by M-v3.4 table.
+- ⬜ **S-v2.17** (inherited) Signature management — upload JPG/PNG (image/* only), preview,
+  replace, delete-requires-replacement rule, one active signature; backed by M-v3.3.
+- ⬜ **S-v2.15** (inherited) Confirm/prompt/alert → Dialog + sonner standardization.
+
+---
+
 ### Dropped / superseded (confirmed with owner)
 
 | Task | Verdict |
@@ -266,6 +341,9 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
 | Fatin | Student/certificate | ✅ 5 (F-v2.1–F-v2.4 + cert/verify) | — |
 | Shafin | Admin panel/queue | ✅ 5 (S-v2.1–S-v2.5) | — |
 | Shafin (round 2) | Admin UX polish | — | 🚧 12 assigned (S-v2.6–S-v2.17) |
+| Moinul (round 3) | Backend (expert review) | — | 🚧 5 assigned (M-v3.1–M-v3.5) |
+| Fatin (round 3) | Public-facing (expert review) | — | 🚧 2 assigned (F-v3.1–F-v3.2) |
+| Shafin (round 3) | Admin panel (expert review) | — | 🚧 10 assigned (S-v3.1–S-v3.10) |
 
 ---
 
