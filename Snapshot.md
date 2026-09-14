@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-14 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~80%
+> **Last updated:** 2026-09-14 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~83%
 
 ---
 
@@ -198,7 +198,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** replace the card grid in `admin/index.tsx` with a live "needs attention" panel
   (escalated count, oldest pending N/A, last 5 audit rows).
 
-- ⬜ **S-v2.11** Conflicting metrics across pages —
+- ✅ **S-v2.11** Conflicting metrics across pages —
   **What:** Dashboard uses application counts (Cleared/Pending); Reports uses review-level counts
   (Approved/Pending) — same labels, different numbers.
   **How:** align units and add explicit labels ("Pending applications", "Pending reviews") in
@@ -271,6 +271,11 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Notice delete confirmation (S-v2.8):** completed via PR #86.
+- **N/A filters + stat label (S-v2.9):** completed via PR #87.
+- **Unify metrics units (S-v2.11):** completed via PR #89.
+
 
 - **Notice delete confirmation (S-v2.8):** completed via PR #86.
 - **N/A filters + stat label (S-v2.9):** completed via PR #87.
