@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -33,6 +34,14 @@ interface StatusSummary {
   color: string;
 }
 
+interface DepartmentReviewData {
+  status: string | null;
+  departments: {
+    code: string | null;
+    name: string | null;
+  } | null;
+}
+
 const COLORS = ['#22c55e', '#eab308', '#ef4444', '#3b82f6'];
 
 export default function ClearanceReportsPage() {
@@ -51,9 +60,10 @@ export default function ClearanceReportsPage() {
     const { count: appCount, error: appErr } = await supabase
       .from('clearance_applications')
       .select('*', { count: 'exact', head: true });
+
     setTotalApplications(appErr ? 0 : appCount ?? 0);
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('department_reviews')
       .select('status, departments(code, name)');
 
@@ -63,13 +73,17 @@ export default function ClearanceReportsPage() {
       let pending = 0;
       let rejected = 0;
 
-      data.forEach((review: any) => {
+      const typedData = data as unknown as DepartmentReviewData[];
+
+      typedData.forEach((review) => {
         const status = (review.status || 'pending').toLowerCase();
         const dept =
           review.departments?.name || review.departments?.code || 'General';
+
         if (!deptMap[dept]) {
           deptMap[dept] = { department: dept, approved: 0, pending: 0, rejected: 0 };
         }
+
         if (status === 'approved') {
           approved++;
           deptMap[dept].approved++;
@@ -98,15 +112,18 @@ export default function ClearanceReportsPage() {
     if (deptStats.length === 0) return;
     const headers = ['Department', 'Approved', 'Pending', 'Rejected'];
     const rows = deptStats.map((d) => [d.department, d.approved, d.pending, d.rejected]);
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+
+    const csvContent = [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
     const link = document.createElement('a');
-    link.setAttribute('href', encodeURI(csvContent));
-    link.setAttribute('download', 'clearance_report.csv');
+    link.href = url;
+    link.setAttribute('download', 'clearance_department_report.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -119,8 +136,8 @@ export default function ClearanceReportsPage() {
           </p>
         </div>
 
-        <Button onClick={handleExportCSV} variant="outline">
-          Export CSV
+        <Button onClick={handleExportCSV} variant="outline" className="flex items-center gap-2">
+          <Download className="w-4 h-4" /> Export CSV
         </Button>
       </div>
 
@@ -170,7 +187,10 @@ export default function ClearanceReportsPage() {
                     dataKey="value"
                   >
                     {statusStats.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color || COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
