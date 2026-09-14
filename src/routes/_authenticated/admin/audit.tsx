@@ -11,19 +11,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { History, Search } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/admin/audit')({
   component: AuditLogPage,
 });
 
 interface AuditEntry {
-  id: string;
+  id: string | number;
   action: string;
   actor_id: string | null;
   actor_name: string | null;
   entity: string | null;
   entity_id: string | null;
-  details: string | Record<string, any> | null;
+  details: string | Record<string, unknown> | null;
   ip_address: string | null;
   created_at: string;
 }
@@ -64,7 +73,7 @@ export default function AuditLogPage() {
     const { data, count, error } = await query;
 
     if (!error && data) {
-      setLogs(data as AuditEntry[]);
+      setLogs(data as unknown as AuditEntry[]);
       setTotalCount(count ?? 0);
     }
     setLoading(false);
@@ -77,7 +86,7 @@ export default function AuditLogPage() {
     if (typeof details === 'object') {
       return JSON.stringify(details);
     }
-    return details;
+    return String(details);
   };
 
   const getActionBadgeVariant = (action: string) => {
@@ -90,22 +99,27 @@ export default function AuditLogPage() {
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">System Audit Log</h1>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+            <History className="w-7 h-7 text-primary" /> System Audit Log
+          </h1>
           <p className="text-muted-foreground text-sm">
             Read-only record of all activity and operations performed across the system.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <Input
-            placeholder="Search by actor name..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-full sm:w-64"
-          />
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by actor name..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="pl-8"
+            />
+          </div>
 
           <Select
             value={actionFilter}
@@ -124,60 +138,61 @@ export default function AuditLogPage() {
               <SelectItem value="review_rejected">Review rejected</SelectItem>
               <SelectItem value="review_pending">Review reopened</SelectItem>
               <SelectItem value="escalation_resolved">Escalation resolved</SelectItem>
+              <SelectItem value="system_settings_updated">Settings updated</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div className="border rounded-lg bg-card overflow-x-auto shadow-sm">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-muted/50 border-b text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3 font-medium">Time</th>
-              <th className="px-4 py-3 font-medium">Actor</th>
-              <th className="px-4 py-3 font-medium">Action</th>
-              <th className="px-4 py-3 font-medium">Entity</th>
-              <th className="px-4 py-3 font-medium">Details</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Time</TableHead>
+              <TableHead>Actor</TableHead>
+              <TableHead>Action</TableHead>
+              <TableHead>Entity</TableHead>
+              <TableHead>Details</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {loading ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+              <TableRow>
+                <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                   Loading audit logs...
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : logs.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+              <TableRow>
+                <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                   No audit logs found.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               logs.map((log) => (
-                <tr key={log.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
+                <TableRow key={log.id} className="hover:bg-muted/30 transition-colors">
+                  <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
                     {new Date(log.created_at).toLocaleString('en-GB')}
-                  </td>
-                  <td className="px-4 py-3 font-medium">
+                  </TableCell>
+                  <TableCell className="font-medium">
                     {log.actor_name || 'System / Unknown'}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     <Badge variant={getActionBadgeVariant(log.action)}>
                       {log.action}
                     </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
+                  </TableCell>
+                  <TableCell className="text-muted-foreground font-mono text-xs">
                     {log.entity || 'N/A'}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground max-w-xs truncate font-mono">
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground max-w-xs truncate font-mono">
                     {renderDetails(log.details)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       <div className="flex items-center justify-between text-sm">
