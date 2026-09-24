@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-14 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~83%
+> **Last updated:** 2026-09-24 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~86%
 
 ---
 
@@ -253,22 +253,22 @@ all confirmed **except** "homepage shows hardcoded notices" (already fixed via
 distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id>` etc.
 
 **🟦 Moinul — Backend (schema, RPCs, migrations)**
-- ⬜ **M-v3.1** Soft-delete for users — add `profiles.is_active` (boolean, default true);
+- ✅ **M-v3.1** Soft-delete for users — add `profiles.is_active` (boolean, default true);
   `admin_set_user_active(user_id, active)` RPC; guard login/behavior; audit_log entries.
   Enables Users deactivate/activate (see S-v3.6). Migration `20260914_users_soft_delete`.
-- ⬜ **M-v3.2** Escalation aggregation — RPC/view `open_escalations` (all escalated reviews +
+- ✅ **M-v3.2** Escalation aggregation — RPC/view `open_escalations` (all escalated reviews +
   age in days + office + student) for the dashboard + Escalations page (see S-v3.4).
   Reuse existing `escalated` column + `resolve_escalation` RPC. Migration
   `20260914_escalation_view`.
-- ⬜ **M-v3.3** Signature snapshot data model — `signatures` table (id, storage_path, uploaded_by,
+- ✅ **M-v3.3** Signature snapshot data model — `signatures` table (id, storage_path, uploaded_by,
   created_at, active boolean) in Supabase Storage (`signatures` bucket); on certificate
   issuance, **store `certificates.signature_id` referencing the active signature at issue
   time** (not a live pointer) so re-verifying an old certificate still shows that year's
   registrar. Migration `20260914_signature_snapshot.sql`.
-- ⬜ **M-v3.4** Calendar events backend — `calendar_events` table (title, description,
+- ✅ **M-v3.4** Calendar events backend — `calendar_events` table (title, description,
   event_type, start_date, end_date, target_audience) + RLS (public read, admin write).
   Migration `20260914_calendar_events.sql`.
-- ⬜ **M-v3.5** Workflow add/remove office RPCs — `admin_add_office(name, code, requirement,
+- ✅ **M-v3.5** Workflow add/remove office RPCs — `admin_add_office(name, code, requirement,
   sort_order)` + `admin_remove_office(dept_id)` with safe cascade (office_departments,
   department_reviews handling) so the Workflow UI can add/remove offices without direct DB
   access (see S-v3.8). Migration `20260914_workflow_crud_rpcs.sql`.
@@ -369,6 +369,13 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Soft-delete for users (M-v3.1):** completed via PR #90.
+- **Escalation aggregation (open_escalations) (M-v3.2):** completed via PR #90.
+- **Signature snapshot data model (M-v3.3):** completed via PR #90.
+- **Calendar events backend (M-v3.4):** completed via PR #90.
+- **Workflow add/remove office RPCs (M-v3.5):** completed via PR #90.
+
 
 - **Audit Log Shadcn table (S-v2.11):** completed via PR #89.
 - **Reports type-safe refactor (S-v2.9):** completed via PR #87.
