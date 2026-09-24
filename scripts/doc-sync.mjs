@@ -10,7 +10,7 @@ const TASK_MAP_PATH = join(ROOT, ".github", "task-map.yml");
 const STATE_PATH = join(ROOT, ".github", "doc-sync-state.json");
 const SNAPSHOT_PATH = join(ROOT, "Snapshot.md");
 const OWNER_ORDER = ["Moinul", "Fatin", "Shafin"];
-const ID_RE = /(M|F|S)-v2\.\d+/;
+const ID_RE = /(M|F|S)-v[23]\.\d+/;
 
 // ── Minimal YAML parser ──
 function loadTaskMap() {
@@ -94,7 +94,7 @@ function matchGlob(pattern, file) {
 
 function matchTaskIds(prTitle, files, tasks, allowPathEvidence = false) {
   const ids = new Set();
-  const tagRe = /(M|F|S)-v2\.\d+(?=:|\s|,|\]|\)|$)/g;
+  const tagRe = /(M|F|S)-v[23]\.\d+(?=:|\s|,|\]|\)|$)/g;
   let m;
   while ((m = tagRe.exec(prTitle)) !== null) {
     const id = m[0];
@@ -152,7 +152,7 @@ function updateSnapshot() {
   // Flip task bullets: `- ⬜ **M-v2.1** …` → `- ✅ **M-v2.1** …`
   const lines = content.split("\n");
   for (let i = 0; i < lines.length; i++) {
-    const m = lines[i].match(/^(\s*-)\s+([⬜🚧🔒])\s+\*\*((?:M|F|S)-v2\.\d+)\*\*/);
+    const m = lines[i].match(/^(\s*-)\s+([⬜🚧🔒])\s+\*\*((?:M|F|S)-v[23]\.\d+)\*\*/);
     if (m) {
       const id = m[3];
       if (STATE.done[id]) {
