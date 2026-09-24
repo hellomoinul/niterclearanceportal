@@ -274,10 +274,10 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
   access (see S-v3.8). Migration `20260914_workflow_crud_rpcs.sql`.
 
 **🟩 Fatin — Student / public-facing**
-- ⬜ **F-v3.1** Public calendar — rewire `src/routes/calendar.tsx` to read live
+- ✅ **F-v3.1** Public calendar — rewire `src/routes/calendar.tsx` to read live
   `calendar_events` (grouped maybe) instead of the hardcoded array; date-range display
   ("1–15 Sep") for multi-day events; connects the consumer side of S-v2.16/M-v3.4.
-- ⬜ **F-v3.2** Certificate signature rendering — in `certificate.tsx` + dashboard PDF
+- ✅ **F-v3.2** Certificate signature rendering — in `certificate.tsx` + dashboard PDF
   template, render the **stored snapshot signature** (`certificates.signature_id` →
   storage path) instead of the hardcoded `/signature.png`; fallback to the active signature
   if the snapshot is missing.
@@ -369,6 +369,15 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Soft-delete for users (M-v3.1):** completed via PR #90.
+- **Escalation aggregation (open_escalations) (M-v3.2):** completed via PR #90.
+- **Signature snapshot data model (M-v3.3):** completed via PR #90.
+- **Calendar events backend (M-v3.4):** completed via PR #90.
+- **Workflow add/remove office RPCs (M-v3.5):** completed via PR #90.
+- **Public calendar (F-v3.1):** completed via PR #91.
+- **Certificate signature rendering (F-v3.2):** completed via PR #91.
+
 
 - **Soft-delete for users (M-v3.1):** completed via PR #90.
 - **Escalation aggregation (open_escalations) (M-v3.2):** completed via PR #90.
