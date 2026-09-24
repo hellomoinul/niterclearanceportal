@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/page-header";
-import { formatCertificateId } from "@/lib/portal";
+import { formatCertificateId, resolveSignatureUrl } from "@/lib/portal";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas-pro";
 import QRCode from "qrcode";
@@ -40,6 +40,7 @@ function DashboardPage() {
 
   const [isDownloading, setIsDownloading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [signatureUrl, setSignatureUrl] = useState("");
   const certRef = useRef<HTMLDivElement>(null);
 
   const { data: application, isLoading } = useQuery({
@@ -77,7 +78,7 @@ function DashboardPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("certificates")
-        .select("id, issued_at")
+        .select("id, issued_at, signature_id")
         .eq("application_id", application!.id)
         .maybeSingle();
       if (error) throw error;
@@ -93,6 +94,20 @@ function DashboardPage() {
       .then(setQrCodeUrl)
       .catch((err) => console.error("Failed to generate QR code", err));
   }, [certificate?.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    resolveSignatureUrl(certificate?.signature_id)
+      .then((url) => {
+        if (!cancelled) setSignatureUrl(url ?? "");
+      })
+      .catch(() => {
+        if (!cancelled) setSignatureUrl("");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [certificate?.signature_id]);
 
   useEffect(() => {
     if (!loading && (isOffice || isAdmin)) {
@@ -330,7 +345,7 @@ function DashboardPage() {
 
                 <div className="text-center flex flex-col items-center justify-end">
                   <img
-                    src="/signature.png"
+                    src={signatureUrl || "/signature.png"}
                     alt="Administration Signature"
                     className="h-16 object-contain mb-2 opacity-80"
                   />

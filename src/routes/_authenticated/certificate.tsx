@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { Button } from '@/components/ui/button'
-import { formatCertificateId } from '@/lib/portal'
+import { formatCertificateId, resolveSignatureUrl } from '@/lib/portal'
 import { Download, Loader2, Printer } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas-pro'
@@ -22,7 +22,6 @@ function CertificatePage() {
   const [certId, setCertId] = useState('')
   const certificateRef = useRef<HTMLDivElement>(null)
 
-  // TODO (Shafin): Replace this local fallback with a fetch to the app_settings table
   const [signatureUrl, setSignatureUrl] = useState('/signature.png')
 
   useEffect(() => {
@@ -57,6 +56,9 @@ function CertificatePage() {
             setCertId(certData.id)
             const formattedCode = formatCertificateId(certData.id)
             const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(formattedCode)}`
+
+            const resolvedSignature = await resolveSignatureUrl(certData.signature_id)
+            if (resolvedSignature) setSignatureUrl(resolvedSignature)
 
             try {
               const url = await QRCode.toDataURL(verifyUrl, { width: 100, margin: 0 })

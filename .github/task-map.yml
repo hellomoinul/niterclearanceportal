@@ -127,6 +127,21 @@ tasks:
     paths: ["supabase/migrations/20260914_workflow_crud_rpcs*"]
     hint: "admin_add_office / admin_remove_office with safe cascade"
 
+  # Fatin — Round 3: Public-facing (expert review, 2026-09-14)
+  - id: F-v3.1
+    title: "Public calendar"
+    owner: Fatin
+    order: 26
+    paths: ["src/routes/calendar.tsx"]
+    hint: "Rewire calendar route to read live calendar_events; date-range display for multi-day events"
+
+  - id: F-v3.2
+    title: "Certificate signature rendering"
+    owner: Fatin
+    order: 27
+    paths: ["src/routes/_authenticated/certificate.tsx", "src/routes/_authenticated/dashboard.tsx", "src/lib/portal.ts"]
+    hint: "Render stored certificate.signature_id snapshot; fallback to active signature, then /signature.png"
+
   # Fatin — student / certificate lane
   - id: F-v2.1
     title: "Apply form v2"
