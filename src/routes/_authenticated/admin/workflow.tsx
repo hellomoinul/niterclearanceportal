@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 import {
   Table,
   TableBody,
@@ -13,11 +14,22 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   ArrowUp,
   ArrowDown,
   Loader2,
   Save,
   Workflow,
+  CheckCircle2,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/admin/workflow')({
@@ -37,6 +49,7 @@ export default function OfficeEditorPage() {
   const [rows, setRows] = useState<DepartmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useEffect(() => {
     fetchOffices();
@@ -50,6 +63,8 @@ export default function OfficeEditorPage() {
       .order('sort_order', { ascending: true });
     if (!error && data) {
       setRows(data as DepartmentRow[]);
+    } else if (error) {
+      toast.error('Failed to load offices', { description: error.message });
     }
     setLoading(false);
   };
@@ -68,25 +83,25 @@ export default function OfficeEditorPage() {
 
   const toggleFinalSignoff = (id: string, checked: boolean) => {
     if (!checked) {
-      // Keep exactly one final sign-off office at all times.
       const target = rows.find((row) => row.id === id);
       if (target?.is_final_signoff && rows.filter((row) => row.is_final_signoff).length === 1) {
+        toast.error('At least one office must be the final sign-off.');
         return;
       }
     }
     setRows((prev) =>
       prev.map((row) => {
         if (row.id === id) return { ...row, is_final_signoff: checked, sort_order: row.sort_order };
-        // Exactly one final sign-off office: enabling one clears the others.
         if (checked) return { ...row, is_final_signoff: false, sort_order: row.sort_order };
         return row;
       })
     );
   };
 
-  const handleSave = async () => {
+  const handleConfirmSave = async () => {
+    setShowConfirmDialog(false);
     if (rows.filter((row) => row.is_final_signoff).length !== 1) {
-      alert('Exactly one office must be marked as the final sign-off.');
+      toast.error('Exactly one office must be marked as the final sign-off.');
       return;
     }
     setSaving(true);
@@ -103,9 +118,9 @@ export default function OfficeEditorPage() {
     }
     setSaving(false);
     if (error) {
-      alert('Failed to save office order: ' + (error as Error).message);
+      toast.error('Failed to save office order', { description: (error as Error).message });
     } else {
-      alert('Office order saved successfully!');
+      toast.success('Office workflow sequence saved successfully!');
     }
   };
 
@@ -113,14 +128,13 @@ export default function OfficeEditorPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Office Editor</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Office Workflow Editor</h1>
           <p className="text-muted-foreground text-sm">
-            Set the order in which offices review every clearance application, and mark the
-            final sign-off office (fires certificate issuance).
+            Set the sequential order in which offices review clearance applications and designate the final sign-off authority.
           </p>
         </div>
 
-        <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
+        <Button onClick={() => setShowConfirmDialog(true)} disabled={saving} className="flex items-center gap-2">
           {saving ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
           ) : (
@@ -129,27 +143,28 @@ export default function OfficeEditorPage() {
         </Button>
       </div>
 
-      <div className="border rounded-lg bg-card shadow-sm">
+      <div className="border rounded-lg bg-card shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16">Step</TableHead>
+              <TableHead className="w-16 text-center">Step</TableHead>
               <TableHead>Office</TableHead>
               <TableHead>Requirement</TableHead>
-              <TableHead>Final sign-off</TableHead>
+              <TableHead>Final Sign-off</TableHead>
               <TableHead className="text-right">Reorder</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                  Loading offices...
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
+                  Loading workflow sequence...
                 </TableCell>
               </TableRow>
             ) : rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   No offices configured yet.
                 </TableCell>
               </TableRow>
@@ -157,16 +172,18 @@ export default function OfficeEditorPage() {
               rows.map((row, index) => (
                 <TableRow key={row.id}>
                   <TableCell className="font-bold text-center">
-                    <Badge variant="outline" className="w-7 h-7 rounded-full flex items-center justify-center p-0">
+                    <Badge variant="outline" className="w-7 h-7 rounded-full flex items-center justify-center p-0 mx-auto">
                       {row.sort_order}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold">{row.name}</span>
                       <Badge variant="secondary">{row.code}</Badge>
                       {row.is_final_signoff && (
-                        <Badge className="bg-emerald-100 text-emerald-700">Final sign-off</Badge>
+                        <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Final Sign-off
+                        </Badge>
                       )}
                     </div>
                   </TableCell>
@@ -174,7 +191,7 @@ export default function OfficeEditorPage() {
                     {row.requirement ? (
                       <span className="text-sm text-muted-foreground line-clamp-2">{row.requirement}</span>
                     ) : (
-                      <span className="text-sm text-muted-foreground italic">—</span>
+                      <span className="text-sm text-muted-foreground italic">— None —</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -210,14 +227,27 @@ export default function OfficeEditorPage() {
         </Table>
       </div>
 
-      <div className="flex items-start gap-2 text-sm text-muted-foreground">
-        <Workflow className="w-4 h-4 mt-0.5" />
+      <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg border">
+        <Workflow className="w-5 h-5 mt-0.5 text-primary shrink-0" />
         <p>
-          This order is what actually drives every clearance: a student cannot move to the
-          next office until the current one approves. Exactly one office should be the final
-          sign-off — it is the one whose approval issues the certificate.
+          This order directly dictates the clearance flow: students progress sequentially from step 1 to the final sign-off office. Only the designated final sign-off office approval triggers clearance completion and certificate issuance.
         </p>
       </div>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Save Workflow Sequence?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Updating the office order will change the review sequence for all active and future clearance applications. Ensure that exactly one office is set as the final sign-off.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSave}>Confirm & Save</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
