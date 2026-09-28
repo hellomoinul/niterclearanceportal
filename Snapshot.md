@@ -370,6 +370,13 @@ Older migrations stay as historical record — never edit applied migrations.
 
 ## 📝 Work history
 
+- **Audit entity_id column (S-v2.7):** completed via PR #92.
+- **Users pagination (S-v2.12):** completed via PR #93.
+- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
+- **Reports filters (S-v2.13):** completed via PR #94.
+- **Audit log date filter + dynamic actions (S-v2.14):** completed via PR #95.
+
+
 - **Users pagination (S-v2.12):** completed via PR #93.
 - **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
 - **Reports filters (S-v2.13):** completed via PR #94.
