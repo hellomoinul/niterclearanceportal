@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-28 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~89%
+> **Last updated:** 2026-09-28 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~92%
 
 ---
 
@@ -218,7 +218,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** derive options from `select distinct action`; add from/to date filters in
   `admin/audit.tsx`.
 
-- ⬜ **S-v2.15** Mixed confirm / prompt / alert patterns —
+- ✅ **S-v2.15** Mixed confirm / prompt / alert patterns —
   **What:** `window.confirm`/`window.prompt`/`alert()` across Workflow + Users; toasts elsewhere.
   **How:** standardize on `AlertDialog`/`Dialog` + sonner in `admin/workflow.tsx`,
   `admin/users.tsx`, `admin/notices.tsx`.
@@ -316,7 +316,7 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
 - ⬜ **S-v2.16** (inherited) Calendar CRUD — admin create/edit/delete events backed by M-v3.4 table.
 - ⬜ **S-v2.17** (inherited) Signature management — upload JPG/PNG (image/* only), preview,
   replace, delete-requires-replacement rule, one active signature; backed by M-v3.3.
-- ⬜ **S-v2.15** (inherited) Confirm/prompt/alert → Dialog + sonner standardization.
+- ✅ **S-v2.15** (inherited) Confirm/prompt/alert → Dialog + sonner standardization.
 
 ---
 
@@ -369,6 +369,10 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Users pagination (S-v2.12):** completed via PR #93.
+- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
+
 
 - **Users pagination (S-v2.12):** completed via PR #93.
 
