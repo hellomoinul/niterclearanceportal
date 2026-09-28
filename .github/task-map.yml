@@ -91,6 +91,57 @@ tasks:
     paths: ["supabase/migrations/20260908000002*", "src/lib/portal.ts", "src/routes/verify*", "src/routes/_authenticated/certificate.tsx"]
     hint: "NCP- short ID on certificate/verify; resolve_certificate_id accepts full UUID / NCP- code / bare 8-hex"
 
+  # Moinul — Round 3: Backend (expert review, 2026-09-14)
+  - id: M-v3.1
+    title: "Soft-delete for users"
+    owner: Moinul
+    order: 21
+    paths: ["supabase/migrations/20260914_users_soft_delete*"]
+    hint: "profiles.is_active default true; admin_set_user_active RPC; login guard; audit_log entries"
+
+  - id: M-v3.2
+    title: "Escalation aggregation (open_escalations)"
+    owner: Moinul
+    order: 22
+    paths: ["supabase/migrations/20260914_escalation_view*"]
+    hint: "View of escalated reviews + age days + office + student; reuses escalated + resolve_escalation"
+
+  - id: M-v3.3
+    title: "Signature snapshot data model"
+    owner: Moinul
+    order: 23
+    paths: ["supabase/migrations/20260914_signature_snapshot*"]
+    hint: "signatures table + bucket; certificates.signature_id snapshot at issuance (not live pointer)"
+
+  - id: M-v3.4
+    title: "Calendar events backend"
+    owner: Moinul
+    order: 24
+    paths: ["supabase/migrations/20260914_calendar_events*"]
+    hint: "calendar_events table + RLS (public read, admin write)"
+
+  - id: M-v3.5
+    title: "Workflow add/remove office RPCs"
+    owner: Moinul
+    order: 25
+    paths: ["supabase/migrations/20260914_workflow_crud_rpcs*"]
+    hint: "admin_add_office / admin_remove_office with safe cascade"
+
+  # Fatin — Round 3: Public-facing (expert review, 2026-09-14)
+  - id: F-v3.1
+    title: "Public calendar"
+    owner: Fatin
+    order: 26
+    paths: ["src/routes/calendar.tsx"]
+    hint: "Rewire calendar route to read live calendar_events; date-range display for multi-day events"
+
+  - id: F-v3.2
+    title: "Certificate signature rendering"
+    owner: Fatin
+    order: 27
+    paths: ["src/routes/_authenticated/certificate.tsx", "src/routes/_authenticated/dashboard.tsx", "src/lib/portal.ts"]
+    hint: "Render stored certificate.signature_id snapshot; fallback to active signature, then /signature.png"
+
   # Fatin — student / certificate lane
   - id: F-v2.1
     title: "Apply form v2"

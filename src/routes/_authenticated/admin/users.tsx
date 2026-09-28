@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { KeyRound } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -17,6 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export const Route = createFileRoute('/_authenticated/admin/users')({
   component: UsersPage,
@@ -38,6 +47,8 @@ interface Department {
   name: string;
 }
 
+const PAGE_SIZE = 25;
+
 const roleBadgeVariant = (role: string) =>
   role === 'admin' ? 'default' : role === 'office' ? 'secondary' : 'outline';
 
@@ -53,6 +64,13 @@ function UsersPage() {
   });
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [page, setPage] = useState(1);
+
+  // S-v2.6 Password Reset Dialog States
+  const [resetRow, setResetRow] = useState<AccountRow | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['admin-accounts'],
@@ -119,6 +137,17 @@ function UsersPage() {
     });
   }, [rows, search, roleFilter]);
 
+  // Reset pagination to page 1 on search/filter update
+  useEffect(() => {
+    setPage(1);
+  }, [search, roleFilter]);
+
+  const totalPages = Math.ceil(visible.length / PAGE_SIZE) || 1;
+  const paginatedVisible = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return visible.slice(start, start + PAGE_SIZE);
+  }, [visible, page]);
+
   async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.fullName.trim() || !form.userCode.trim()) {
@@ -134,7 +163,7 @@ function UsersPage() {
       return;
     }
     setCreating(true);
-    const { data: uid, error } = await (supabase as any).rpc('admin_create_account', {
+    const { error } = await (supabase as any).rpc('admin_create_account', {
       p_full_name: form.fullName.trim(),
       p_user_code: form.userCode.trim(),
       p_email: portalEmail,
@@ -195,24 +224,51 @@ function UsersPage() {
     refetch();
   }
 
-  async function resetPassword(row: AccountRow) {
-    const pwd = window.prompt(
-      `Set a new password for ${row.full_name ?? row.user_code} (min 6 characters):`,
-    );
-    if (pwd === null) return;
-    if (pwd.length < 6) {
+  // S-v2.6 Password Reset Handler
+  async function handlePasswordReset() {
+    if (!resetRow || !newPassword) {
+      toast.error('Please enter a new password');
+      return;
+    }
+    if (newPassword.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
     }
-    const { error } = await (supabase as any).rpc('admin_reset_password', {
-      p_user_id: row.id,
-      p_password: pwd,
-    });
-    if (error) {
-      toast.error('Could not reset password', { description: error.message });
-      return;
+
+    setIsSubmitting(true);
+    try {
+      const { error: resetError } = await (supabase as any).rpc('admin_reset_password', {
+        user_id: resetRow.id,
+        new_password: newPassword,
+      });
+
+      if (resetError) throw resetError;
+
+      const targetEmail = resetRow.user_code ? idToEmail(resetRow.user_code) : 'N/A';
+      const { error: auditError } = await supabase.from('audit_log').insert({
+        action: 'user_password_reset',
+        entity: 'users',
+        entity_id: resetRow.id,
+        details: JSON.stringify({
+          reset_by: user?.id,
+          target_user_code: resetRow.user_code,
+          target_email: targetEmail,
+        }),
+      });
+
+      if (auditError) {
+        console.error('Failed to insert audit log for password reset:', auditError);
+      }
+
+      toast.success('Password updated successfully');
+      setIsResetOpen(false);
+      setNewPassword('');
+      setResetRow(null);
+    } catch (err: any) {
+      toast.error('Could not reset password', { description: err.message });
+    } finally {
+      setIsSubmitting(false);
     }
-    toast.success('Password updated');
   }
 
   return (
@@ -337,83 +393,169 @@ function UsersPage() {
               No accounts match your filters.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="py-2 pr-4">Name</th>
-                    <th className="py-2 pr-4">User code</th>
-                    <th className="py-2 pr-4">Portal ID</th>
-                    <th className="py-2 pr-4">Role</th>
-                    <th className="py-2 pr-4">Office</th>
-                    <th className="py-2 pr-4">Created</th>
-                    <th className="py-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visible.map((row) => (
-                    <tr key={row.id} className="border-b last:border-b-0 align-middle">
-                      <td className="py-2 pr-4 font-medium">{row.full_name ?? '—'}</td>
-                      <td className="py-2 pr-4">{row.user_code ?? '—'}</td>
-                      <td className="py-2 pr-4 text-muted-foreground">
-                        {row.id === user?.id ? 'you' : row.user_code ? idToEmail(row.user_code) : '—'}
-                      </td>
-                      <td className="py-2 pr-4">
-                        <Badge variant={roleBadgeVariant(row.role) as any}>{row.role}</Badge>
-                      </td>
-                      <td className="py-2 pr-4">
-                        {row.role === 'office' ? (
-                          <Select
-                            value={row.officeIds[0] ?? ''}
-                            onValueChange={(v) => changeOffice(row, v)}
-                          >
-                            <SelectTrigger className="w-44">
-                              <SelectValue
-                                placeholder={row.officeNames[0] ?? 'Unassigned'}
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="">Unassigned</SelectItem>
-                              {(data?.departments ?? []).map((d) => (
-                                <SelectItem key={d.id} value={d.id}>
-                                  {d.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </td>
-                      <td className="py-2 pr-4 text-muted-foreground">
-                        {row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB') : '—'}
-                      </td>
-                      <td className="py-2">
-                        <div className="flex items-center gap-2">
-                          {row.role !== 'student' && row.id !== user?.id && (
-                            <Select value={row.role} onValueChange={(v) => changeRole(row, v)}>
-                              <SelectTrigger className="h-8 w-24 text-xs">
-                                <SelectValue />
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left text-muted-foreground">
+                      <th className="py-2 pr-4">Name</th>
+                      <th className="py-2 pr-4">User code</th>
+                      <th className="py-2 pr-4">Portal ID</th>
+                      <th className="py-2 pr-4">Role</th>
+                      <th className="py-2 pr-4">Office</th>
+                      <th className="py-2 pr-4">Created</th>
+                      <th className="py-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedVisible.map((row) => (
+                      <tr key={row.id} className="border-b last:border-b-0 align-middle">
+                        <td className="py-2 pr-4 font-medium">{row.full_name ?? '—'}</td>
+                        <td className="py-2 pr-4">{row.user_code ?? '—'}</td>
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {row.id === user?.id ? 'you' : row.user_code ? idToEmail(row.user_code) : '—'}
+                        </td>
+                        <td className="py-2 pr-4">
+                          <Badge variant={roleBadgeVariant(row.role) as any}>{row.role}</Badge>
+                        </td>
+                        <td className="py-2 pr-4">
+                          {row.role === 'office' ? (
+                            <Select
+                              value={row.officeIds[0] ?? ''}
+                              onValueChange={(v) => changeOffice(row, v)}
+                            >
+                              <SelectTrigger className="w-44">
+                                <SelectValue
+                                  placeholder={row.officeNames[0] ?? 'Unassigned'}
+                                />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="office">office</SelectItem>
-                                <SelectItem value="admin">admin</SelectItem>
+                                <SelectItem value="">Unassigned</SelectItem>
+                                {(data?.departments ?? []).map((d) => (
+                                  <SelectItem key={d.id} value={d.id}>
+                                    {d.name}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
                           )}
-                          <Button size="sm" variant="outline" onClick={() => resetPassword(row)}>
-                            Reset password
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </td>
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB') : '—'}
+                        </td>
+                        <td className="py-2">
+                          <div className="flex items-center gap-2">
+                            {row.role !== 'student' && row.id !== user?.id && (
+                              <Select value={row.role} onValueChange={(v) => changeRole(row, v)}>
+                                <SelectTrigger className="h-8 w-24 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="office">office</SelectItem>
+                                  <SelectItem value="admin">admin</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setResetRow(row);
+                                setNewPassword('');
+                                setIsResetOpen(true);
+                              }}
+                            >
+                              Reset password
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* S-v2.12 Pagination Controls */}
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Page {page} of {totalPages} ({visible.length} total users)
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
+
+      {/* S-v2.6 Password Reset Dialog Modal */}
+      <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-primary" />
+              Reset User Password
+            </DialogTitle>
+            <DialogDescription>
+              Set a new password for{' '}
+              <span className="font-semibold text-foreground">
+                {resetRow?.full_name ?? resetRow?.user_code}
+              </span>
+              .
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                placeholder="Min 6 characters"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsResetOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handlePasswordReset}
+              disabled={!newPassword || isSubmitting}
+            >
+              {isSubmitting ? 'Resetting…' : 'Confirm Reset'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

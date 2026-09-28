@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -37,6 +38,7 @@ export default function NoticeBoardPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [targetAudience, setTargetAudience] = useState('All');
@@ -46,46 +48,85 @@ export default function NoticeBoardPage() {
   }, []);
 
   const fetchNotices = async () => {
-  setLoading(true);
-  const { data, error } = await (supabase as any)
-    .from('notices')
-    .select('*')
-    .order('created_at', { ascending: false });
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('notices')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (!error && data) {
-    setNotices(data as unknown as Notice[]);
-  }
-  setLoading(false);
-};
-const handleCreateNotice = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!title.trim() || !content.trim()) return;
+    if (!error && data) {
+      setNotices(data as Notice[]);
+    }
+    setLoading(false);
+  };
 
-  const { error } = await (supabase as any).from('notices').insert([
-    {
-      title,
-      content,
-      target_audience: targetAudience,
-    },
-  ]);
+  const handleCreateNotice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !content.trim()) return;
 
-  if (error) {
-    console.error('Notice create error:', error);
-    alert(`Failed to publish notice: ${error.message}`);
-    return;
-  }
+    setIsSubmitting(true);
 
-  setTitle('');
-  setContent('');
-  setTargetAudience('All');
-  setOpen(false);
-  fetchNotices();
-};
+    const { data: userData } = await supabase.auth.getUser();
 
-  const handleDeleteNotice = async (id: string) => {
-    const { error } = await (supabase as any).from('notices').delete().eq('id', id);
+    const { data: newNotice, error } = await supabase
+      .from('notices')
+      .insert({
+        title: title.trim(),
+        content: content.trim(),
+        target_audience: targetAudience.trim() || 'All',
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Notice create error:', error);
+      alert(`Failed to publish notice: ${error.message}`);
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Insert into audit_log
+    await supabase.from('audit_log').insert({
+      action: 'notice_created',
+      entity: 'notices',
+      entity_id: newNotice?.id,
+      details: JSON.stringify({
+        title: title.trim(),
+        target_audience: targetAudience,
+        created_by: userData?.user?.id,
+      }),
+    });
+
+    setTitle('');
+    setContent('');
+    setTargetAudience('All');
+    setOpen(false);
+    setIsSubmitting(false);
+    fetchNotices();
+  };
+
+  const handleDeleteNotice = async (id: string, noticeTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${noticeTitle}"?`)) return;
+
+    const { data: userData } = await supabase.auth.getUser();
+
+    const { error } = await supabase.from('notices').delete().eq('id', id);
+
     if (!error) {
+      // Insert into audit_log
+      await supabase.from('audit_log').insert({
+        action: 'notice_deleted',
+        entity: 'notices',
+        entity_id: id,
+        details: JSON.stringify({
+          title: noticeTitle,
+          deleted_by: userData?.user?.id,
+        }),
+      });
+
       fetchNotices();
+    } else {
+      alert(`Failed to delete notice: ${error.message}`);
     }
   };
 
@@ -138,21 +179,28 @@ const handleCreateNotice = async (e: React.FormEvent) => {
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                  disabled={isSubmitting}
+                >
                   Cancel
                 </Button>
-                <Button type="submit">Publish Notice</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Publishing...' : 'Publish Notice'}
+                </Button>
               </div>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="border rounded-lg bg-card shadow-sm">
+      <div className="border rounded-lg bg-card shadow-sm overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
+              <TableHead>Title & Content</TableHead>
               <TableHead>Target</TableHead>
               <TableHead>Published Date</TableHead>
               <TableHead className="text-right">Action</TableHead>
@@ -174,25 +222,33 @@ const handleCreateNotice = async (e: React.FormEvent) => {
             ) : (
               notices.map((notice) => (
                 <TableRow key={notice.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <Megaphone className="w-4 h-4 text-blue-500 shrink-0" />
+                  <TableCell className="font-medium max-w-md">
+                    <div className="flex items-start gap-3">
+                      <Megaphone className="w-4 h-4 text-primary mt-1 shrink-0" />
                       <div>
-                        <p className="font-semibold">{notice.title}</p>
-                        <p className="text-xs text-muted-foreground line-clamp-1">{notice.content}</p>
+                        <p className="font-semibold text-sm">{notice.title}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                          {notice.content}
+                        </p>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{notice.target_audience || 'All'}</TableCell>
                   <TableCell>
-                    {new Date(notice.created_at).toLocaleDateString()}
+                    <Badge variant="outline">{notice.target_audience || 'All'}</Badge>
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(notice.created_at).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteNotice(notice.id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDeleteNotice(notice.id, notice.title)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

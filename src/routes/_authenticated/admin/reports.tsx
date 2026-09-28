@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Download, Filter } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   BarChart,
   Bar,
@@ -33,6 +41,14 @@ interface StatusSummary {
   color: string;
 }
 
+interface DepartmentReviewData {
+  status: string | null;
+  departments: {
+    code: string | null;
+    name: string | null;
+  } | null;
+}
+
 const COLORS = ['#22c55e', '#eab308', '#ef4444', '#3b82f6'];
 
 export default function ClearanceReportsPage() {
@@ -40,22 +56,35 @@ export default function ClearanceReportsPage() {
   const [deptStats, setDeptStats] = useState<DepartmentStat[]>([]);
   const [statusStats, setStatusStats] = useState<StatusSummary[]>([]);
   const [totalApplications, setTotalApplications] = useState(0);
+  const [batchFilter, setBatchFilter] = useState('all');
 
   useEffect(() => {
     fetchReportData();
-  }, []);
+  }, [batchFilter]);
 
-  const fetchReportData = async () => {
+const fetchReportData = async () => {
     setLoading(true);
 
-    const { count: appCount, error: appErr } = await supabase
+    let appQuery = supabase
       .from('clearance_applications')
       .select('*', { count: 'exact', head: true });
+
+    if (batchFilter !== 'all') {
+      appQuery = appQuery.eq('academic_year' as any, batchFilter);
+    }
+
+    const { count: appCount, error: appErr } = await appQuery;
     setTotalApplications(appErr ? 0 : appCount ?? 0);
 
-    const { data, error } = await (supabase as any)
+    let reviewQuery = supabase
       .from('department_reviews')
-      .select('status, departments(code, name)');
+      .select('status, departments(code, name), clearance_applications!inner(student_id)');
+
+    if (batchFilter !== 'all') {
+      reviewQuery = reviewQuery.eq('clearance_applications.academic_year' as any, batchFilter);
+    }
+
+    const { data, error } = await reviewQuery;
 
     if (!error && data) {
       const deptMap: Record<string, DepartmentStat> = {};
@@ -63,13 +92,17 @@ export default function ClearanceReportsPage() {
       let pending = 0;
       let rejected = 0;
 
-      data.forEach((review: any) => {
+      const typedData = data as unknown as DepartmentReviewData[];
+
+      typedData.forEach((review) => {
         const status = (review.status || 'pending').toLowerCase();
         const dept =
           review.departments?.name || review.departments?.code || 'General';
+
         if (!deptMap[dept]) {
           deptMap[dept] = { department: dept, approved: 0, pending: 0, rejected: 0 };
         }
+
         if (status === 'approved') {
           approved++;
           deptMap[dept].approved++;
@@ -98,15 +131,21 @@ export default function ClearanceReportsPage() {
     if (deptStats.length === 0) return;
     const headers = ['Department', 'Approved', 'Pending', 'Rejected'];
     const rows = deptStats.map((d) => [d.department, d.approved, d.pending, d.rejected]);
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+
+    const csvContent = [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
     const link = document.createElement('a');
-    link.setAttribute('href', encodeURI(csvContent));
-    link.setAttribute('download', 'clearance_report.csv');
+    link.href = url;
+    const filename = batchFilter === 'all' 
+      ? 'clearance_department_report_all.csv' 
+      : `clearance_department_report_${batchFilter}.csv`;
+    link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -119,9 +158,27 @@ export default function ClearanceReportsPage() {
           </p>
         </div>
 
-        <Button onClick={handleExportCSV} variant="outline">
-          Export CSV
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <Select value={batchFilter} onValueChange={setBatchFilter}>
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Academic Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Batches / Years</SelectItem>
+                <SelectItem value="2023-24">2023-2024</SelectItem>
+                <SelectItem value="2022-23">2022-2023</SelectItem>
+                <SelectItem value="2021-22">2021-2022</SelectItem>
+                <SelectItem value="2020-21">2020-2021</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button onClick={handleExportCSV} variant="outline" className="flex items-center gap-2">
+            <Download className="w-4 h-4" /> Export CSV
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -170,7 +227,10 @@ export default function ClearanceReportsPage() {
                     dataKey="value"
                   >
                     {statusStats.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color || COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />

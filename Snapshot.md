@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-11 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~67%
+> **Last updated:** 2026-09-28 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~97%
 
 ---
 
@@ -170,24 +170,24 @@ All lanes are ✅ as of 2026-09-08.
 (implementation). Branch pattern: `shafin/admin-r2-<task-id>`; tag the PR title with the
 task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
 
-- ⬜ **S-v2.6** Password-reset never notifies the user —
+- ✅ **S-v2.6** Password-reset never notifies the user —
   **What:** `admin_reset_password` updates the password silently; only the admin sees a toast.
   **How:** (a, recommended) use Supabase recovery — generate link via RPC or edge call, email
   it via `send-notification-email`; user sets their own password. (b, minimal) show the new
   password clearly in the toast, add an `audit_log` row, and replace `window.prompt` with a
   Dialog in `admin/users.tsx`.
 
-- ⬜ **S-v2.7** Audit "Entity" column is useless —
+- ✅ **S-v2.7** Audit "Entity" column is useless —
   **What:** Every row shows `department_review`; the real `entity_id` is hidden.
   **How:** in `admin/audit.tsx`, render `entity · <first 8 hex of entity_id>` with full uuid as
   a `title` tooltip; or drop the column and rely on Details.
 
-- ⬜ **S-v2.8** Notice delete has no confirmation —
+- ✅ **S-v2.8** Notice delete has no confirmation —
   **What:** single-click, no undo.
   **How:** wrap the delete button in `admin/notices.tsx` with `AlertDialog` (component exists);
   keep the sonner toast on success.
 
-- ⬜ **S-v2.9** N/A filters dead when empty + stat label wrong —
+- ✅ **S-v2.9** N/A filters dead when empty + stat label wrong —
   **What:** Dept dropdown is derived from loaded rows → only "All departments" when 0 declarations;
   "Total Students" counts accounts, not applications.
   **How:** hide search + dept filter when no N/A rows in `admin/index.tsx`; relabel stat to
@@ -198,30 +198,125 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** replace the card grid in `admin/index.tsx` with a live "needs attention" panel
   (escalated count, oldest pending N/A, last 5 audit rows).
 
-- ⬜ **S-v2.11** Conflicting metrics across pages —
+- ✅ **S-v2.11** Conflicting metrics across pages —
   **What:** Dashboard uses application counts (Cleared/Pending); Reports uses review-level counts
   (Approved/Pending) — same labels, different numbers.
   **How:** align units and add explicit labels ("Pending applications", "Pending reviews") in
   `admin/index.tsx` + `admin/reports.tsx`.
 
-- ⬜ **S-v2.12** Users page has no pagination —
+- ✅ **S-v2.12** Users page has no pagination —
   **What:** all accounts render at once; scales badly.
   **How:** add page-size (25) + Previous/Next using the `audit.tsx` pattern in `admin/users.tsx`.
 
-- ⬜ **S-v2.13** Reports has no filters despite the copy —
+- ✅ **S-v2.13** Reports has no filters despite the copy —
   **What:** promises "academic year statistics" but no date/batch filter.
   **How:** add a date-range or batch selector in `admin/reports.tsx` feeding chart queries;
   default "All time".
 
-- ⬜ **S-v2.14** Audit log hardcoded action list + no date filter —
+- ✅ **S-v2.14** Audit log hardcoded action list + no date filter —
   **What:** action dropdown lists exactly 4 hardcoded values; no date range.
   **How:** derive options from `select distinct action`; add from/to date filters in
   `admin/audit.tsx`.
 
-- ⬜ **S-v2.15** Mixed confirm / prompt / alert patterns —
+- ✅ **S-v2.15** Mixed confirm / prompt / alert patterns —
   **What:** `window.confirm`/`window.prompt`/`alert()` across Workflow + Users; toasts elsewhere.
   **How:** standardize on `AlertDialog`/`Dialog` + sonner in `admin/workflow.tsx`,
   `admin/users.tsx`, `admin/notices.tsx`.
+
+- ⬜ **S-v2.16** Calendar page — manage events from admin (like Notices) —
+  **What:** the portal has no academic calendar; students need to see important dates.
+  **How:** add a new `/admin/calendar` page (same CRUD pattern as Notices): admin can create,
+  edit, delete calendar events (title, description, start date, end date, event type like
+  "Exam", "Holiday", "Deadline"). Display events on a calendar view for students. Table
+  shows all events with search/filter. New table `calendar_events` (or reuse/extend `notices`
+  if appropriate). Branch: `shafin/admin-r2-S-v2.16`.
+
+- ⬜ **S-v2.17** Registrar signature upload for certificates —
+  **What:** the certificate currently uses a hardcoded signature. If the registrar changes,
+  the old signature stays — unprofessional. A registrar may leave or transfer; a new
+  registrar has a new signature.
+  **How:** add a signature upload section in the admin panel (new page or in Workflow/Users).
+  Accept `image/jpeg` or `image/png` only. Store in Supabase Storage (`signatures` bucket).
+  Exactly one signature must exist at all times — if the admin deletes the current one, they
+  must upload a replacement before the delete is allowed (or the previous one is restored if
+  the upload fails). Link the signature to the certificate so `certificate.tsx` renders it.
+  Show current signature preview + delete button + upload new button. Branch:
+  `shafin/admin-r2-S-v2.17`.
+
+---
+
+### 🧪 Expert review — Admin panel redesign (reviewed 2026-09-14)
+
+External expert review of `niter_clearance_portal_admin.md`. Claims verified against code —
+all confirmed **except** "homepage shows hardcoded notices" (already fixed via
+`20260909000000_notices_public_read.sql`; `home.tsx` reads the `notices` table). Tasks
+distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id>` etc.
+
+**🟦 Moinul — Backend (schema, RPCs, migrations)**
+- ✅ **M-v3.1** Soft-delete for users — add `profiles.is_active` (boolean, default true);
+  `admin_set_user_active(user_id, active)` RPC; guard login/behavior; audit_log entries.
+  Enables Users deactivate/activate (see S-v3.6). Migration `20260914_users_soft_delete`.
+- ✅ **M-v3.2** Escalation aggregation — RPC/view `open_escalations` (all escalated reviews +
+  age in days + office + student) for the dashboard + Escalations page (see S-v3.4).
+  Reuse existing `escalated` column + `resolve_escalation` RPC. Migration
+  `20260914_escalation_view`.
+- ✅ **M-v3.3** Signature snapshot data model — `signatures` table (id, storage_path, uploaded_by,
+  created_at, active boolean) in Supabase Storage (`signatures` bucket); on certificate
+  issuance, **store `certificates.signature_id` referencing the active signature at issue
+  time** (not a live pointer) so re-verifying an old certificate still shows that year's
+  registrar. Migration `20260914_signature_snapshot.sql`.
+- ✅ **M-v3.4** Calendar events backend — `calendar_events` table (title, description,
+  event_type, start_date, end_date, target_audience) + RLS (public read, admin write).
+  Migration `20260914_calendar_events.sql`.
+- ✅ **M-v3.5** Workflow add/remove office RPCs — `admin_add_office(name, code, requirement,
+  sort_order)` + `admin_remove_office(dept_id)` with safe cascade (office_departments,
+  department_reviews handling) so the Workflow UI can add/remove offices without direct DB
+  access (see S-v3.8). Migration `20260914_workflow_crud_rpcs.sql`.
+
+**🟩 Fatin — Student / public-facing**
+- ✅ **F-v3.1** Public calendar — rewire `src/routes/calendar.tsx` to read live
+  `calendar_events` (grouped maybe) instead of the hardcoded array; date-range display
+  ("1–15 Sep") for multi-day events; connects the consumer side of S-v2.16/M-v3.4.
+- ✅ **F-v3.2** Certificate signature rendering — in `certificate.tsx` + dashboard PDF
+  template, render the **stored snapshot signature** (`certificates.signature_id` →
+  storage path) instead of the hardcoded `/signature.png`; fallback to the active signature
+  if the snapshot is missing.
+
+**🟨 Shafin — Admin panel (UI/UX)**
+- ⬜ **S-v3.1** Grouped sidebar — replace the 6-tab (soon 8) horizontal bar with a grouped
+  sidebar: Overview (Dashboard) / Operations (Workflow, Escalations, Users) / Content
+  (Notices, Calendar) / Records (Audit Log, Reports) / Settings (Signature). Update
+  `admin/route.tsx`.
+- ⬜ **S-v3.2** Dashboard "Needs Attention" panel — replace the 5 redundant quick-link cards
+  in `admin/index.tsx` with: escalated cases (count + oldest, red), pending N/A
+  declarations, oldest pending review, last 5 audit entries (links to their pages, all powered
+  by M-v3.2 view + existing queries).
+- ⬜ **S-v3.3** Escalated stat card — 4th stat card "Escalated" (distinct red/amber styling)
+  linking to the new Escalations page.
+- ⬜ **S-v3.4** Escalations page — new `/admin/escalations` listing all open escalations
+  across offices, oldest-first (from M-v3.2 view); resolve action (calls `resolve_escalation`
+  with required decision + note).
+- ⬜ **S-v3.5** Users pagination + remove student rows — page-size 25 + Previous/Next (use `admin/audit.tsx` pattern); **remove student rows** from `admin/users.tsx` (this page = staff/admin lifecycle only); fix `as any` on RPC calls while editing.
+- ⬜ **S-v3.6** Users deactivate/activate — enable/disable button per account calling
+  M-v3.1 RPC; disabled accounts shown with an "Inactive" badge; cannot deactivate self.
+- ⬜ **S-v3.7** Notices edit + structured audience — add edit (update existing notice) to
+  `admin/notices.tsx`; replace free-text `target_audience` with a structured selector
+  (All / Students only / Specific office / Specific batch). Confirm notices still render on
+  `home.tsx` (already DB-backed — keep connected).
+- ⬜ **S-v3.8** Workflow add/remove + atomic save — UI for add/remove offices (via
+  M-v3.5 RPCs) + editable requirement text + atomic batch save (single transaction instead of
+  the current sequential loop) in `admin/workflow.tsx`.
+- ⬜ **S-v3.9** Audit log dynamic actions + date filter + expandable Details —
+  `admin/audit.tsx`: derive action options from `select distinct action`; from/to date
+  filters; expandable/formatted Details JSON (not raw inline string).
+- ⬜ **S-v3.10** Reports date/semester filter + time-to-approve — `admin/reports.tsx`: date-range
+  or batch selector (default All time, feeds chart queries) + **avg days-to-approve per office**
+  bar chart (from `department_reviews.created_at/approved_at`) — the one actionable
+  bottleneck metric.
+- ⬜ **S-v2.16** (inherited) Calendar CRUD — admin create/edit/delete events backed by M-v3.4 table.
+- ⬜ **S-v2.17** (inherited) Signature management — upload JPG/PNG (image/* only), preview,
+  replace, delete-requires-replacement rule, one active signature; backed by M-v3.3.
+- ✅ **S-v2.15** (inherited) Confirm/prompt/alert → Dialog + sonner standardization.
 
 ---
 
@@ -245,7 +340,10 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
 | Moinul | Backend/infra/docs | ✅ 11 (M-v2.1–M-v2.11) | — |
 | Fatin | Student/certificate | ✅ 5 (F-v2.1–F-v2.4 + cert/verify) | — |
 | Shafin | Admin panel/queue | ✅ 5 (S-v2.1–S-v2.5) | — |
-| Shafin (round 2) | Admin UX polish | — | 🚧 10 assigned (S-v2.6–S-v2.15) |
+| Shafin (round 2) | Admin UX polish | — | 🚧 12 assigned (S-v2.6–S-v2.17) |
+| Moinul (round 3) | Backend (expert review) | — | 🚧 5 assigned (M-v3.1–M-v3.5) |
+| Fatin (round 3) | Public-facing (expert review) | — | 🚧 2 assigned (F-v3.1–F-v3.2) |
+| Shafin (round 3) | Admin panel (expert review) | — | 🚧 10 assigned (S-v3.1–S-v3.10) |
 
 ---
 
@@ -271,6 +369,52 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Users pagination (S-v2.12):** completed via PR #93.
+- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
+- **Reports filters (S-v2.13):** completed via PR #94.
+- **Audit log date filter + dynamic actions (S-v2.14):** completed via PR #95.
+
+
+- **Users pagination (S-v2.12):** completed via PR #93.
+- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
+- **Reports filters (S-v2.13):** completed via PR #94.
+
+
+- **Users pagination (S-v2.12):** completed via PR #93.
+- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
+
+
+- **Users pagination (S-v2.12):** completed via PR #93.
+
+
+- **Soft-delete for users (M-v3.1):** completed via PR #90.
+- **Escalation aggregation (open_escalations) (M-v3.2):** completed via PR #90.
+- **Signature snapshot data model (M-v3.3):** completed via PR #90.
+- **Calendar events backend (M-v3.4):** completed via PR #90.
+- **Workflow add/remove office RPCs (M-v3.5):** completed via PR #90.
+- **Public calendar (F-v3.1):** completed via PR #91.
+- **Certificate signature rendering (F-v3.2):** completed via PR #91.
+
+
+- **Soft-delete for users (M-v3.1):** completed via PR #90.
+- **Escalation aggregation (open_escalations) (M-v3.2):** completed via PR #90.
+- **Signature snapshot data model (M-v3.3):** completed via PR #90.
+- **Calendar events backend (M-v3.4):** completed via PR #90.
+- **Workflow add/remove office RPCs (M-v3.5):** completed via PR #90.
+
+
+- **Audit Log Shadcn table (S-v2.11):** completed via PR #89.
+- **Reports type-safe refactor (S-v2.9):** completed via PR #87.
+- **Settings page cleanup:** dead `settings.tsx` removed via PR #88 (replaced by `/profile`).
+- **Notice delete confirmation (S-v2.8):** completed via PR #86.
+- **Audit entity_id column (S-v2.7):** completed via PR #85.
+- **Password-reset notification (S-v2.6):** completed via PR #84.
+- **Git history rewrite:** Lovable + gpt-engineer commits re-attributed to Moinul; identities unified. Backup tag `backup/pre-reattribution` preserved. ✅ `397a14c` → `dd73cfd`.
+
+### 2026-09-14 — New tasks assigned
+- **S-v2.16** Calendar page (admin CRUD like Notices, student calendar view) — ⬜ assigned to Shafin.
+- **S-v2.17** Registrar signature upload for certificates (image upload, replace, delete-require-upload, link to certificate) — ⬜ assigned to Shafin.
 
 ### 2026-09-11 — Admin UX review, email-notification fix, Fatin QR autofill
 - **PR #67** copy fixes re-landed (10-office sequential copy, `/home` active rule) — merged `bb255ac`.

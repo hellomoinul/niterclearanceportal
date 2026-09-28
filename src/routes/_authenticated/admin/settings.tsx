@@ -1,6 +1,6 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PortalShell } from "@/components/portal-shell";
@@ -18,23 +18,28 @@ import {
 import { useAuth } from "@/lib/auth";
 import { DEPARTMENTS, academicYears } from "@/lib/departments";
 import { phoneInputHandler, normalizeCode } from "@/lib/portal";
-
 import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Settings — NITER" },
-      { name: "description", content: "Update your profile settings." },
+      { title: "Admin Settings — NITER" },
+      { name: "description", content: "Manage admin settings and system preferences." },
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: SettingsPage,
+  component: AdminSettingsPage,
 });
 
-function SettingsPage() {
-  const { profile, refresh, user, isStudent, isOffice, isAdmin } = useAuth();
+interface DepartmentQueryResult {
+  departments: {
+    name: string | null;
+  } | null;
+}
+
+function AdminSettingsPage() {
+  const { profile, refresh, user, isStudent, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [program, setProgram] = useState(profile?.program ?? "");
@@ -48,8 +53,11 @@ function SettingsPage() {
         .from("office_departments")
         .select("departments(name)")
         .eq("user_id", user!.id);
+
       if (error) throw error;
-      return (data ?? [])
+      
+      const typedData = (data as unknown as DepartmentQueryResult[]) ?? [];
+      return typedData
         .map((row) => row.departments?.name)
         .filter(Boolean) as string[];
     },
@@ -62,6 +70,7 @@ function SettingsPage() {
     event.preventDefault();
     const targetId = user?.id ?? profile?.id;
     if (!targetId) return;
+
     const form = new FormData(event.currentTarget);
     setBusy(true);
 
@@ -100,6 +109,7 @@ function SettingsPage() {
       .upsert({ id: targetId, ...update }, { onConflict: "id" });
 
     setBusy(false);
+
     if (error) {
       if (error.code === "23505" || /duplicate|unique/i.test(error.message)) {
         toast.error(`${roleLabel} ID already taken`, {
@@ -115,25 +125,26 @@ function SettingsPage() {
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
     await queryClient.invalidateQueries({ queryKey: ["section"] });
     await queryClient.invalidateQueries({ queryKey: ["queue-reviews"] });
-    toast.success("Profile updated");
+    toast.success("Settings saved successfully");
   }
 
   return (
     <PortalShell className="max-w-3xl">
       <PageHeader
-        title="Settings"
-        description="Manage your profile details."
-        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }]}
+        title="Admin Settings"
+        description="Manage system and admin profile details."
+        breadcrumbs={[
+          { label: "Dashboard", to: "/dashboard" },
+          { label: "Admin", to: "/admin" },
+        ]}
       />
 
       <div className="card-surface mt-8 space-y-6 p-6">
         <form onSubmit={handleSubmit}>
           <section>
-            <h2 className="text-base font-semibold">Profile details</h2>
+            <h2 className="text-base font-semibold">Admin Profile Details</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {isStudent
-                ? "Keep your information current — it appears on your clearance certificate."
-                : "Keep your information current."}
+              Keep your administrator profile and contact details up to date.
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -147,7 +158,12 @@ function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="userCode">{roleLabel} ID *</Label>
-                <Input id="userCode" name="userCode" required defaultValue={profile?.user_code ?? ""} />
+                <Input
+                  id="userCode"
+                  name="userCode"
+                  required
+                  defaultValue={profile?.user_code ?? ""}
+                />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="personalEmail">Personal email</Label>
@@ -254,14 +270,14 @@ function SettingsPage() {
                   </div>
                 </>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                   <Label>Role / Office</Label>
                   <Input value={roleOffice} readOnly className="bg-muted" />
                 </div>
               )}
             </div>
             <Button type="submit" size="sm" disabled={busy} className="mt-4">
-              {busy ? "Saving…" : "Save profile"}
+              {busy ? "Saving…" : "Save settings"}
             </Button>
           </section>
         </form>
