@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -47,6 +47,8 @@ interface Department {
   name: string;
 }
 
+const PAGE_SIZE = 25;
+
 const roleBadgeVariant = (role: string) =>
   role === 'admin' ? 'default' : role === 'office' ? 'secondary' : 'outline';
 
@@ -62,6 +64,7 @@ function UsersPage() {
   });
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [page, setPage] = useState(1);
 
   // S-v2.6 Password Reset Dialog States
   const [resetRow, setResetRow] = useState<AccountRow | null>(null);
@@ -133,6 +136,17 @@ function UsersPage() {
       );
     });
   }, [rows, search, roleFilter]);
+
+  // Reset pagination to page 1 on search/filter update
+  useEffect(() => {
+    setPage(1);
+  }, [search, roleFilter]);
+
+  const totalPages = Math.ceil(visible.length / PAGE_SIZE) || 1;
+  const paginatedVisible = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return visible.slice(start, start + PAGE_SIZE);
+  }, [visible, page]);
 
   async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -223,7 +237,6 @@ function UsersPage() {
 
     setIsSubmitting(true);
     try {
-      // 1. RPC Call with standard parameters
       const { error: resetError } = await (supabase as any).rpc('admin_reset_password', {
         user_id: resetRow.id,
         new_password: newPassword,
@@ -231,18 +244,17 @@ function UsersPage() {
 
       if (resetError) throw resetError;
 
-     // 2. Insert into audit_log
-const targetEmail = resetRow.user_code ? idToEmail(resetRow.user_code) : 'N/A';
-const { error: auditError } = await supabase.from('audit_log').insert({
-  action: 'user_password_reset',
-  entity: 'users',
-  entity_id: resetRow.id,
-  details: JSON.stringify({
-    reset_by: user?.id,
-    target_user_code: resetRow.user_code,
-    target_email: targetEmail,
-  }),
-});
+      const targetEmail = resetRow.user_code ? idToEmail(resetRow.user_code) : 'N/A';
+      const { error: auditError } = await supabase.from('audit_log').insert({
+        action: 'user_password_reset',
+        entity: 'users',
+        entity_id: resetRow.id,
+        details: JSON.stringify({
+          reset_by: user?.id,
+          target_user_code: resetRow.user_code,
+          target_email: targetEmail,
+        }),
+      });
 
       if (auditError) {
         console.error('Failed to insert audit log for password reset:', auditError);
@@ -381,88 +393,115 @@ const { error: auditError } = await supabase.from('audit_log').insert({
               No accounts match your filters.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="py-2 pr-4">Name</th>
-                    <th className="py-2 pr-4">User code</th>
-                    <th className="py-2 pr-4">Portal ID</th>
-                    <th className="py-2 pr-4">Role</th>
-                    <th className="py-2 pr-4">Office</th>
-                    <th className="py-2 pr-4">Created</th>
-                    <th className="py-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visible.map((row) => (
-                    <tr key={row.id} className="border-b last:border-b-0 align-middle">
-                      <td className="py-2 pr-4 font-medium">{row.full_name ?? '—'}</td>
-                      <td className="py-2 pr-4">{row.user_code ?? '—'}</td>
-                      <td className="py-2 pr-4 text-muted-foreground">
-                        {row.id === user?.id ? 'you' : row.user_code ? idToEmail(row.user_code) : '—'}
-                      </td>
-                      <td className="py-2 pr-4">
-                        <Badge variant={roleBadgeVariant(row.role) as any}>{row.role}</Badge>
-                      </td>
-                      <td className="py-2 pr-4">
-                        {row.role === 'office' ? (
-                          <Select
-                            value={row.officeIds[0] ?? ''}
-                            onValueChange={(v) => changeOffice(row, v)}
-                          >
-                            <SelectTrigger className="w-44">
-                              <SelectValue
-                                placeholder={row.officeNames[0] ?? 'Unassigned'}
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="">Unassigned</SelectItem>
-                              {(data?.departments ?? []).map((d) => (
-                                <SelectItem key={d.id} value={d.id}>
-                                  {d.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </td>
-                      <td className="py-2 pr-4 text-muted-foreground">
-                        {row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB') : '—'}
-                      </td>
-                      <td className="py-2">
-                        <div className="flex items-center gap-2">
-                          {row.role !== 'student' && row.id !== user?.id && (
-                            <Select value={row.role} onValueChange={(v) => changeRole(row, v)}>
-                              <SelectTrigger className="h-8 w-24 text-xs">
-                                <SelectValue />
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left text-muted-foreground">
+                      <th className="py-2 pr-4">Name</th>
+                      <th className="py-2 pr-4">User code</th>
+                      <th className="py-2 pr-4">Portal ID</th>
+                      <th className="py-2 pr-4">Role</th>
+                      <th className="py-2 pr-4">Office</th>
+                      <th className="py-2 pr-4">Created</th>
+                      <th className="py-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedVisible.map((row) => (
+                      <tr key={row.id} className="border-b last:border-b-0 align-middle">
+                        <td className="py-2 pr-4 font-medium">{row.full_name ?? '—'}</td>
+                        <td className="py-2 pr-4">{row.user_code ?? '—'}</td>
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {row.id === user?.id ? 'you' : row.user_code ? idToEmail(row.user_code) : '—'}
+                        </td>
+                        <td className="py-2 pr-4">
+                          <Badge variant={roleBadgeVariant(row.role) as any}>{row.role}</Badge>
+                        </td>
+                        <td className="py-2 pr-4">
+                          {row.role === 'office' ? (
+                            <Select
+                              value={row.officeIds[0] ?? ''}
+                              onValueChange={(v) => changeOffice(row, v)}
+                            >
+                              <SelectTrigger className="w-44">
+                                <SelectValue
+                                  placeholder={row.officeNames[0] ?? 'Unassigned'}
+                                />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="office">office</SelectItem>
-                                <SelectItem value="admin">admin</SelectItem>
+                                <SelectItem value="">Unassigned</SelectItem>
+                                {(data?.departments ?? []).map((d) => (
+                                  <SelectItem key={d.id} value={d.id}>
+                                    {d.name}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
                           )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setResetRow(row);
-                              setNewPassword('');
-                              setIsResetOpen(true);
-                            }}
-                          >
-                            Reset password
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </td>
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB') : '—'}
+                        </td>
+                        <td className="py-2">
+                          <div className="flex items-center gap-2">
+                            {row.role !== 'student' && row.id !== user?.id && (
+                              <Select value={row.role} onValueChange={(v) => changeRole(row, v)}>
+                                <SelectTrigger className="h-8 w-24 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="office">office</SelectItem>
+                                  <SelectItem value="admin">admin</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setResetRow(row);
+                                setNewPassword('');
+                                setIsResetOpen(true);
+                              }}
+                            >
+                              Reset password
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* S-v2.12 Pagination Controls */}
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Page {page} of {totalPages} ({visible.length} total users)
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
