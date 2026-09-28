@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-24 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~86%
+> **Last updated:** 2026-09-28 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~89%
 
 ---
 
@@ -204,7 +204,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** align units and add explicit labels ("Pending applications", "Pending reviews") in
   `admin/index.tsx` + `admin/reports.tsx`.
 
-- ⬜ **S-v2.12** Users page has no pagination —
+- ✅ **S-v2.12** Users page has no pagination —
   **What:** all accounts render at once; scales badly.
   **How:** add page-size (25) + Previous/Next using the `audit.tsx` pattern in `admin/users.tsx`.
 
@@ -369,6 +369,9 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Users pagination (S-v2.12):** completed via PR #93.
+
 
 - **Soft-delete for users (M-v3.1):** completed via PR #90.
 - **Escalation aggregation (open_escalations) (M-v3.2):** completed via PR #90.
