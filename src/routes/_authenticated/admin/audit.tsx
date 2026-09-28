@@ -89,6 +89,19 @@ export default function AuditLogPage() {
     return String(details);
   };
 
+  const renderEntity = (entity: string | null, entityId: string | null) => {
+    if (!entity && !entityId) return 'N/A';
+    const entityName = entity || 'unknown';
+    if (!entityId) return entityName;
+
+    const shortId = entityId.length >= 8 ? entityId.substring(0, 8) : entityId;
+    return (
+      <span title={entityId} className="cursor-help underline decoration-dotted underline-offset-2">
+        {entityName} · <span className="font-semibold text-foreground">{shortId}</span>
+      </span>
+    );
+  };
+
   const getActionBadgeVariant = (action: string) => {
     if (action.includes('approved') || action.includes('resolved')) return 'default';
     if (action.includes('rejected')) return 'destructive';
@@ -181,9 +194,9 @@ export default function AuditLogPage() {
                     <Badge variant={getActionBadgeVariant(log.action)}>
                       {log.action}
                     </Badge>
-                  </TableCell>
+</TableCell>
                   <TableCell className="text-muted-foreground font-mono text-xs">
-                    {log.entity || 'N/A'}
+                    {renderEntity(log.entity, log.entity_id)}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground max-w-xs truncate font-mono">
                     {renderDetails(log.details)}
