@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-28 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~95%
+> **Last updated:** 2026-09-28 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~97%
 
 ---
 
@@ -213,7 +213,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** add a date-range or batch selector in `admin/reports.tsx` feeding chart queries;
   default "All time".
 
-- ⬜ **S-v2.14** Audit log hardcoded action list + no date filter —
+- ✅ **S-v2.14** Audit log hardcoded action list + no date filter —
   **What:** action dropdown lists exactly 4 hardcoded values; no date range.
   **How:** derive options from `select distinct action`; add from/to date filters in
   `admin/audit.tsx`.
@@ -369,6 +369,12 @@ Older migrations stay as historical record — never edit applied migrations.
 ---
 
 ## 📝 Work history
+
+- **Users pagination (S-v2.12):** completed via PR #93.
+- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
+- **Reports filters (S-v2.13):** completed via PR #94.
+- **Audit log date filter + dynamic actions (S-v2.14):** completed via PR #95.
+
 
 - **Users pagination (S-v2.12):** completed via PR #93.
 - **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
