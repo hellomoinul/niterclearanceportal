@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -11,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { AlertCircle, ArrowRight, ShieldAlert, History } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/admin/')({
   beforeLoad: async () => {
@@ -30,27 +32,43 @@ interface NaRow {
   clearedAt: string | null;
 }
 
+interface AuditRow {
+  id: string;
+  action: string;
+  created_at: string;
+  user_code: string | null;
+}
+
 type SortKey = 'fullName' | 'userCode' | 'deptName' | 'clearedAt';
 
 function AdminDashboard() {
   const [stats, setStats] = useState({ students: 0, cleared: 0, pending: 0 });
   const [naRows, setNaRows] = useState<NaRow[]>([]);
   const [naLoading, setNaLoading] = useState(true);
+  const [escalatedCount, setEscalatedCount] = useState(0);
+  const [recentAudits, setRecentAudits] = useState<AuditRow[]>([]);
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('clearedAt');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
-    async function load() {
-      const [{ count: cleared }, { count: inReview }, { count: students }] = await Promise.all([
+    async function loadStatsAndAttention() {
+      const [{ count: cleared }, { count: inReview }, { count: students }, { count: escalated }, { data: audits }] = await Promise.all([
         supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'cleared'),
         supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'in_review'),
         supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+        supabase.from('department_reviews').select('*', { count: 'exact', head: true }).eq('escalated', true),
+        supabase.from('audit_log').select('id, action, created_at, user_code').order('created_at', { ascending: false }).limit(5),
       ]);
+
       setStats({ students: students ?? 0, cleared: cleared ?? 0, pending: inReview ?? 0 });
+      setEscalatedCount(escalated ?? 0);
+      if (audits) {
+        setRecentAudits(audits as unknown as AuditRow[]);
+      }
     }
-    load();
+    loadStatsAndAttention();
   }, []);
 
   useEffect(() => {
@@ -154,38 +172,94 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
-          <p className="text-sm text-muted-foreground">Total Students</p>
-          <p className="text-2xl font-bold">{stats.students}</p>
-        </div>
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
-          <p className="text-sm text-muted-foreground">Cleared</p>
-          <p className="text-2xl font-bold text-status-approved">{stats.cleared}</p>
-        </div>
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
-          <p className="text-sm text-muted-foreground">Pending</p>
-          <p className="text-2xl font-bold text-status-pending">{stats.pending}</p>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {[
-          { to: '/admin/users', label: 'User Management', desc: 'Create staff accounts, assign roles' },
-          { to: '/admin/audit', label: 'Audit Log', desc: 'View approval/rejection history' },
-          { to: '/admin/notices', label: 'Notices', desc: 'Manage public notices' },
-          { to: '/admin/reports', label: 'Reports', desc: 'Academic year clearance statistics' },
-          { to: '/admin/workflow', label: 'Office Editor', desc: 'Set office review order & final sign-off' },
-        ].map((item) => (
-          <Link key={item.to} to={item.to} className="block bg-card p-4 rounded-lg border shadow-sm hover:bg-muted/50 transition">
-            <p className="font-semibold">{item.label}</p>
-            <p className="text-sm text-muted-foreground">{item.desc}</p>
-          </Link>
-        ))}
+    <div className="p-6 space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold">Admin Dashboard</h2>
+        <p className="text-sm text-muted-foreground">Overview of portal clearance applications and administrative task queue.</p>
       </div>
 
-      <div className="bg-card rounded-lg border shadow-sm p-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-card p-4 rounded-lg border shadow-sm">
+          <p className="text-sm text-muted-foreground">Registered students <span className="text-xs italic">(accounts, not applications)</span></p>
+          <p className="text-2xl font-bold mt-1">{stats.students}</p>
+        </div>
+        <div className="bg-card p-4 rounded-lg border shadow-sm">
+          <p className="text-sm text-muted-foreground">Cleared applications</p>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{stats.cleared}</p>
+        </div>
+        <div className="bg-card p-4 rounded-lg border shadow-sm">
+          <p className="text-sm text-muted-foreground">Pending applications</p>
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{stats.pending}</p>
+        </div>
+      </div>
+
+      {/* Needs Attention Panel */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-amber-500" /> Needs Attention
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className={`p-4 rounded-lg border shadow-sm flex flex-col justify-between ${escalatedCount > 0 ? 'bg-rose-50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900' : 'bg-card'}`}>
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 text-rose-500" /> Escalated Cases
+                </span>
+                {escalatedCount > 0 && <Badge variant="destructive">{escalatedCount} Active</Badge>}
+              </div>
+              <p className="text-2xl font-bold mt-2">{escalatedCount}</p>
+              <p className="text-xs text-muted-foreground mt-1">Applications flagged by office staff requiring admin intervention.</p>
+            </div>
+            <Link to="/admin/audit" className="text-xs font-semibold text-primary hover:underline mt-4 flex items-center gap-1">
+              View Audit Log <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          <div className="bg-card p-4 rounded-lg border shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4 text-amber-500" /> Pending N/A Declarations
+                </span>
+                <Badge variant="secondary">{naRows.filter(r => r.appStatus !== 'cleared').length} Pending</Badge>
+              </div>
+              <p className="text-2xl font-bold mt-2">{naRows.filter(r => r.appStatus !== 'cleared').length}</p>
+              <p className="text-xs text-muted-foreground mt-1">Student-claimed unapplicable offices waiting for verification.</p>
+            </div>
+            <a href="#na-declarations" className="text-xs font-semibold text-primary hover:underline mt-4 flex items-center gap-1">
+              Jump to Table <ArrowRight className="w-3 h-3" />
+            </a>
+          </div>
+
+          <div className="bg-card p-4 rounded-lg border shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold flex items-center gap-1.5">
+                  <History className="w-4 h-4 text-blue-500" /> Recent Activity
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {recentAudits.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No recent activity.</p>
+                ) : (
+                  recentAudits.slice(0, 3).map((a) => (
+                    <div key={a.id} className="text-xs flex items-center justify-between text-muted-foreground">
+                      <span className="truncate max-w-[150px] font-medium text-foreground">{a.action}</span>
+                      <span>{new Date(a.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            <Link to="/admin/audit" className="text-xs font-semibold text-primary hover:underline mt-4 flex items-center gap-1">
+              Full Audit History <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div id="na-declarations" className="bg-card rounded-lg border shadow-sm p-4">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
             <h3 className="text-lg font-bold">N/A declarations</h3>
@@ -254,9 +328,9 @@ function AdminDashboard() {
                     <td className="py-2 pr-4">{r.deptName}</td>
                     <td className="py-2 pr-4">
                       {r.appStatus === 'cleared' ? (
-                        <span className="text-green-600 font-medium">Cleared</span>
+                        <span className="text-emerald-600 font-medium">Cleared</span>
                       ) : (
-                        <span className="text-orange-600 font-medium">In review</span>
+                        <span className="text-amber-600 font-medium">In review</span>
                       )}
                     </td>
                     <td className="py-2">
