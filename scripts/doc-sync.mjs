@@ -166,7 +166,9 @@ function updateSnapshot(newlyDone = []) {
   // preserving any existing human-written history. Using `newlyDone` instead of
   // filtering `STATE.done` by date prevents same-day re-runs from duplicating
   // earlier PRs' completions.
-  const candidates = [...new Set(newlyDone)].filter((id) => ID_RE.test(id) && TASKS.some((t) => t.id === id));
+  const candidates = [...new Set(newlyDone)].filter(
+    (id) => ID_RE.test(id) && TASKS.some((t) => t.id === id),
+  );
   if (candidates.length > 0) {
     const whStart = content.indexOf("## 📝 Work history");
     if (whStart !== -1) {

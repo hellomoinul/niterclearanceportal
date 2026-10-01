@@ -225,7 +225,7 @@ export function PortalHeader() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/settings" className="cursor-pointer">
+                    <Link to="/admin/settings" className="cursor-pointer">
                       <Settings className="size-4" /> Settings
                     </Link>
                   </DropdownMenuItem>
@@ -278,7 +278,7 @@ export function PortalHeader() {
                 {profile?.user_code ?? "Profile"}
               </Link>
               <Link
-                to="/settings"
+                to="/admin/settings"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
               >
