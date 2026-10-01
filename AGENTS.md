@@ -36,10 +36,12 @@ explicitly agreed on.
 Lane ownership (v2 powered by Snapshot's task map):
 - **Moinul** — backend, migrations, RLS/RPC, integration, docs.
 - **Fatin** — student & certificate lane: `apply.tsx`, `dashboard.tsx`, `section.$code.tsx`,
-  `guide.tsx`, `about.tsx`, `index.tsx`, `certificate.tsx`, `verify.tsx`, `verify.$code.tsx`,
-  `profile.tsx`, `settings.tsx`.
+  `guide.tsx`, `about.tsx`, `index.tsx`, `certificate.tsx`, `verify.index.tsx`, `verify.$code.tsx`,
+  `profile.tsx`, `calendar.tsx`. (Settings moved to admin lane.)
+
 - **Shafin** — admin panel & queue: `admin/workflow.tsx` (Office Editor), `admin/users.tsx`,
-  `admin/index.tsx`, `queue.tsx`, `admin/reports.tsx`, `admin/audit.tsx`, `admin/notices.tsx`.
+  `admin/index.tsx`, `queue.tsx`, `admin/reports.tsx`, `admin/audit.tsx`, `admin/notices.tsx`,
+  `admin/calendar.tsx`, `admin/settings.tsx` (registrar signature + system settings).
 
 **Do NOT implement or commit work inside another member's lane** (even if a task looks unfinished)
 unless that member or the owner explicitly asks. Teammates may hold uncommitted work in those files.

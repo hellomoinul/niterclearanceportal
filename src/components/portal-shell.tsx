@@ -1,7 +1,9 @@
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
+import type { ToOptions } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Bell,
+  CalendarDays,
   LogOut,
   Menu,
   Settings,
@@ -12,7 +14,6 @@ import {
   Workflow,
   History,
   BarChart3,
-  ShieldAlert,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
@@ -27,14 +28,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+type RoutePath = ToOptions["to"];
+
 const publicLinks = [
   { to: "/home", label: "Home" },
   { to: "/about", label: "About" },
   { to: "/calendar", label: "Academic calendar" },
   { to: "/verify", label: "Verify certificate" },
-] as const;
+] as const satisfies readonly { to: RoutePath; label: string }[];
 
-const guideLink = { to: "/guide", label: "Guide" } as const;
+const guideLink = { to: "/guide", label: "Guide" } as const satisfies {
+  to: RoutePath;
+  label: string;
+};
 
 export const adminNavGroups = [
   {
@@ -47,31 +53,32 @@ export const adminNavGroups = [
   {
     category: "Operations",
     items: [
-      { label: "Clearance Queue", to: "/admin/clearances", icon: FileCheck2 },
-      { label: "Escalations", to: "/admin/escalations", icon: ShieldAlert },
-      { label: "Workflows", to: "/admin/workflows", icon: Workflow },
+      { label: "Clearance Queue", to: "/queue", icon: FileCheck2 },
+      { label: "Workflows", to: "/admin/workflow", icon: Workflow },
     ],
   },
   {
     category: "Content",
     items: [
       { label: "Notice Board", to: "/admin/notices", icon: Bell },
+      { label: "Academic Calendar", to: "/admin/calendar", icon: CalendarDays },
     ],
   },
   {
     category: "Records",
     items: [
       { label: "User Management", to: "/admin/users", icon: Users },
-      { label: "Audit Logs", to: "/admin/audit-logs", icon: History },
+      { label: "Audit Logs", to: "/admin/audit", icon: History },
     ],
   },
   {
     category: "Settings",
-    items: [
-      { label: "System Settings", to: "/admin/settings", icon: Settings },
-    ],
+    items: [{ label: "System Settings", to: "/admin/settings", icon: Settings }],
   },
-];
+] as const satisfies readonly {
+  category: string;
+  items: readonly { label: string; to: RoutePath; icon: unknown }[];
+}[];
 
 export function AdminSidebar() {
   const location = useLocation();
@@ -224,11 +231,13 @@ export function PortalHeader() {
                       <User className="size-4" /> Profile
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin/settings" className="cursor-pointer">
-                      <Settings className="size-4" /> Settings
-                    </Link>
-                  </DropdownMenuItem>
+                  {isAdmin ? (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/settings" className="cursor-pointer">
+                        <Settings className="size-4" /> Settings
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
                     <LogOut className="size-4" /> Sign out
@@ -277,14 +286,16 @@ export function PortalHeader() {
                 <User className="size-4" />
                 {profile?.user_code ?? "Profile"}
               </Link>
-              <Link
-                to="/admin/settings"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                <Settings className="size-4" />
-                Settings
-              </Link>
+              {isAdmin ? (
+                <Link
+                  to="/admin/settings"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  <Settings className="size-4" />
+                  Settings
+                </Link>
+              ) : null}
               <button
                 onClick={() => { setOpen(false); handleSignOut(); }}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"

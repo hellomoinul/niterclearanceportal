@@ -30,6 +30,9 @@
   - Student → **Dashboard**
   - Office → **Queue** (their assigned office)
   - Admin → **Queue** + **Admin**
+- The profile dropdown (`▾ MyID`) offers **Profile**, **Settings**, and **Sign out**. **Settings**
+  points to `/admin/settings`. (Prudent clean-up note: the entry is shown for all roles but the page
+  is admin-scoped — see `Snapshot.md` known gaps.)
 - On mobile it becomes a hamburger menu.
 
 ---
@@ -88,7 +91,9 @@ e.g. `NCP-A83C2B1F`), or the bare 8 hex digits — all resolved server-side via 
 
 ### Also public
 - **About** `/about` — how clearance works + how decisions are recorded (hidden from nav once logged in).
-- **Academic calendar** `/calendar` — key dates (window opens, deadline, review deadline, certificate release).
+- **Academic calendar** `/calendar` — **live** events from the `calendar_events` table, grouped by
+  month: exams, holidays, deadlines, window open/close. Multi-day events render as date ranges
+  ("1–15 Sep"). Admins manage events at `/admin/calendar` (public gets read-only).
 - **Guide** `/guide` — a **role-based** guide (Student / Office / Admin tabs). Step-by-step how-to for each role, plus a folded-in FAQ accordion whose questions switch by role. Replaces the old "FAQ" page.
 
 ---
@@ -169,12 +174,15 @@ not on this form.
 │   Certificate ID: NCP-A83C2B1F             │
 │   Full ID: f7ddbb0b-…                      │
 │                                              │
-│                          (Office)        │
+│                          (Registrar)        │
 │                          signature          │
 └──────────────────────────────────────────────┘
 ```
 - QR code points to `/verify/<cert-id>` — anyone can scan/enter it to confirm authenticity.
 - Download PDF + Print disabled until the application is fully **cleared**.
+- The signature is the **registrar's uploaded signature** (snapshotted at issue time, so an old
+  certificate re-verifies with that year's registrar; falls back to the current active signature,
+  then to `/signature.png`). Managed at `/admin/settings`.
 
 ---
 
@@ -215,18 +223,26 @@ not on this form.
 
 ## Shared authenticated pages
 
-### Settings `/settings`
+### Settings `/admin/settings` (admin-guarded)
 ```
 ── Profile details ──────────────────────
-Full name * | Office ID *   (Student: role label swaps)
+Full name * | Admin ID *   (Office: role label swaps)
 Personal email (full width)
 Phone (11 digits)
-[Student extra:] Registration no · Program · Academic year
-                  Guardian name · Guardian phone · addresses
 [Office/Admin:] Role / Office (read-only)
 [Save profile]
+
+── Registrar Signature Management ──────
+Current signature      [preview]     [Delete]
+[Upload JPG/PNG signature]
 ```
-Personal email is edited here directly.
+- **Admin-only** — the route guard in `admin/route.tsx` redirects anyone without the `admin` role
+  to `/dashboard`. Admins edit their own profile/contact details here.
+- **Registrar signature (S-v2.17):** exactly one active signature at all times — accept
+  `image/jpeg` / `image/png` only; deleting requires uploading a replacement. Certificates
+  snapshot the active signature at issue time.
+- There is no general `/settings` route — settings live only at `/admin/settings`. The old
+  `/_authenticated/settings` route no longer exists; it moved here.
 
 ### Profile `/profile`
 Read-only card: Name, ID, **Portal ID**, Department+Session (student) or Role/Office (office/admin), Phone, Email, and **Account UUID** at the bottom.
@@ -247,24 +263,32 @@ Mark-one-read, delete one/selected/all (soft delete with confirmation).
 
 ### Admin dashboard `/admin`
 ```
-│ Total Students: 120 │ Cleared: 80 │ Pending: 40 │
-│ [User Mgmt] [Office Editor] [Audit Log] [Notices] [Reports] │
-│ ── N/A Declarations ────────────────────────────   │
-│ [search] [office filter]   [Export CSV]            │
-│ Student | ID | Program | Declared N/A | Office | Revert │
+│ Admin Dashboard                                          │
+│ Overview of portal clearance applications and admin task queue. │
+│ Total Students: 120 │ Cleared: 80 │ Pending: 40                │
+│ ── Needs Attention ────────────────────────────────────────────  │
+│ Escalated Cases  [3 Active]  ▸ View Audit Log                   │
+│ Pending N/A Declarations      ▸ Jump to Table                   │
+│ Recent Activity               ▸ Full Audit History               │
+│ ── N/A Declarations ───────────────────────────────────────────   │
+│ [search] [office filter]   [Export CSV]                        │
+│ Student | ID | Program | Declared N/A | Office | Revert        │
 ```
-Working feature: stats, quick links, and a filterable/sortable **N/A declarations** table with CSV export + **Revert to pending** button per row (calls the `reopen_na_review` RPC — S14).
-- The **stats are live-queried** (total students / cleared / pending from the DB) — not placeholder.
-- N/A claims are **auto-approved at declaration** and reverted here if false.
+Real, live-queried stats (S-v2.11 alignment). **Needs Attention** panel (S-v3.2) shows escalated
+cases (powered by M-v3.2), pending N/A declarations, and last 5 audit entries. The N/A table
+includes search, office filter, CSV export, and **Revert to pending** (calls `reopen_na_review` RPC). The grouped sidebar (S-v3.1) appears alongside this page.
 
 ### Admin sub-pages
 | Page | Route | Status |
 |------|-------|--------|
-| User Management | `/admin/users` | ✅ **Working** — CRUD + roles + **exactly one office per staff** (S-v2.2) |
-| Office Editor | `/admin/workflow` | ✅ **Working** — reorder the 10 offices, set one **final sign-off** (S-v2.1) |
-| Notices | `/admin/notices` | ✅ **Working** — admin CRUD on `notices` table, RLS-restricted (S11) |
-| Audit Log | `/admin/audit` | ✅ **Working** — paginated searchable/filtered read-only table over `audit_log` (S12) |
-| Reports | `/admin/reports` | ✅ **Working** — live data from `department_reviews` + `departments`; status pie + per-office bar + CSV (S13) |
+| User Management | `/admin/users` | ✅ Working — CRUD + roles + exactly one office per staff, paginated (S-v2.2/S-v2.12) |
+| Office Editor | `/admin/workflow` | ✅ Working — reorder the 10 offices, set one final sign-off (S-v2.1) |
+| Notices | `/admin/notices` | ✅ Working — CRUD with delete confirmation (S-v2.8); edit + structured audience pending (S-v3.7) |
+| Calendar | `/admin/calendar` | ✅ Working — CRUD for calendar events backed by M-v3.4 (S-v2.16) |
+| Settings | `/admin/settings` | ✅ Working — profile + registrar signature management (S-v2.17/M-v3.3) |
+| Audit Log | `/admin/audit` | ✅ Working — entity column + pagination + dynamic actions + date filters (S-v2.7/S-v2.12/S-v2.14); expandable Details pending (S-v3.9) |
+| Reports | `/admin/reports` | ✅ Working — live data + date filters (S-v2.13); avg days-to-approve chart pending (S-v3.10) |
+| Escalations | `/admin/escalations` | ⬜ S-v3.4 — open escalations from M-v3.2, resolve with decision + note |
 
 ### Office Editor `/admin/workflow` (S-v2.1)
 

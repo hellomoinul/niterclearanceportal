@@ -69,7 +69,8 @@ hidden in the UI.
 | **Sequential review** | Each office opens only after the previous one approves — a true mirror of the paper form |
 | **Backend lock** | Uploads to a locked office are rejected at the database level, not just hidden |
 | **Real-time tracking** | Students see locked / active / approved / not-applicable per step |
-| **Auto-issued certificate** | Generated the moment Administration approves — scannable QR code + typeable ID (`NCP-XXXXXXXX`) |
+| **Automatic certificate** | Generated the moment Administration approves — scannable QR code + typeable ID (`NCP-XXXXXXXX`); carries the registrar's **uploaded signature** |
+| **Academic calendar** | Public calendar page fed by a live `calendar_events` table — admins add/edit/delete events (exams, holidays, deadlines) |
 | **Escalation** | Three rejected re-uploads auto-escalate to Administration |
 | **Audit trail** | Every decision stored with the reviewing officer's identity and timestamp |
 | **Email notifications** | Admins, reviewers, and students notified at each step |
@@ -117,31 +118,36 @@ Open **http://localhost:8080**. Copy `.env.example` to `.env` and add your Supab
 ```
 src/
 ├── routes/                          # Pages (one file = one URL)
-│   ├── index.tsx                    # Public home page
+│   ├── index.tsx                    # Redirects to /home (landing)
+│   ├── home.tsx                     # Public home page
 │   ├── auth.tsx                     # Sign in / register
 │   ├── about.tsx                    # About page
-│   ├── calendar.tsx                 # Academic calendar
+│   ├── calendar.tsx                 # Academic calendar (live calendar_events)
 │   ├── guide.tsx                    # Role-based guide (+ folded-in FAQ)
-│   ├── verify.tsx                   # Public certificate verification
+│   ├── verify.index.tsx             # Public certificate verification
+│   ├── verify.$code.tsx             # Verified result page
+│   ├── forgot-password.tsx          # Password recovery
+│   ├── update-password.tsx          # Set new password from recovery link
 │   └── _authenticated/              # Requires login
-│       ├── dashboard.tsx            # Student dashboard
+│       ├── dashboard.tsx            # Student dashboard (sequential stepper)
 │       ├── apply.tsx                # Clearance application form
 │       ├── section.$code.tsx        # Per-office section (upload docs)
 │       ├── certificate.tsx          # Certificate view + PDF download
-│       ├── profile.tsx              # Student profile
-│       ├── settings.tsx             # Account settings
+│       ├── profile.tsx              # Read-only profile card
 │       ├── notifications.tsx        # In-app notifications
 │       ├── queue.tsx                # Office queue (staff/admin review)
 │       └── admin/                   # Admin-only pages
-│           ├── route.tsx            # Layout guard (admin role check)
-│           ├── index.tsx            # Admin dashboard + N/A audit table
+│           ├── route.tsx            # Layout guard (admin role check) + PortalShell
+│           ├── index.tsx            # Admin dashboard: stats + Needs Attention + N/A audit table
 │           ├── workflow.tsx         # Office Editor (10 office rows: order + final sign-off)
 │           ├── users.tsx            # User management
-│           ├── reports.tsx          # Batch reports
+│           ├── notices.tsx          # Notices management
+│           ├── calendar.tsx         # Admin CRUD for calendar events
+│           ├── settings.tsx         # System settings + registrar signature upload
 │           ├── audit.tsx            # Audit log viewer
-│           └── notices.tsx          # Notices management
+│           └── reports.tsx          # Batch reports
 ├── components/
-│   ├── portal-shell.tsx             # Header + footer + nav
+│   ├── portal-shell.tsx             # Header + footer + nav (grouped admin sidebar)
 │   ├── status-badge.tsx             # Approval status badges
 │   └── ui/                          # shadcn/ui primitives
 ├── integrations/supabase/           # Database client + types
