@@ -271,9 +271,94 @@ tasks:
     paths: ["src/routes/_authenticated/admin/audit.tsx"]
     hint: "Action dropdown hardcoded (4) + no date range; derive actions from DB, add from/to"
 
+  - id: S-v2.16
+    title: "Calendar page — manage events from admin"
+    owner: Shafin
+    order: 50
+    paths: ["src/routes/_authenticated/admin/calendar.tsx"]
+    hint: "Admin create/edit/delete calendar events backed by calendar_events table; students see events"
+
+  - id: S-v2.17
+    title: "Registrar signature upload for certificates"
+    owner: Shafin
+    order: 51
+    paths: ["src/routes/_authenticated/admin/settings.tsx"]
+    hint: "Upload image/jpeg|png to signatures bucket; exactly one active signature; delete requires replacement"
+
   - id: S-v2.15
     title: "Consistent confirm / toast patterns"
     owner: Shafin
     order: 49
     paths: ["src/routes/_authenticated/admin/workflow.tsx", "src/routes/_authenticated/admin/users.tsx", "src/routes/_authenticated/admin/notices.tsx"]
     hint: "Replace window.confirm/prompt/alert with AlertDialog/Dialog + sonner toasts"
+
+  # Shafin — Round 3: Admin panel (expert review, 2026-09-14)
+  - id: S-v3.1
+    title: "Grouped sidebar"
+    owner: Shafin
+    order: 52
+    paths: ["src/components/portal-shell.tsx", "src/routes/_authenticated/admin/route.tsx"]
+    hint: "Replace 6-tab horizontal bar with grouped sidebar (Overview/Operations/Content/Records/Settings)"
+
+  - id: S-v3.2
+    title: "Dashboard Needs Attention panel"
+    owner: Shafin
+    order: 53
+    paths: ["src/routes/_authenticated/admin/index.tsx"]
+    hint: "Replace 5 quick-link cards with escalated cases (count+oldest, red), pending N/A declarations, oldest pending review, last 5 audit entries (M-v3.2)"
+
+  - id: S-v3.3
+    title: "Escalated stat card"
+    owner: Shafin
+    order: 54
+    paths: ["src/routes/_authenticated/admin/index.tsx"]
+    hint: "4th stat card 'Escalated' (distinct red/amber styling), links to Escalations page"
+
+  - id: S-v3.4
+    title: "Escalations page"
+    owner: Shafin
+    order: 55
+    paths: ["src/routes/_authenticated/admin/escalations.tsx"]
+    hint: "New /admin/escalations listing open escalations oldest-first (M-v3.2 view); resolve with decision + note"
+
+  - id: S-v3.5
+    title: "Users pagination + remove student rows"
+    owner: Shafin
+    order: 56
+    paths: ["src/routes/_authenticated/admin/users.tsx"]
+    hint: "Page-size 25 + Previous/Next (audit.tsx pattern); remove student rows from users.tsx; fix `as any` on RPC calls"
+
+  - id: S-v3.6
+    title: "Users deactivate/activate"
+    owner: Shafin
+    order: 57
+    paths: ["src/routes/_authenticated/admin/users.tsx"]
+    hint: "Enable/disable per account via M-v3.1 RPC; 'Inactive' badge; cannot deactivate self"
+
+  - id: S-v3.7
+    title: "Notices edit + structured audience"
+    owner: Shafin
+    order: 58
+    paths: ["src/routes/_authenticated/admin/notices.tsx"]
+    hint: "Edit existing notices; replace free-text target_audience with structured selector (All/Students only/Specific office/Specific batch)"
+
+  - id: S-v3.8
+    title: "Workflow add/remove + atomic save"
+    owner: Shafin
+    order: 59
+    paths: ["src/routes/_authenticated/admin/workflow.tsx"]
+    hint: "Add/remove offices via M-v3.5 RPCs; editable requirement text; atomic batch save"
+
+  - id: S-v3.9
+    title: "Audit log dynamic actions + date filter + expandable Details"
+    owner: Shafin
+    order: 60
+    paths: ["src/routes/_authenticated/admin/audit.tsx"]
+    hint: "Derive action options from select distinct action; from/to date filters; expandable Details JSON"
+
+  - id: S-v3.10
+    title: "Reports date/semester filter + time-to-approve"
+    owner: Shafin
+    order: 61
+    paths: ["src/routes/_authenticated/admin/reports.tsx"]
+    hint: "Date-range/batch selector (default All time) feeding charts; avg days-to-approve per office bar chart"
