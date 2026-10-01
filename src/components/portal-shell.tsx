@@ -1,6 +1,19 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, LogOut, Menu, Settings, User } from "lucide-react";
+import {
+  Bell,
+  LogOut,
+  Menu,
+  Settings,
+  User,
+  LayoutDashboard,
+  FileCheck2,
+  Users,
+  Workflow,
+  History,
+  BarChart3,
+  ShieldAlert,
+} from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +35,94 @@ const publicLinks = [
 ] as const;
 
 const guideLink = { to: "/guide", label: "Guide" } as const;
+
+export const adminNavGroups = [
+  {
+    category: "Overview",
+    items: [
+      { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
+      { label: "Reports & Analytics", to: "/admin/reports", icon: BarChart3 },
+    ],
+  },
+  {
+    category: "Operations",
+    items: [
+      { label: "Clearance Queue", to: "/admin/clearances", icon: FileCheck2 },
+      { label: "Escalations", to: "/admin/escalations", icon: ShieldAlert },
+      { label: "Workflows", to: "/admin/workflows", icon: Workflow },
+    ],
+  },
+  {
+    category: "Content",
+    items: [
+      { label: "Notice Board", to: "/admin/notices", icon: Bell },
+    ],
+  },
+  {
+    category: "Records",
+    items: [
+      { label: "User Management", to: "/admin/users", icon: Users },
+      { label: "Audit Logs", to: "/admin/audit-logs", icon: History },
+    ],
+  },
+  {
+    category: "Settings",
+    items: [
+      { label: "System Settings", to: "/admin/settings", icon: Settings },
+    ],
+  },
+];
+
+export function AdminSidebar() {
+  const location = useLocation();
+
+  return (
+    <aside className="w-64 shrink-0 border-r border-border bg-card/50 p-4 min-h-[calc(100vh-4rem)] hidden md:block">
+      <div className="space-y-6">
+        <div className="px-3 py-1">
+          <h2 className="text-sm font-bold tracking-tight text-primary uppercase">
+            Admin Panel
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Grouped Management Links
+          </p>
+        </div>
+
+        <nav className="space-y-6">
+          {adminNavGroups.map((group) => (
+            <div key={group.category} className="space-y-2">
+              <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                {group.category}
+              </h3>
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.to;
+
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className={cn(
+                        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                        isActive
+                          ? "bg-primary text-primary-foreground font-semibold hover:bg-primary/90 hover:text-primary-foreground"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+      </div>
+    </aside>
+  );
+}
 
 export function PortalHeader() {
   const { session, profile, isOffice, isAdmin, signOut } = useAuth();
@@ -228,10 +329,24 @@ export function PortalShell({
   children: React.ReactNode;
   className?: string;
 }) {
+  const location = useLocation();
+  const isAdminPath = location.pathname.startsWith("/admin");
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <PortalHeader />
-      <main className={cn("mx-auto w-full max-w-6xl flex-1 px-4 py-8", className)}>{children}</main>
+      {isAdminPath ? (
+        <div className="mx-auto flex w-full max-w-7xl flex-1">
+          <AdminSidebar />
+          <main className={cn("flex-1 px-6 py-8 overflow-x-hidden", className)}>
+            {children}
+          </main>
+        </div>
+      ) : (
+        <main className={cn("mx-auto w-full max-w-6xl flex-1 px-4 py-8", className)}>
+          {children}
+        </main>
+      )}
       <PortalFooter />
     </div>
   );
