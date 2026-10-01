@@ -1,6 +1,5 @@
-import { createFileRoute, redirect, Link, Outlet } from '@tanstack/react-router'
+import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
 import { supabase } from '@/integrations/supabase/client'
-import { cn } from '@/lib/utils'
 import { PortalShell } from '@/components/portal-shell'
 
 export const Route = createFileRoute('/_authenticated/admin')({
@@ -22,37 +21,10 @@ export const Route = createFileRoute('/_authenticated/admin')({
   component: AdminLayout,
 })
 
-const adminLinks: { to: string; label: string; exact?: boolean }[] = [
-  { to: "/admin", label: "Dashboard", exact: true },
-  { to: "/admin/workflow", label: "Workflow" },
-  { to: "/admin/notices", label: "Notices" },
-  { to: "/admin/audit", label: "Audit Log" },
-  { to: "/admin/reports", label: "Reports" },
-  { to: "/admin/users", label: "Users" },
-]
-
 function AdminLayout() {
   return (
     <PortalShell>
-      <div className="space-y-6">
-        <nav className="flex flex-wrap items-center gap-2 border-b border-border pb-4">
-          {adminLinks.map((link) => (
-            <Link
-              key={link.label}
-              to={link.to}
-              activeOptions={{ exact: !!link.exact }}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors",
-                "hover:bg-secondary hover:text-foreground",
-                "data-[status=active]:bg-primary data-[status=active]:text-primary-foreground"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-        <Outlet />
-      </div>
+      <Outlet />
     </PortalShell>
   )
 }

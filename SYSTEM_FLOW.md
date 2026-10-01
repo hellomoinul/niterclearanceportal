@@ -1,6 +1,6 @@
 # NITER Clearance Portal — Complete System Flow
 
-> For presentations, viva voce, and team reference. Last updated: 8 Sep 2026.
+> For presentations, viva voce, and team reference. Last updated: 2 Oct 2026.
 
 ---
 
@@ -38,7 +38,7 @@ There are **no separate login systems** for roles — one login page, three acco
 
 Everyone gets: 🔔 Notifications bell, ⚙️ Settings, their ID (→ Profile), Sign out.
 
-> **v2 change:** the old hardcoded "Accounts queue" and the office-only "Final Queue" link were removed. An Office staff account now lands on their own office queue labeled **"My office"**; the final certificate sign-off is handled by the **Administration** office (admin role) only. Admin sees every section via an "All offices" filter.
+> **v2 change:** the old hardcoded "Accounts queue" and the office-only "Final Queue" link were removed. An Office staff account now lands on their own office queue labeled **"My office"**; the final certificate sign-off is handled by the **Administration** office (admin role) only. Admin sees every section via an "All offices" filter. The admin panel uses a **grouped sidebar** (S-v3.1) with sections for Overview/Operations/Content/Records/Settings.
 
 ---
 
@@ -81,8 +81,11 @@ Everyone gets: 🔔 Notifications bell, ⚙️ Settings, their ID (→ Profile),
 8. **Certificate unlock:** when the **Administration** (final) approval lands, a trigger marks the
    application `cleared` and the certificate is issued. The Certificate page shows a formal A4
    certificate with **PDF download**, a **QR code linking to `/verify/<certificate-id>`**, and the
-   office staff signature. The certificate shows a friendly short ID — **`NCP-A83C2B1F`** (the first
-   8 hex digits of the certificate UUID) with the full UUID beneath it.
+   **registrar's signature**. The registrar uploads that signature once in
+   **`/admin/settings` → Signature**; it is stored in `settings.registrar_signature_path` and every
+   issued certificate renders a **frozen snapshot** of it in `certificate_signatures`, so later
+   re-uploads never alter already-issued certificates. The certificate shows a friendly short ID —
+   **`NCP-A83C2B1F`** (the first 8 hex digits of the certificate UUID) with the full UUID beneath it.
 
 9. Anyone — even logged-out visitors — can enter the certificate ID (or scan the QR) in **Verify**
    and see the authentic certificate record straight from the DB. The verifier accepts the full
@@ -132,6 +135,8 @@ Admins have everything Office staff have (the full queue), plus:
 | `trg_review_audit` | Any approve/reject | Actor, office, student, remark written to `audit_log` |
 | `trg_notify_review_change` | Status changes | Notifies student of the decision |
 | `trg_profiles_updated` | Profile updated | Touches `updated_at` |
+| `admin_set_user_active` | Admin toggles staff active/inactive | Manages `profiles.is_active` (M-v3.1) |
+| `admin_add_office` / `admin_remove_office` | Workflow editor | Manage office rows safely (M-v3.5) |
 
 > **v2 change:** the old parallel-model machinery was removed — `trg_head_review_trigger`, `trg_guard_head_approval_order`, and the bulk `declare_departments_na(array)` RPC are gone. Sequence advancement is now handled solely by `trg_advance_sequential_review` + the per-review `declare_review_na(review_id)`. The decorative `workflow_steps` table was **dropped** too — the Office Editor (`/admin/workflow`) writes directly to `departments` (name, requirement, doc hint, `sort_order`, final-signoff).
 
@@ -141,13 +146,13 @@ Admins have everything Office staff have (the full queue), plus:
 
 ```
 DB notification row
-  → Database Webhook on notifications table (NOT CONFIGURED / edge fn not invoked)
+  → Database Webhook on notifications table
     → send-notification-email Edge Function
       → Resend API
         → email sent to recipient
 ```
 
-**Honest status:** the Edge Function exists but is **not called from the frontend or by a DB webhook**, and its code currently forwards to a **hardcoded personal inbox** (`akash.moinulhasan@gmail.com`) rather than each student's `personal_email`. **The in-app notification system (SQL-based) is the fully working channel**; email delivery is deferred. Recipients are student **personal emails** via sender `onboarding@resend.dev`.
+**Status:** the Edge Function `send-notification-email` exists and is **wired to the live DB webhook**; office emails fire on document upload (PR #72). In the current live setup, outbound emails are directed to a **single monitoring mailbox** (`akash.moinulhasan@gmail.com`) rather than per-user personal emails — a known operational constraint. The **in-app notification system (SQL-based)** is fully functional and is the primary channel for students.
 
 ---
 
@@ -161,6 +166,10 @@ DB notification row
 | **Upload lock** | Documents can only be inserted for the currently-active (`is_current_upload_step`) office — enforced in the DB, not just hidden in the UI |
 | **Storage** | `clearance-docs` bucket is **private** — documents accessed only via temporary signed URLs (60s TTL) |
 | **Roles** | `user_roles`: `student`, `office`, `admin`; Office staff linked to **exactly one office** via `office_departments` |
+| **Soft-delete** | `profiles.is_active` — deactivated accounts blocked at login (M-v3.1) |
+| **Signatures** | `signatures` table + `signatures` bucket; one active at a time, snapshotted per certificate (M-v3.3) |
+| **Escalations** | `open_escalations` view built `WITH (security_invoker = true)` — underlying RLS enforced for callers (M-v3.2) |
+| **Calendar** | `calendar_events` RLS — public read, admin-only write (M-v3.4) |
 
 ---
 
@@ -183,20 +192,25 @@ verified live at the API/DB level. Live E2E (M-v2.7) and the RLS negative matrix
 | Area | Status |
 |---|---|
 | v2 sequential backend | ✅ **Merged & live** (PR #61) + post-review hardening live |
-| Office logins / role bindings | ✅ Verified live in E2E (fresh office account bound to Laboratory via `office_departments`) |
-| Student apply + dashboard (sequential) | ✅ Built + E2E'd (apply → only Laboratory review created) |
-| Section upload + N/A (per active step) | ✅ Built; upload lock + N/A limits verified in RLS tests |
-| Per-office queue + filter/search | ✅ Built (queue filters to the staff's single bound office) |
-| Admin override + N/A revert UI | ✅ Built |
-| Reports / audit / notices pages | ✅ Built |
-| Certificate + public verify (QR + ID) | ✅ Built; `NCP-` ID + `resolve_certificate_id` verified (6 input forms) |
-| Live E2E on sequential flow | ✅ **Done** (M-v2.7) |
-| RLS negative testing | ✅ Cross-student reads 0 rows; PATCH/DELETE no-ops; data intact |
-| Escalation audit clarity | ✅ `escalation_resolved` row verified live |
+| Office logins / role bindings | ✅ Verified live (E2E — fresh office account bound via `office_departments`) |
+| Student apply + dashboard (sequential) | ✅ Built + E2E-verified |
+| Section upload + N/A (per active step) | ✅ Built; upload lock + N/A limits verified |
+| Per-office queue + filter/search | ✅ Built |
+| Admin dashboard (Needs Attention) + N/A table | ✅ Built (S-v3.2) |
+| Admin override + N/A revert | ✅ Built |
+| Admin UI (calendar, settings/signatures, notices, audit, reports) | ✅ Built (round 2) |
+| Grouped sidebar | ✅ Built (S-v3.1) |
+| Live E2E on sequential flow | ✅ Done (M-v2.7) |
+| RLS negative testing | ✅ Cross-student reads 0 rows; PATCH/DELETE no-ops |
+| Escalation audit clarity | ✅ `escalation_resolved` row verified |
 | Secret hygiene | ✅ No secret values in built bundles (169 files grepped) |
+| Email pipeline | ✅ Wired (DB webhook → Edge Function); delivery scope limited to monitoring mailbox |
+| Escalations page | ⬜ S-v3.4 (uses M-v3.2 view) |
 
 **Other known gaps:**
-- **Email pipeline** deferred (see Section 7) — in-app notifications are the working channel.
+- **Email delivery scope** — the pipeline is wired (see Section 7), but outbound mail is pointed at
+  one monitoring mailbox rather than each recipient's `personal_email`. In-app notifications are the
+  working channel for students today.
 - **Section 2 collapsed shared-office routing** — awaiting confirmation from the registrar (item 2
   of `REVIEW_RESPONSE_v2.md`). Today's model keeps every office as its own sequential step, which
   mirrors the physical form.

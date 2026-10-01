@@ -89,7 +89,9 @@ Use this table when rewriting old copy (F-v2.4 / M-v2.8).
 
 Build order: **Moinul PR #61 (backend) ✅ shipped**, then **Fatin (student) + Shafin (admin) in
 parallel**, then **Moinul integration + docs (M-v2.7 / M-v2.8) + review hardening (M-v2.9–11)**.
-All lanes are ✅ as of 2026-09-08.
+All v2 lanes ✅ as of 2026-09-08; round 2 (admin UX polish) ✅ shipped as PRs #84–#99, round 3
+backend + public-facing ✅ shipped (PRs #90/#91), round-3 admin UI partially ✅ (S-v3.1/S-v3.2 via PR #100)
+with S-v3.3–S-v3.10 pending.
 
 ### 🟦 Moinul — Backend, migrations, integration, docs
 
@@ -340,10 +342,10 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
 | Moinul | Backend/infra/docs | ✅ 11 (M-v2.1–M-v2.11) | — |
 | Fatin | Student/certificate | ✅ 5 (F-v2.1–F-v2.4 + cert/verify) | — |
 | Shafin | Admin panel/queue | ✅ 5 (S-v2.1–S-v2.5) | — |
-| Shafin (round 2) | Admin UX polish | — | 🚧 12 assigned (S-v2.6–S-v2.17) |
-| Moinul (round 3) | Backend (expert review) | — | 🚧 5 assigned (M-v3.1–M-v3.5) |
-| Fatin (round 3) | Public-facing (expert review) | — | 🚧 2 assigned (F-v3.1–F-v3.2) |
-| Shafin (round 3) | Admin panel (expert review) | — | 🚧 10 assigned (S-v3.1–S-v3.10) |
+| Shafin (round 2) | Admin UX polish | ✅ 12 (S-v2.6–S-v2.17) | — |
+| Moinul (round 3) | Backend (expert review) | ✅ 5 (M-v3.1–M-v3.5) | — |
+| Fatin (round 3) | Public-facing (expert review) | ✅ 2 (F-v3.1–F-v3.2) | — |
+| Shafin (round 3) | Admin panel (expert review) | ✅ 2 (S-v3.1–S-v3.2) | 🚧 8 assigned (S-v3.3–S-v3.10) |
 
 ---
 
@@ -363,6 +365,13 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
 | 10 | `20260908000003_drop_workflow_steps.sql` | `workflow_steps` table + policy dropped | ✅ applied to live |
 | 11 | `20260909120000_normalize_student_ids.sql` | student IDs normalized (canonical `lower(alnum)`) + `profiles_user_code_norm_key` unique index | ✅ applied to live (PR #70) |
 | 12 | `20260911140000_notify_office_on_document_upload.sql` | office email fires on document upload (dropped review-open + resubmit notice triggers) | ✅ applied to live (PR #72) |
+| 13 | `20260909000000_notices_public_read.sql` | notices readable by anon (public home) | ✅ applied to live |
+| 14 | `20260909010000_admin_staff_accounts.sql` | admin/office staff account provisioning + PortalShell | ✅ applied to live |
+| 15 | `20260914_users_soft_delete.sql` | `profiles.is_active` + `admin_set_user_active` RPC (M-v3.1) | ✅ applied to live (PR #90) |
+| 16 | `20260914_escalation_view.sql` | `open_escalations` view, `security_invoker` (M-v3.2) | ✅ applied to live (PR #90) |
+| 17 | `20260914_signature_snapshot.sql` | `signatures` table + storage bucket + issue-time snapshot (M-v3.3) | ✅ applied to live (PR #90) |
+| 18 | `20260914_calendar_events.sql` | `calendar_events` table + RLS (public read, admin write) (M-v3.4) | ✅ applied to live (PR #90) |
+| 19 | `20260914_workflow_crud_rpcs.sql` | `admin_add_office` / `admin_remove_office` (M-v3.5) | ✅ applied to live (PR #90) |
 
 Older migrations stay as historical record — never edit applied migrations.
 
@@ -370,6 +379,24 @@ Older migrations stay as historical record — never edit applied migrations.
 
 ## 📝 Work history
 
+- **Sidebar nav repair:** the S-v3.1 grouped sidebar pointed at four routes that do not exist
+  (`/admin/clearances`, `/admin/escalations`, `/admin/workflows`, `/admin/audit-logs`) and the legacy
+  horizontal tab bar in `admin/route.tsx` still rendered alongside it. Repointed to the real routes
+  (`/queue`, `/admin/workflow`, `/admin/audit`), added the missing **Academic Calendar** link
+  (`/admin/calendar`), removed the duplicate tab bar, and typed both nav arrays with
+  `satisfies readonly { to: ToOptions["to"] }[]` so an invalid path is now a **compile error** instead
+  of a silent 404. The **Escalations** link is intentionally absent — that page is the pending
+  **S-v3.4** task; re-add it in `adminNavGroups` when that route exists.
+- **@tanstack/react-start XSS patch (CVE-2026-102989 / GHSA-qx66-fv34-fjm8):** upgraded
+  `@tanstack/react-start` → 1.168.60, `@tanstack/react-router` → 1.170.41, `@tanstack/router-plugin` →
+  1.168.42 via PR #102 (merged `76c731f`). Alignment collapsed the duplicate `router-core` into a
+  single 1.171.34 — the Nitro/SSR build now passes and **Vercel deploys green**. Route-tree
+  regeneration corrected `settings` to `/admin/settings` (file lived under `admin/`) and registered
+  `/admin/calendar` (fixes a pre-existing `TS2345`); two stale `/settings` shell links repointed.
+- **Doc-sync repair (PR #101):** task map now covers S-v2.16/S-v2.17 + S-v3.1–S-v3.10;
+  `updateSnapshot()` only appends this run's newly-done IDs; backfilled S-v2.10 (#97), S-v2.16 (#98),
+  S-v2.17 (#99), S-v3.1 + S-v3.2 (#100). Merged `21bc725`. PR titles **must** carry `[S-vX.Y]` tags
+  or doc-sync won't record the completion.
 - **Grouped sidebar (S-v3.1):** completed via PR #100.
 - **Dashboard Needs Attention panel (S-v3.2):** completed via PR #100.
 - **Registrar signature upload for certificates (S-v2.17):** completed via PR #99.
