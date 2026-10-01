@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import { NeedsAttentionPanel } from "@/components/Admin/needs-attention-panel";
+
 export const Route = createFileRoute('/_authenticated/admin/')({
   beforeLoad: async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -32,7 +34,7 @@ interface NaRow {
 
 type SortKey = 'fullName' | 'userCode' | 'deptName' | 'clearedAt';
 
-function AdminDashboard() {
+export function AdminDashboard() {
   const [stats, setStats] = useState({ students: 0, cleared: 0, pending: 0 });
   const [naRows, setNaRows] = useState<NaRow[]>([]);
   const [naLoading, setNaLoading] = useState(true);
@@ -154,9 +156,11 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div className="p-6 space-y-8">
+      <h2 className="text-2xl font-bold">Admin Dashboard</h2>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <p className="text-sm text-muted-foreground">Total Students</p>
           <p className="text-2xl font-bold">{stats.students}</p>
@@ -170,7 +174,12 @@ function AdminDashboard() {
           <p className="text-2xl font-bold text-status-pending">{stats.pending}</p>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
+      {/* Needs Attention Panel */}
+      <NeedsAttentionPanel />
+
+      {/* Navigation Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
           { to: '/admin/users', label: 'User Management', desc: 'Create staff accounts, assign roles' },
           { to: '/admin/audit', label: 'Audit Log', desc: 'View approval/rejection history' },
@@ -185,6 +194,7 @@ function AdminDashboard() {
         ))}
       </div>
 
+      {/* N/A Declarations Table Section */}
       <div className="bg-card rounded-lg border shadow-sm p-4">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
