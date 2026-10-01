@@ -115,7 +115,7 @@ let TASKS = [];
 let STATE = { done: {} };
 
 // ── Snapshot.md update ──
-function updateSnapshot() {
+function updateSnapshot(newlyDone = []) {
   let content = readFileSync(SNAPSHOT_PATH, "utf8");
   const doneCount = Object.keys(STATE.done).length;
   const total = TASKS.length;
@@ -162,21 +162,22 @@ function updateSnapshot() {
   }
   content = lines.join("\n");
 
-  // Append newly-completed tasks to the Work history section (current month header),
-  // preserving any existing human-written history.
-  const newDone = Object.entries(STATE.done)
-    .filter(([id, info]) => ID_RE.test(id) && info.date === today)
-    .filter(([id]) => TASKS.some((t) => t.id === id));
-  if (newDone.length > 0) {
+  // Append newly-completed tasks (only THIS run's) to the Work history section,
+  // preserving any existing human-written history. Using `newlyDone` instead of
+  // filtering `STATE.done` by date prevents same-day re-runs from duplicating
+  // earlier PRs' completions.
+  const candidates = [...new Set(newlyDone)].filter((id) => ID_RE.test(id) && TASKS.some((t) => t.id === id));
+  if (candidates.length > 0) {
     const whStart = content.indexOf("## 📝 Work history");
     if (whStart !== -1) {
       const dateHead = `### ${today} — completed in this PR`;
       content =
         content.slice(0, whStart) +
         "## 📝 Work history\n\n" +
-        newDone
-          .map(([id, info]) => {
+        candidates
+          .map((id) => {
             const task = TASKS.find((t) => t.id === id);
+            const info = STATE.done[id] || {};
             return `- **${task.title} (${task.id}):** completed ${info.pr ? `via PR #${info.pr}.` : "(no PR needed)."}`;
           })
           .join("\n") +
@@ -190,6 +191,9 @@ function updateSnapshot() {
 
 // ── Main ──
 async function main() {
+  // Track only the tasks completed by THIS run so the Work history section
+  // never re-appends previously-recorded same-day completions.
+  const newlyDone = [];
   const prNumber =
     process.env.PR_NUMBER || process.argv.find((a) => a.startsWith("--pr="))?.slice(5);
   const force = process.argv.includes("--force");
@@ -228,17 +232,22 @@ async function main() {
   const today = new Date().toISOString().slice(0, 10);
   for (const id of matchedIds) {
     if (!ID_RE.test(id)) continue;
+    const alreadyDone = Boolean(STATE.done[id]);
     STATE.done[id] = { pr: parseInt(prNumber, 10), date: today };
+    if (!alreadyDone) newlyDone.push(id);
     const task = TASKS.find((t) => t.id === id);
     if (task?.also_completes) {
       for (const extra of task.also_completes) {
-        if (!STATE.done[extra]) STATE.done[extra] = { pr: parseInt(prNumber, 10), date: today };
+        if (!STATE.done[extra]) {
+          STATE.done[extra] = { pr: parseInt(prNumber, 10), date: today };
+          newlyDone.push(extra);
+        }
       }
     }
   }
   saveState(STATE);
 
-  updateSnapshot();
+  updateSnapshot(newlyDone);
 
   console.log(`  done: updated Snapshot.md`);
 }

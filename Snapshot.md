@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-09-28 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~97%
+> **Last updated:** 2026-10-01 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~84%
 
 ---
 
@@ -193,7 +193,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** hide search + dept filter when no N/A rows in `admin/index.tsx`; relabel stat to
   "Registered students" with subtle "(accounts, not applications)".
 
-- ⬜ **S-v2.10** Dashboard quick-links duplicate the tab bar —
+- ✅ **S-v2.10** Dashboard quick-links duplicate the tab bar —
   **What:** 5 cards ≡ 5 tabs, pure duplication.
   **How:** replace the card grid in `admin/index.tsx` with a live "needs attention" panel
   (escalated count, oldest pending N/A, last 5 audit rows).
@@ -223,7 +223,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   **How:** standardize on `AlertDialog`/`Dialog` + sonner in `admin/workflow.tsx`,
   `admin/users.tsx`, `admin/notices.tsx`.
 
-- ⬜ **S-v2.16** Calendar page — manage events from admin (like Notices) —
+- ✅ **S-v2.16** Calendar page — manage events from admin (like Notices) —
   **What:** the portal has no academic calendar; students need to see important dates.
   **How:** add a new `/admin/calendar` page (same CRUD pattern as Notices): admin can create,
   edit, delete calendar events (title, description, start date, end date, event type like
@@ -231,7 +231,7 @@ task ID (e.g. `[S-v2.8] ...`) so doc-sync marks it done automatically.
   shows all events with search/filter. New table `calendar_events` (or reuse/extend `notices`
   if appropriate). Branch: `shafin/admin-r2-S-v2.16`.
 
-- ⬜ **S-v2.17** Registrar signature upload for certificates —
+- ✅ **S-v2.17** Registrar signature upload for certificates —
   **What:** the certificate currently uses a hardcoded signature. If the registrar changes,
   the old signature stays — unprofessional. A registrar may leave or transfer; a new
   registrar has a new signature.
@@ -283,11 +283,11 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
   if the snapshot is missing.
 
 **🟨 Shafin — Admin panel (UI/UX)**
-- ⬜ **S-v3.1** Grouped sidebar — replace the 6-tab (soon 8) horizontal bar with a grouped
+- ✅ **S-v3.1** Grouped sidebar — replace the 6-tab (soon 8) horizontal bar with a grouped
   sidebar: Overview (Dashboard) / Operations (Workflow, Escalations, Users) / Content
   (Notices, Calendar) / Records (Audit Log, Reports) / Settings (Signature). Update
   `admin/route.tsx`.
-- ⬜ **S-v3.2** Dashboard "Needs Attention" panel — replace the 5 redundant quick-link cards
+- ✅ **S-v3.2** Dashboard "Needs Attention" panel — replace the 5 redundant quick-link cards
   in `admin/index.tsx` with: escalated cases (count + oldest, red), pending N/A
   declarations, oldest pending review, last 5 audit entries (links to their pages, all powered
   by M-v3.2 view + existing queries).
@@ -313,8 +313,8 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
   or batch selector (default All time, feeds chart queries) + **avg days-to-approve per office**
   bar chart (from `department_reviews.created_at/approved_at`) — the one actionable
   bottleneck metric.
-- ⬜ **S-v2.16** (inherited) Calendar CRUD — admin create/edit/delete events backed by M-v3.4 table.
-- ⬜ **S-v2.17** (inherited) Signature management — upload JPG/PNG (image/* only), preview,
+- ✅ **S-v2.16** (inherited) Calendar CRUD — admin create/edit/delete events backed by M-v3.4 table.
+- ✅ **S-v2.17** (inherited) Signature management — upload JPG/PNG (image/* only), preview,
   replace, delete-requires-replacement rule, one active signature; backed by M-v3.3.
 - ✅ **S-v2.15** (inherited) Confirm/prompt/alert → Dialog + sonner standardization.
 
@@ -370,31 +370,16 @@ Older migrations stay as historical record — never edit applied migrations.
 
 ## 📝 Work history
 
+- **Grouped sidebar (S-v3.1):** completed via PR #100.
+- **Dashboard Needs Attention panel (S-v3.2):** completed via PR #100.
+- **Registrar signature upload for certificates (S-v2.17):** completed via PR #99.
+- **Calendar page — manage events from admin (S-v2.16):** completed via PR #98.
+- **Dashboard quick-links -> needs attention (S-v2.10):** completed via PR #97.
 - **Audit entity_id column (S-v2.7):** completed via PR #92.
 - **Users pagination (S-v2.12):** completed via PR #93.
 - **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
 - **Reports filters (S-v2.13):** completed via PR #94.
 - **Audit log date filter + dynamic actions (S-v2.14):** completed via PR #95.
-
-
-- **Users pagination (S-v2.12):** completed via PR #93.
-- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
-- **Reports filters (S-v2.13):** completed via PR #94.
-- **Audit log date filter + dynamic actions (S-v2.14):** completed via PR #95.
-
-
-- **Users pagination (S-v2.12):** completed via PR #93.
-- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
-- **Reports filters (S-v2.13):** completed via PR #94.
-
-
-- **Users pagination (S-v2.12):** completed via PR #93.
-- **Consistent confirm / toast patterns (S-v2.15):** completed via PR #96.
-
-
-- **Users pagination (S-v2.12):** completed via PR #93.
-
-
 - **Soft-delete for users (M-v3.1):** completed via PR #90.
 - **Escalation aggregation (open_escalations) (M-v3.2):** completed via PR #90.
 - **Signature snapshot data model (M-v3.3):** completed via PR #90.
@@ -402,15 +387,6 @@ Older migrations stay as historical record — never edit applied migrations.
 - **Workflow add/remove office RPCs (M-v3.5):** completed via PR #90.
 - **Public calendar (F-v3.1):** completed via PR #91.
 - **Certificate signature rendering (F-v3.2):** completed via PR #91.
-
-
-- **Soft-delete for users (M-v3.1):** completed via PR #90.
-- **Escalation aggregation (open_escalations) (M-v3.2):** completed via PR #90.
-- **Signature snapshot data model (M-v3.3):** completed via PR #90.
-- **Calendar events backend (M-v3.4):** completed via PR #90.
-- **Workflow add/remove office RPCs (M-v3.5):** completed via PR #90.
-
-
 - **Audit Log Shadcn table (S-v2.11):** completed via PR #89.
 - **Reports type-safe refactor (S-v2.9):** completed via PR #87.
 - **Settings page cleanup:** dead `settings.tsx` removed via PR #88 (replaced by `/profile`).
