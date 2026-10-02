@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AlertCircle, ArrowRight, ShieldAlert, History } from 'lucide-react';
+import { AlertCircle, ArrowRight, ShieldAlert, History, ExternalLink } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/admin/')({
   beforeLoad: async () => {
@@ -41,7 +41,7 @@ interface AuditRow {
 
 type SortKey = 'fullName' | 'userCode' | 'deptName' | 'clearedAt';
 
-function AdminDashboard() {
+export function AdminDashboard() {
   const [stats, setStats] = useState({ students: 0, cleared: 0, pending: 0 });
   const [naRows, setNaRows] = useState<NaRow[]>([]);
   const [naLoading, setNaLoading] = useState(true);
@@ -178,19 +178,36 @@ function AdminDashboard() {
         <p className="text-sm text-muted-foreground">Overview of portal clearance applications and administrative task queue.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* S-v3.3: 4 Stat Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-card p-4 rounded-lg border shadow-sm">
-          <p className="text-sm text-muted-foreground">Registered students <span className="text-xs italic">(accounts, not applications)</span></p>
+          <p className="text-sm text-muted-foreground">Registered students <span className="text-xs italic">(accounts)</span></p>
           <p className="text-2xl font-bold mt-1">{stats.students}</p>
         </div>
+
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <p className="text-sm text-muted-foreground">Cleared applications</p>
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{stats.cleared}</p>
         </div>
+
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <p className="text-sm text-muted-foreground">Pending applications</p>
           <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{stats.pending}</p>
         </div>
+
+        {/* 4th Stat Card: Escalated with 'as any' to avoid TS error before S-v3.4 */}
+        <Link 
+          to={"/admin/escalations" as any} 
+          className="bg-card p-4 rounded-lg border border-rose-200 dark:border-rose-900/50 shadow-sm hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition group block"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+              <ShieldAlert className="w-4 h-4" /> Escalated Cases
+            </p>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-rose-600 transition" />
+          </div>
+          <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">{escalatedCount}</p>
+        </Link>
       </div>
 
       {/* Needs Attention Panel */}
@@ -200,7 +217,7 @@ function AdminDashboard() {
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className={`p-4 rounded-lg border shadow-sm flex flex-col justify-between ${escalatedCount > 0 ? 'bg-rose-50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900' : 'bg-card'}`}>
+          <div className={`p-4 rounded-lg border shadow-sm flex flex-col justify-between ${escalatedCount > 0 ? 'bg-rose-50/60 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900' : 'bg-card'}`}>
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold flex items-center gap-1.5">
@@ -211,8 +228,11 @@ function AdminDashboard() {
               <p className="text-2xl font-bold mt-2">{escalatedCount}</p>
               <p className="text-xs text-muted-foreground mt-1">Applications flagged by office staff requiring admin intervention.</p>
             </div>
-            <Link to="/admin/audit" className="text-xs font-semibold text-primary hover:underline mt-4 flex items-center gap-1">
-              View Audit Log <ArrowRight className="w-3 h-3" />
+            <Link 
+              to={"/admin/escalations" as any} 
+              className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline mt-4 flex items-center gap-1"
+            >
+              View Escalations <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
