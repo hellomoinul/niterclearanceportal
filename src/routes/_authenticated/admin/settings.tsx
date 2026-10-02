@@ -22,7 +22,7 @@ import { phoneInputHandler, normalizeCode } from "@/lib/portal";
 import { PageHeader } from "@/components/page-header";
 import { FileCheck, Upload, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/settings")({
+export const Route = createFileRoute("/_authenticated/admin/settings")({
   ssr: false,
   head: () => ({
     meta: [

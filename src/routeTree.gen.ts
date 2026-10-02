@@ -25,13 +25,14 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedQueueRouteImport } from './routes/_authenticated/queue'
-import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/admin/settings.tsx'
 import { Route as VerifyIndexRouteImport } from './routes/verify.index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
+import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin/calendar'
 import { Route as AuthenticatedAdminNoticesRouteImport } from './routes/_authenticated/admin/notices'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminWorkflowRouteImport } from './routes/_authenticated/admin/workflow'
 import { Route as AuthenticatedSectionCodeRouteImport } from './routes/_authenticated/section.$code'
@@ -117,11 +118,6 @@ const AuthenticatedQueueRoute = AuthenticatedQueueRouteImport.update({
   path: '/queue',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const VerifyIndexRoute = VerifyIndexRouteImport.update({
   id: '/verify/',
   path: '/verify/',
@@ -142,6 +138,12 @@ const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminCalendarRoute =
+  AuthenticatedAdminCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminNoticesRoute =
   AuthenticatedAdminNoticesRouteImport.update({
     id: '/notices',
@@ -152,6 +154,12 @@ const AuthenticatedAdminReportsRoute =
   AuthenticatedAdminReportsRouteImport.update({
     id: '/reports',
     path: '/reports',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
@@ -188,12 +196,13 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/queue': typeof AuthenticatedQueueRoute
-  '/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/verify/': typeof VerifyIndexRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/notices': typeof AuthenticatedAdminNoticesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
   '/section/$code': typeof AuthenticatedSectionCodeRoute
@@ -214,12 +223,13 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/queue': typeof AuthenticatedQueueRoute
-  '/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/verify': typeof VerifyIndexRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/notices': typeof AuthenticatedAdminNoticesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
   '/section/$code': typeof AuthenticatedSectionCodeRoute
@@ -243,12 +253,13 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/queue': typeof AuthenticatedQueueRoute
-  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/verify/': typeof VerifyIndexRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/_authenticated/admin/notices': typeof AuthenticatedAdminNoticesRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/workflow': typeof AuthenticatedAdminWorkflowRoute
   '/_authenticated/section/$code': typeof AuthenticatedSectionCodeRoute
@@ -272,12 +283,13 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/queue'
-    | '/settings'
     | '/verify/$code'
     | '/verify/'
     | '/admin/audit'
+    | '/admin/calendar'
     | '/admin/notices'
     | '/admin/reports'
+    | '/admin/settings'
     | '/admin/users'
     | '/admin/workflow'
     | '/section/$code'
@@ -298,12 +310,13 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/queue'
-    | '/settings'
     | '/verify/$code'
     | '/verify'
     | '/admin/audit'
+    | '/admin/calendar'
     | '/admin/notices'
     | '/admin/reports'
+    | '/admin/settings'
     | '/admin/users'
     | '/admin/workflow'
     | '/section/$code'
@@ -326,12 +339,13 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
     | '/_authenticated/queue'
-    | '/_authenticated/settings'
     | '/verify/$code'
     | '/verify/'
     | '/_authenticated/admin/audit'
+    | '/_authenticated/admin/calendar'
     | '/_authenticated/admin/notices'
     | '/_authenticated/admin/reports'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/workflow'
     | '/_authenticated/section/$code'
@@ -466,13 +480,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedQueueRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/settings': {
-      id: '/_authenticated/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/verify/': {
       id: '/verify/'
       path: '/verify'
@@ -501,6 +508,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAuditRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/calendar': {
+      id: '/_authenticated/admin/calendar'
+      path: '/calendar'
+      fullPath: '/admin/calendar'
+      preLoaderRoute: typeof AuthenticatedAdminCalendarRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/notices': {
       id: '/_authenticated/admin/notices'
       path: '/notices'
@@ -513,6 +527,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/admin/reports'
       preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/users': {
@@ -541,8 +562,10 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
+  AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
   AuthenticatedAdminNoticesRoute: typeof AuthenticatedAdminNoticesRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminWorkflowRoute: typeof AuthenticatedAdminWorkflowRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -551,8 +574,10 @@ interface AuthenticatedAdminRouteRouteChildren {
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
+    AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
     AuthenticatedAdminNoticesRoute: AuthenticatedAdminNoticesRoute,
     AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminWorkflowRoute: AuthenticatedAdminWorkflowRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -571,7 +596,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQueueRoute: typeof AuthenticatedQueueRoute
-  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSectionCodeRoute: typeof AuthenticatedSectionCodeRoute
 }
 
@@ -583,7 +607,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQueueRoute: AuthenticatedQueueRoute,
-  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSectionCodeRoute: AuthenticatedSectionCodeRoute,
 }
 
