@@ -21,7 +21,11 @@ import {
 } from '@/components/ui/table';
 import { History, Search } from 'lucide-react';
 
-export const Route = createFileRoute('/_authenticated/admin/audit')({
+export const Route = createFileRoute('/_authenticated/admin/audit' as any)({
+  beforeLoad: async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Not authenticated');
+  },
   component: AuditLogPage,
 });
 
@@ -57,7 +61,7 @@ export default function AuditLogPage() {
     const end = start + PAGE_SIZE - 1;
 
     let query = supabase
-      .from('audit_log')
+      .from('audit_log' as any)
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(start, end);
@@ -103,8 +107,8 @@ export default function AuditLogPage() {
   };
 
   const getActionBadgeVariant = (action: string) => {
-    if (action.includes('approved') || action.includes('resolved')) return 'default';
-    if (action.includes('rejected')) return 'destructive';
+    if (action.includes('approved') || action.includes('resolved') || action.includes('created')) return 'default';
+    if (action.includes('rejected') || action.includes('deleted')) return 'destructive';
     return 'secondary';
   };
 
@@ -146,12 +150,14 @@ export default function AuditLogPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Actions</SelectItem>
+              <SelectItem value="notice_created">Notice Created</SelectItem>
+              <SelectItem value="notice_deleted">Notice Deleted</SelectItem>
               <SelectItem value="user_password_reset">Password Reset</SelectItem>
-              <SelectItem value="review_approved">Review approved</SelectItem>
-              <SelectItem value="review_rejected">Review rejected</SelectItem>
-              <SelectItem value="review_pending">Review reopened</SelectItem>
-              <SelectItem value="escalation_resolved">Escalation resolved</SelectItem>
-              <SelectItem value="system_settings_updated">Settings updated</SelectItem>
+              <SelectItem value="review_approved">Review Approved</SelectItem>
+              <SelectItem value="review_rejected">Review Rejected</SelectItem>
+              <SelectItem value="review_pending">Review Reopened</SelectItem>
+              <SelectItem value="escalation_resolved">Escalation Resolved</SelectItem>
+              <SelectItem value="system_settings_updated">Settings Updated</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -194,7 +200,7 @@ export default function AuditLogPage() {
                     <Badge variant={getActionBadgeVariant(log.action)}>
                       {log.action}
                     </Badge>
-</TableCell>
+                  </TableCell>
                   <TableCell className="text-muted-foreground font-mono text-xs">
                     {renderEntity(log.entity, log.entity_id)}
                   </TableCell>
