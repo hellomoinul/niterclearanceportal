@@ -23,6 +23,10 @@ import {
 import { Trash2, Plus, Megaphone } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/admin/notices')({
+  beforeLoad: async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Not authenticated');
+  },
   component: NoticeBoardPage,
 });
 
@@ -50,12 +54,12 @@ export default function NoticeBoardPage() {
   const fetchNotices = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from('notices')
+      .from('notices' as any)
       .select('*')
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      setNotices(data as Notice[]);
+      setNotices(data as unknown as Notice[]);
     }
     setLoading(false);
   };
@@ -69,7 +73,7 @@ export default function NoticeBoardPage() {
     const { data: userData } = await supabase.auth.getUser();
 
     const { data: newNotice, error } = await supabase
-      .from('notices')
+      .from('notices' as any)
       .insert({
         title: title.trim(),
         content: content.trim(),
@@ -86,10 +90,11 @@ export default function NoticeBoardPage() {
     }
 
     // Insert into audit_log
-    await supabase.from('audit_log').insert({
+    const createdNotice = newNotice as unknown as Notice | null;
+    await supabase.from('audit_log' as any).insert({
       action: 'notice_created',
       entity: 'notices',
-      entity_id: newNotice?.id,
+      entity_id: createdNotice?.id,
       details: JSON.stringify({
         title: title.trim(),
         target_audience: targetAudience,
@@ -110,11 +115,14 @@ export default function NoticeBoardPage() {
 
     const { data: userData } = await supabase.auth.getUser();
 
-    const { error } = await supabase.from('notices').delete().eq('id', id);
+    const { error } = await supabase
+      .from('notices' as any)
+      .delete()
+      .eq('id', id);
 
     if (!error) {
       // Insert into audit_log
-      await supabase.from('audit_log').insert({
+      await supabase.from('audit_log' as any).insert({
         action: 'notice_deleted',
         entity: 'notices',
         entity_id: id,
