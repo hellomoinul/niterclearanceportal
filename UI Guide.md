@@ -274,9 +274,14 @@ Mark-one-read, delete one/selected/all (soft delete with confirmation).
 │ [search] [office filter]   [Export CSV]                        │
 │ Student | ID | Program | Declared N/A | Office | Revert        │
 ```
-Real, live-queried stats (S-v2.11 alignment). **Needs Attention** panel (S-v3.2) shows escalated
-cases (powered by M-v3.2), pending N/A declarations, and last 5 audit entries. The N/A table
-includes search, office filter, CSV export, and **Revert to pending** (calls `reopen_na_review` RPC). The grouped sidebar (S-v3.1) appears alongside this page.
+Real, live-queried stats (S-v2.11 alignment). The 4th stat card is **Escalated** (S-v3.3, red, links
+to `/admin/escalations`). The **Needs Attention** panel (S-v3.2) is a live-query component
+(`components/Admin/needs-attention-panel.tsx`, refreshed every 30s) with three tiles — escalated
+cases (count + how long the oldest has waited, red), pending N/A declarations, oldest pending
+review — plus the last 5 audit entries, each linking to `/admin/escalations`, `#na-declarations`,
+`/queue`, and `/admin/audit`. The N/A table below includes search, office filter, CSV export, and
+**Revert to pending** (calls `reopen_na_review` RPC). The grouped sidebar (S-v3.1) appears alongside
+this page and now includes the **Escalations** entry.
 
 ### Admin sub-pages
 | Page | Route | Status |
@@ -288,7 +293,7 @@ includes search, office filter, CSV export, and **Revert to pending** (calls `re
 | Settings | `/admin/settings` | ✅ Working — profile + registrar signature management (S-v2.17/M-v3.3) |
 | Audit Log | `/admin/audit` | ✅ Working — entity column + pagination + dynamic actions + date filters (S-v2.7/S-v2.12/S-v2.14); expandable Details pending (S-v3.9) |
 | Reports | `/admin/reports` | ✅ Working — live data + date filters (S-v2.13); avg days-to-approve chart pending (S-v3.10) |
-| Escalations | `/admin/escalations` | ⬜ S-v3.4 — open escalations from M-v3.2, resolve with decision + note |
+| Escalations | `/admin/escalations` | ✅ Working — open escalations, resolve with decision + note (S-v3.4) |
 
 ### Office Editor `/admin/workflow` (S-v2.1)
 

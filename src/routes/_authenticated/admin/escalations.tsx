@@ -24,7 +24,7 @@ interface EscalatedItem {
   deptName: string;
   escalatedAt: string;
   escalatedBy: string;
-  escalationReason: string | null;
+  attempts: number;
   status: string;
 }
 
@@ -44,27 +44,29 @@ export function EscalationsPage() {
       .from('department_reviews')
       .select(`
         id,
-        clearance_application_id,
+        application_id,
         status,
-        escalated_at,
-        escalation_reason,
+        created_at,
+        attempts,
+        remarks,
         departments(name),
         clearance_applications(
           profiles(full_name, user_code, program)
         )
       `)
       .eq('escalated', true)
-      .order('escalated_at', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) {
       toast.error('Failed to load escalations', { description: error.message });
     } else if (data) {
       const raw = data as unknown as {
         id: string;
-        clearance_application_id: string;
+        application_id: string;
         status: string;
-        escalated_at: string;
-        escalation_reason: string | null;
+        created_at: string;
+        attempts: number;
+        remarks: string | null;
         departments: { name: string } | null;
         clearance_applications: {
           profiles: { full_name: string; user_code: string; program: string | null } | null;
@@ -73,14 +75,14 @@ export function EscalationsPage() {
 
       const mapped: EscalatedItem[] = raw.map((r) => ({
         reviewId: r.id,
-        appId: r.clearance_application_id,
+        appId: r.application_id,
         studentName: r.clearance_applications?.profiles?.full_name ?? 'Unknown',
         userCode: r.clearance_applications?.profiles?.user_code ?? '—',
         program: r.clearance_applications?.profiles?.program ?? null,
         deptName: r.departments?.name ?? '—',
-        escalatedAt: r.escalated_at,
+        escalatedAt: r.created_at,
         escalatedBy: 'Office Staff',
-        escalationReason: r.escalation_reason,
+        attempts: r.attempts,
         status: r.status,
       }));
       setItems(mapped);
@@ -184,9 +186,14 @@ export function EscalationsPage() {
                   </div>
                 </div>
 
-                <div className="bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 p-3 rounded-md text-xs">
+                <div className="bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 p-3 rounded-md text-xs flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span className="font-semibold text-rose-600 dark:text-rose-400">Reason for Escalation:</span>
-                  <p className="mt-1 text-foreground/90">{item.escalationReason || 'No detailed reason provided by staff.'}</p>
+                  <span className="text-foreground/90">
+                    Rejected and resubmitted {item.attempts} {item.attempts === 1 ? 'time' : 'times'} by office staff without resolution.
+                  </span>
+                  {item.status !== 'pending' && (
+                    <Badge variant="outline" className="text-[10px]">{item.status}</Badge>
+                  )}
                 </div>
 
                 <div className="space-y-2">

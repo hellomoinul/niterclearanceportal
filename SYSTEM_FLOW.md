@@ -205,7 +205,7 @@ verified live at the API/DB level. Live E2E (M-v2.7) and the RLS negative matrix
 | Escalation audit clarity | ✅ `escalation_resolved` row verified |
 | Secret hygiene | ✅ No secret values in built bundles (169 files grepped) |
 | Email pipeline | ✅ Wired (DB webhook → Edge Function); delivery scope limited to monitoring mailbox |
-| Escalations page | ⬜ S-v3.4 (uses M-v3.2 view) |
+| Escalations page | ✅ Built (S-v3.4) |
 
 **Other known gaps:**
 - **Email delivery scope** — the pipeline is wired (see Section 7), but outbound mail is pointed at

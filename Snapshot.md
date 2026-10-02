@@ -90,8 +90,10 @@ Use this table when rewriting old copy (F-v2.4 / M-v2.8).
 Build order: **Moinul PR #61 (backend) ✅ shipped**, then **Fatin (student) + Shafin (admin) in
 parallel**, then **Moinul integration + docs (M-v2.7 / M-v2.8) + review hardening (M-v2.9–11)**.
 All v2 lanes ✅ as of 2026-09-08; round 2 (admin UX polish) ✅ shipped as PRs #84–#99, round 3
-backend + public-facing ✅ shipped (PRs #90/#91), round-3 admin UI partially ✅ (S-v3.1/S-v3.2 via PR #100)
-with S-v3.3–S-v3.10 pending.
+backend + public-facing ✅ shipped (PRs #90/#91). Round-3 admin UI: S-v3.1 (grouped sidebar),
+S-v3.2 (Needs Attention panel), S-v3.3 (Escalated stat card) and S-v3.4 (Escalations page) ✅,
+with S-v3.5–S-v3.10 pending. S-v3.2/S-v3.4 were re-verified and repaired on 2026-10-03 —
+see the correction notes in the Shafin section.
 
 ### 🟦 Moinul — Backend, migrations, integration, docs
 
@@ -289,15 +291,25 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
   sidebar: Overview (Dashboard) / Operations (Workflow, Escalations, Users) / Content
   (Notices, Calendar) / Records (Audit Log, Reports) / Settings (Signature). Update
   `admin/route.tsx`.
-- ✅ **S-v3.2** Dashboard "Needs Attention" panel — replace the 5 redundant quick-link cards
-  in `admin/index.tsx` with: escalated cases (count + oldest, red), pending N/A
-  declarations, oldest pending review, last 5 audit entries (links to their pages, all powered
-  by M-v3.2 view + existing queries).
-- ⬜ **S-v3.3** Escalated stat card — 4th stat card "Escalated" (distinct red/amber styling)
+- ✅ **S-v3.2** Dashboard "Needs Attention" panel — replaces the 5 redundant quick-link cards
+  with a live panel (`components/Admin/needs-attention-panel.tsx`, wired into
+  `admin/index.tsx`): escalated cases (count + oldest waiting, red), pending N/A
+  declarations, oldest pending review, and the last 5 audit entries. Each tile links to its
+  page (`/admin/escalations`, `#na-declarations`, `/queue`, `/admin/audit`).
+  ⚠️ **Corrected 2026-10-03:** PR #100 shipped a `NeedsAttentionPanel` component that was
+  never imported and queried nonexistent `escalations`/`clearance_requests` tables plus a
+  nonexistent `/admin/clearances` route, so the task was not actually complete. Reimplemented
+  against the real schema (`department_reviews`, `clearance_applications`, `audit_log`).
+- ✅ **S-v3.3** Escalated stat card — 4th stat card "Escalated" (distinct red styling)
   linking to the new Escalations page.
-- ⬜ **S-v3.4** Escalations page — new `/admin/escalations` listing all open escalations
-  across offices, oldest-first (from M-v3.2 view); resolve action (calls `resolve_escalation`
-  with required decision + note).
+- ✅ **S-v3.4** Escalations page — new `/admin/escalations` listing all open escalations
+  across offices, newest-first; resolve action (calls `resolve_escalation`
+  with required decision + note). Shipped via PR #106.
+  ⚠️ **Corrected 2026-10-03:** the merged page queried `department_reviews` with three
+  columns that do not exist (`clearance_application_id`, `escalated_at`,
+  `escalation_reason`); an `as unknown as` cast hid this, so the page failed at runtime.
+  Corrected to `application_id` / `created_at`, with the escalation reason derived from
+  `attempts` + `remarks`.
 - ⬜ **S-v3.5** Users pagination + remove student rows — page-size 25 + Previous/Next (use `admin/audit.tsx` pattern); **remove student rows** from `admin/users.tsx` (this page = staff/admin lifecycle only); fix `as any` on RPC calls while editing.
 - ⬜ **S-v3.6** Users deactivate/activate — enable/disable button per account calling
   M-v3.1 RPC; disabled accounts shown with an "Inactive" badge; cannot deactivate self.
@@ -345,7 +357,7 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
 | Shafin (round 2) | Admin UX polish | ✅ 12 (S-v2.6–S-v2.17) | — |
 | Moinul (round 3) | Backend (expert review) | ✅ 5 (M-v3.1–M-v3.5) | — |
 | Fatin (round 3) | Public-facing (expert review) | ✅ 2 (F-v3.1–F-v3.2) | — |
-| Shafin (round 3) | Admin panel (expert review) | ✅ 2 (S-v3.1–S-v3.2) | 🚧 8 assigned (S-v3.3–S-v3.10) |
+| Shafin (round 3) | Admin panel (expert review) | ✅ 4 (S-v3.1–S-v3.4) | 🚧 6 assigned (S-v3.5–S-v3.10) |
 
 ---
 
@@ -385,8 +397,9 @@ Older migrations stay as historical record — never edit applied migrations.
   (`/queue`, `/admin/workflow`, `/admin/audit`), added the missing **Academic Calendar** link
   (`/admin/calendar`), removed the duplicate tab bar, and typed both nav arrays with
   `satisfies readonly { to: ToOptions["to"] }[]` so an invalid path is now a **compile error** instead
-  of a silent 404. The **Escalations** link is intentionally absent — that page is the pending
-  **S-v3.4** task; re-add it in `adminNavGroups` when that route exists.
+  of a silent 404. The **Escalations** link was initially omitted because that page was the pending
+  **S-v3.4** task; it has since shipped (PR #106) and the link was restored to `adminNavGroups`
+  on 2026-10-03.
 - **@tanstack/react-start XSS patch (CVE-2026-102989 / GHSA-qx66-fv34-fjm8):** upgraded
   `@tanstack/react-start` → 1.168.60, `@tanstack/react-router` → 1.170.41, `@tanstack/router-plugin` →
   1.168.42 via PR #102 (merged `76c731f`). Alignment collapsed the duplicate `router-core` into a
@@ -398,7 +411,16 @@ Older migrations stay as historical record — never edit applied migrations.
   S-v2.17 (#99), S-v3.1 + S-v3.2 (#100). Merged `21bc725`. PR titles **must** carry `[S-vX.Y]` tags
   or doc-sync won't record the completion.
 - **Grouped sidebar (S-v3.1):** completed via PR #100.
-- **Dashboard Needs Attention panel (S-v3.2):** completed via PR #100.
+- **Dashboard Needs Attention panel (S-v3.2):** marked complete via PR #100, but that PR only
+  added an unused component with invalid queries. Genuinely reimplemented on 2026-10-03 against
+  the real schema and wired into the dashboard. Related fix: the dashboard's audit query selected
+  `audit_log.user_code`, which does not exist (the column is `actor_name`), so "Recent Activity"
+  had been silently failing; it now reads `actor_name`.
+- **Escalated stat card (S-v3.3):** shipped on `main`; its link used `"/admin/escalations" as any`
+  to dodge the missing route, now typed cleanly.
+- **Escalations page (S-v3.4):** shipped via PR #106, then repaired on 2026-10-03 — the query
+  referenced three nonexistent columns behind an `as unknown as` cast, so the page errored at
+  runtime despite passing tsc. PRs #107/#108 removed similar casts on the notices and audit pages.
 - **Registrar signature upload for certificates (S-v2.17):** completed via PR #99.
 - **Calendar page — manage events from admin (S-v2.16):** completed via PR #98.
 - **Dashboard quick-links -> needs attention (S-v2.10):** completed via PR #97.

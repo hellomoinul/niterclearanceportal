@@ -12,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AlertCircle, ArrowRight, ShieldAlert, History, ExternalLink } from 'lucide-react';
+import { AlertCircle, ArrowRight, ShieldAlert, ExternalLink } from 'lucide-react';
+import { NeedsAttentionPanel } from '@/components/Admin/needs-attention-panel';
 
 export const Route = createFileRoute('/_authenticated/admin/')({
   beforeLoad: async () => {
@@ -32,13 +33,6 @@ interface NaRow {
   clearedAt: string | null;
 }
 
-interface AuditRow {
-  id: string;
-  action: string;
-  created_at: string;
-  user_code: string | null;
-}
-
 type SortKey = 'fullName' | 'userCode' | 'deptName' | 'clearedAt';
 
 export function AdminDashboard() {
@@ -46,7 +40,6 @@ export function AdminDashboard() {
   const [naRows, setNaRows] = useState<NaRow[]>([]);
   const [naLoading, setNaLoading] = useState(true);
   const [escalatedCount, setEscalatedCount] = useState(0);
-  const [recentAudits, setRecentAudits] = useState<AuditRow[]>([]);
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('clearedAt');
@@ -54,19 +47,15 @@ export function AdminDashboard() {
 
   useEffect(() => {
     async function loadStatsAndAttention() {
-      const [{ count: cleared }, { count: inReview }, { count: students }, { count: escalated }, { data: audits }] = await Promise.all([
+      const [{ count: cleared }, { count: inReview }, { count: students }, { count: escalated }] = await Promise.all([
         supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'cleared'),
         supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'in_review'),
         supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
         supabase.from('department_reviews').select('*', { count: 'exact', head: true }).eq('escalated', true),
-        supabase.from('audit_log').select('id, action, created_at, user_code').order('created_at', { ascending: false }).limit(5),
       ]);
 
       setStats({ students: students ?? 0, cleared: cleared ?? 0, pending: inReview ?? 0 });
       setEscalatedCount(escalated ?? 0);
-      if (audits) {
-        setRecentAudits(audits as unknown as AuditRow[]);
-      }
     }
     loadStatsAndAttention();
   }, []);
@@ -195,9 +184,9 @@ export function AdminDashboard() {
           <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{stats.pending}</p>
         </div>
 
-        {/* 4th Stat Card: Escalated with 'as any' to avoid TS error before S-v3.4 */}
+        {/* 4th Stat Card: Escalated - route added by S-v3.4 */}
         <Link 
-          to={"/admin/escalations" as any} 
+          to={"/admin/escalations"} 
           className="bg-card p-4 rounded-lg border border-rose-200 dark:border-rose-900/50 shadow-sm hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition group block"
         >
           <div className="flex items-center justify-between">
@@ -210,74 +199,8 @@ export function AdminDashboard() {
         </Link>
       </div>
 
-      {/* Needs Attention Panel */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-bold flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-amber-500" /> Needs Attention
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className={`p-4 rounded-lg border shadow-sm flex flex-col justify-between ${escalatedCount > 0 ? 'bg-rose-50/60 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900' : 'bg-card'}`}>
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold flex items-center gap-1.5">
-                  <ShieldAlert className="w-4 h-4 text-rose-500" /> Escalated Cases
-                </span>
-                {escalatedCount > 0 && <Badge variant="destructive">{escalatedCount} Active</Badge>}
-              </div>
-              <p className="text-2xl font-bold mt-2">{escalatedCount}</p>
-              <p className="text-xs text-muted-foreground mt-1">Applications flagged by office staff requiring admin intervention.</p>
-            </div>
-            <Link 
-              to={"/admin/escalations" as any} 
-              className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline mt-4 flex items-center gap-1"
-            >
-              View Escalations <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-
-          <div className="bg-card p-4 rounded-lg border shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold flex items-center gap-1.5">
-                  <AlertCircle className="w-4 h-4 text-amber-500" /> Pending N/A Declarations
-                </span>
-                <Badge variant="secondary">{naRows.filter(r => r.appStatus !== 'cleared').length} Pending</Badge>
-              </div>
-              <p className="text-2xl font-bold mt-2">{naRows.filter(r => r.appStatus !== 'cleared').length}</p>
-              <p className="text-xs text-muted-foreground mt-1">Student-claimed unapplicable offices waiting for verification.</p>
-            </div>
-            <a href="#na-declarations" className="text-xs font-semibold text-primary hover:underline mt-4 flex items-center gap-1">
-              Jump to Table <ArrowRight className="w-3 h-3" />
-            </a>
-          </div>
-
-          <div className="bg-card p-4 rounded-lg border shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold flex items-center gap-1.5">
-                  <History className="w-4 h-4 text-blue-500" /> Recent Activity
-                </span>
-              </div>
-              <div className="space-y-1.5">
-                {recentAudits.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No recent activity.</p>
-                ) : (
-                  recentAudits.slice(0, 3).map((a) => (
-                    <div key={a.id} className="text-xs flex items-center justify-between text-muted-foreground">
-                      <span className="truncate max-w-[150px] font-medium text-foreground">{a.action}</span>
-                      <span>{new Date(a.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-            <Link to="/admin/audit" className="text-xs font-semibold text-primary hover:underline mt-4 flex items-center gap-1">
-              Full Audit History <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-        </div>
-      </div>
+      {/* Needs Attention Panel - S-v3.2 */}
+      <NeedsAttentionPanel />
 
       <div id="na-declarations" className="bg-card rounded-lg border shadow-sm p-4">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
