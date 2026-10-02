@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, ShieldAlert, CheckCircle2, RefreshCw } from 'lucide-react';
 
-export const Route = createFileRoute('/_authenticated/admin/escalations' as any)({
+export const Route = createFileRoute('/_authenticated/admin/escalations')({
   beforeLoad: async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Not authenticated');
