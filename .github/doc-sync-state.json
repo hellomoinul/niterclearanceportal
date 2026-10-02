@@ -161,9 +161,8 @@
       "date": "2026-10-01"
     },
     "S-v3.2": {
-      "pr": 100,
-      "date": "2026-10-01",
-      "note": "PR #100 shipped an unimported component querying nonexistent tables/routes; reimplemented and wired on 2026-10-03."
+      "pr": 109,
+      "date": "2026-10-02"
     },
     "S-v3.3": {
       "pr": 105,
@@ -176,5 +175,5 @@
       "note": "Escalations page shipped via #106, then repaired for three nonexistent department_reviews columns."
     }
   },
-  "updated_at": "2026-10-03"
+  "updated_at": "2026-10-02"
 }
