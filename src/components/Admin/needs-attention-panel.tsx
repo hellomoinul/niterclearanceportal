@@ -1,136 +1,264 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { AlertCircle, Clock, ShieldAlert, ArrowRight, CheckCircle2 } from "lucide-react";
+import type { ToOptions } from "@tanstack/react-router";
+import { AlertCircle, ArrowRight, CheckCircle2, Clock, History, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface AttentionItem {
+type RoutePath = NonNullable<ToOptions["to"]>;
+
+interface AuditEntry {
   id: string;
-  title: string;
-  description: string;
-  type: "escalation" | "pending_clearance" | "dispute";
-  severity: "high" | "medium" | "low";
-  link: string;
-  count: number;
+  action: string;
+  created_at: string;
+  actor_name: string | null;
+}
+
+interface AttentionData {
+  escalated: { count: number; oldest: string | null };
+  pendingNa: { count: number; pending: number };
+  oldestReview: { count: number; oldest: string | null };
+  audits: AuditEntry[];
+}
+
+function daysSince(iso: string | null): string | null {
+  if (!iso) return null;
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  return days <= 0 ? "today" : days === 1 ? "1 day" : `${days} days`;
 }
 
 export function NeedsAttentionPanel() {
-  const { data: items = [], isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["admin-needs-attention"],
-    queryFn: async () => {
-      // Fetch open escalations count
-      const { count: escalationsCount } = await supabase
-        .from("escalations" as any)
-        .select("id", { count: "exact", head: true })
-        .eq("status", "open");
+    queryFn: async (): Promise<AttentionData> => {
+      const [escalations, naReviews, inReview, audits] = await Promise.all([
+        // Open escalations: count plus how long the oldest one has been waiting.
+        supabase
+          .from("department_reviews")
+          .select("created_at", { count: "exact" })
+          .eq("escalated", true)
+          .order("created_at", { ascending: true })
+          .limit(1),
+        // N/A declarations still awaiting verification (application not yet cleared).
+        supabase.from("department_reviews").select("id", { count: "exact" }).eq("is_na", true),
+        // Oldest application still sitting in review.
+        supabase
+          .from("clearance_applications")
+          .select("submitted_at", { count: "exact" })
+          .eq("status", "in_review")
+          .order("submitted_at", { ascending: true })
+          .limit(1),
+        supabase
+          .from("audit_log")
+          .select("id, action, created_at, actor_name")
+          .order("created_at", { ascending: false })
+          .limit(5),
+      ]);
 
-      // Fetch pending clearances older than 3 days
-      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
-      const { count: delayedClearancesCount } = await supabase
-        .from("clearance_requests" as any)
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pending")
-        .lt("created_at", threeDaysAgo);
-
-      const list: AttentionItem[] = [];
-
-      if (escalationsCount && escalationsCount > 0) {
-        list.push({
-          id: "open-escalations",
-          title: "Unresolved Escalations",
-          description: `${escalationsCount} escalation cases require immediate admin intervention.`,
-          type: "escalation",
-          severity: "high",
-          link: "/admin/escalations",
-          count: escalationsCount,
-        });
-      }
-
-      if (delayedClearancesCount && delayedClearancesCount > 0) {
-        list.push({
-          id: "delayed-clearances",
-          title: "Delayed Clearance Requests",
-          description: `${delayedClearancesCount} requests pending for more than 3 days.`,
-          type: "pending_clearance",
-          severity: "medium",
-          link: "/admin/clearances",
-          count: delayedClearancesCount,
-        });
-      }
-
-      return list;
+      return {
+        escalated: {
+          count: escalations.count ?? 0,
+          oldest: escalations.data?.[0]?.created_at ?? null,
+        },
+        pendingNa: { count: naReviews.count ?? 0, pending: naReviews.count ?? 0 },
+        oldestReview: {
+          count: inReview.count ?? 0,
+          oldest: inReview.data?.[0]?.submitted_at ?? null,
+        },
+        audits: (audits.data ?? []) as AuditEntry[],
+      };
     },
-    refetchInterval: 15_000,
+    refetchInterval: 30_000,
   });
+
+  const escalatedAge = daysSince(data?.escalated.oldest ?? null);
+  const reviewAge = daysSince(data?.oldestReview.oldest ?? null);
+  const hasWork =
+    (data?.escalated.count ?? 0) > 0 ||
+    (data?.pendingNa.count ?? 0) > 0 ||
+    (data?.oldestReview.count ?? 0) > 0;
 
   return (
     <Card className="border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
             <CardTitle className="text-lg font-bold">Needs Attention</CardTitle>
           </div>
-          <Badge variant="outline" className="border-amber-500/50 text-amber-700 dark:text-amber-400">
-            Live Action Required
+          <Badge
+            variant="outline"
+            className="border-amber-500/50 text-amber-700 dark:text-amber-400"
+          >
+            S-v3.2
           </Badge>
         </div>
         <CardDescription>
-          Critical operational items that require administrative review or action.
+          Operational items that require administrative review or action.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         {isLoading ? (
           <div className="space-y-3">
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
           </div>
-        ) : items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
-            <CheckCircle2 className="h-10 w-10 text-emerald-500 mb-2" />
-            <p className="text-sm font-medium text-foreground">All clear!</p>
-            <p className="text-xs">No urgent operational issues require attention right now.</p>
-          </div>
+        ) : isError ? (
+          <p className="py-6 text-center text-sm text-destructive">
+            Could not load operational summary. Refresh to try again.
+          </p>
         ) : (
-          <div className="space-y-3">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between rounded-lg border bg-card p-3.5 shadow-sm transition-all hover:shadow-md"
-              >
-                <div className="flex items-start gap-3">
-                  {item.type === "escalation" ? (
-                    <ShieldAlert className="mt-0.5 h-5 w-5 text-destructive shrink-0" />
-                  ) : (
-                    <Clock className="mt-0.5 h-5 w-5 text-amber-500 shrink-0" />
-                  )}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold">{item.title}</p>
-                      <Badge
-                        variant={item.severity === "high" ? "destructive" : "secondary"}
-                        className="text-[10px] px-1.5 py-0"
-                      >
-                        {item.count} Pending
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
-                  </div>
-                </div>
+          <>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <AttentionTile
+                icon={<ShieldAlert className="h-4 w-4" />}
+                tone={data?.escalated.count ? "destructive" : "muted"}
+                label="Escalated Cases"
+                count={data?.escalated.count ?? 0}
+                detail={
+                  data?.escalated.count
+                    ? `Oldest waiting ${escalatedAge ?? "unknown"}`
+                    : "None open"
+                }
+                to="/admin/escalations"
+                cta="Review"
+              />
+              <AttentionTile
+                icon={<AlertCircle className="h-4 w-4" />}
+                tone={data?.pendingNa.count ? "warning" : "muted"}
+                label="Pending N/A Declarations"
+                count={data?.pendingNa.count ?? 0}
+                detail={data?.pendingNa.count ? "Awaiting verification" : "None pending"}
+                href="#na-declarations"
+                cta="View table"
+              />
+              <AttentionTile
+                icon={<Clock className="h-4 w-4" />}
+                tone={data?.oldestReview.count ? "warning" : "muted"}
+                label="Oldest Pending Review"
+                count={data?.oldestReview.count ?? 0}
+                detail={
+                  data?.oldestReview.count
+                    ? `Submitted ${reviewAge ?? "unknown"} ago`
+                    : "Nothing in review"
+                }
+                to="/queue"
+                cta="Open queue"
+              />
+            </div>
 
-                <Button asChild size="sm" variant="ghost" className="gap-1 text-xs">
-                  <Link to={item.link}>
-                    Resolve <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
+            <div className="rounded-lg border bg-card p-3.5 shadow-sm">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="flex items-center gap-1.5 text-sm font-semibold">
+                  <History className="h-4 w-4 text-blue-500" />
+                  Recent Activity
+                </span>
+                <Link
+                  to="/admin/audit"
+                  className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                >
+                  Full audit log <ArrowRight className="h-3 w-3" />
+                </Link>
               </div>
-            ))}
-          </div>
+              {data?.audits.length ? (
+                <div className="space-y-1.5">
+                  {data.audits.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="flex items-center justify-between gap-3 text-xs text-muted-foreground"
+                    >
+                      <span className="truncate max-w-[60%] font-medium text-foreground">
+                        {entry.action}
+                      </span>
+                      <span className="shrink-0">
+                        {new Date(entry.created_at).toLocaleString("en-GB", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">No recent activity.</p>
+              )}
+            </div>
+
+            {!hasWork && (data?.audits.length ?? 0) === 0 ? (
+              <div className="flex flex-col items-center justify-center py-4 text-center">
+                <CheckCircle2 className="mb-2 h-8 w-8 text-emerald-500" />
+                <p className="text-sm font-medium text-foreground">All clear</p>
+                <p className="text-xs text-muted-foreground">
+                  No escalations, N/A declarations or pending reviews require action.
+                </p>
+              </div>
+            ) : null}
+          </>
         )}
       </CardContent>
     </Card>
+  );
+}
+
+type TileTone = "destructive" | "warning" | "muted";
+
+const toneClasses: Record<TileTone, string> = {
+  destructive: "bg-rose-50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900",
+  warning: "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900",
+  muted: "bg-card",
+};
+
+function AttentionTile({
+  icon,
+  tone,
+  label,
+  count,
+  detail,
+  to,
+  href,
+  cta,
+}: {
+  icon: React.ReactNode;
+  tone: TileTone;
+  label: string;
+  count: number;
+  detail: string;
+  to?: RoutePath;
+  href?: string;
+  cta: string;
+}) {
+  const inner = (
+    <>
+      {cta} <ArrowRight className="h-3 w-3" />
+    </>
+  );
+  const linkClass =
+    "mt-4 flex items-center gap-1 text-xs font-semibold text-primary hover:underline";
+
+  return (
+    <div
+      className={`flex flex-col justify-between rounded-lg border p-4 shadow-sm transition-colors ${toneClasses[tone]}`}
+    >
+      <div>
+        <span className="flex items-center gap-1.5 text-sm font-semibold">
+          {icon}
+          {label}
+        </span>
+        <p className="mt-2 text-2xl font-bold">{count}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
+      </div>
+      {to ? (
+        <Link to={to} className={linkClass}>
+          {inner}
+        </Link>
+      ) : (
+        <a href={href} className={linkClass}>
+          {inner}
+        </a>
+      )}
+    </div>
   );
 }

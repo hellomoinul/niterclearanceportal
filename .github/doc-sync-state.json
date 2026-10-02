@@ -162,8 +162,19 @@
     },
     "S-v3.2": {
       "pr": 100,
-      "date": "2026-10-01"
+      "date": "2026-10-01",
+      "note": "PR #100 shipped an unimported component querying nonexistent tables/routes; reimplemented and wired on 2026-10-03."
+    },
+    "S-v3.3": {
+      "pr": 105,
+      "date": "2026-10-03",
+      "note": "Escalated stat card was already on main; as-any route link replaced with a typed link."
+    },
+    "S-v3.4": {
+      "pr": 106,
+      "date": "2026-10-03",
+      "note": "Escalations page shipped via #106, then repaired for three nonexistent department_reviews columns."
     }
   },
-  "updated_at": "2026-10-01"
+  "updated_at": "2026-10-03"
 }

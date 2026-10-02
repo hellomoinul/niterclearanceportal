@@ -14,6 +14,7 @@ import {
   Workflow,
   History,
   BarChart3,
+  ShieldAlert,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
@@ -50,12 +51,13 @@ export const adminNavGroups = [
       { label: "Reports & Analytics", to: "/admin/reports", icon: BarChart3 },
     ],
   },
-  {
-    category: "Operations",
-    items: [
-      { label: "Clearance Queue", to: "/queue", icon: FileCheck2 },
-      { label: "Workflows", to: "/admin/workflow", icon: Workflow },
-    ],
+{
+  category: "Operations",
+  items: [
+  { label: "Clearance Queue", to: "/queue", icon: FileCheck2 },
+  { label: "Workflows", to: "/admin/workflow", icon: Workflow },
+  { label: "Escalations", to: "/admin/escalations", icon: ShieldAlert },
+  ],
   },
   {
     category: "Content",
