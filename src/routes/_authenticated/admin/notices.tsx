@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/table';
 import { Trash2, Plus, Megaphone } from 'lucide-react';
 
-export const Route = createFileRoute('/_authenticated/admin/notices' as any)({
+export const Route = createFileRoute('/_authenticated/admin/notices')({
   beforeLoad: async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Not authenticated');

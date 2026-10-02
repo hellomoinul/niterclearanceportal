@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { History, Search } from 'lucide-react';
 
-export const Route = createFileRoute('/_authenticated/admin/audit' as any)({
+export const Route = createFileRoute('/_authenticated/admin/audit')({
   beforeLoad: async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Not authenticated');
@@ -61,7 +61,7 @@ export default function AuditLogPage() {
     const end = start + PAGE_SIZE - 1;
 
     let query = supabase
-      .from('audit_log' as any)
+      .from('audit_log')
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(start, end);
