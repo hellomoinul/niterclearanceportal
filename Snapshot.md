@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-10-02 · **Phase:** v2 live (post-review hardening) + email-notification fix shipped · **Progress:** ~88%
+> **Last updated:** 2026-10-03 · **Phase:** v2 live + round-3 complete (M-v3.1–M-v3.5, F-v3.1–F-v3.2, S-v3.1–S-v3.10) · **Progress:** 100%
 
 ---
 
