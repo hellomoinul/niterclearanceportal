@@ -67,10 +67,10 @@ const fetchReportData = async () => {
 
     let appQuery = supabase
       .from('clearance_applications')
-      .select('*', { count: 'exact', head: true });
+      .select('*, profiles!inner(batch)', { count: 'exact', head: true });
 
     if (batchFilter !== 'all') {
-      appQuery = appQuery.eq('academic_year' as any, batchFilter);
+      appQuery = appQuery.eq('profiles.batch' as any, batchFilter);
     }
 
     const { count: appCount, error: appErr } = await appQuery;
@@ -78,10 +78,9 @@ const fetchReportData = async () => {
 
     let reviewQuery = supabase
       .from('department_reviews')
-      .select('status, departments(code, name), clearance_applications!inner(student_id)');
-
+      .select('status, departments(code, name), clearance_applications!inner(student_id, profiles!inner(batch))');
     if (batchFilter !== 'all') {
-      reviewQuery = reviewQuery.eq('clearance_applications.academic_year' as any, batchFilter);
+      reviewQuery = reviewQuery.eq('clearance_applications.profiles.batch' as any, batchFilter);
     }
 
     const { data, error } = await reviewQuery;
