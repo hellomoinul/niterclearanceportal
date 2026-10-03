@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
+import { AvgDaysChart } from '@/components/Admin/AvgDaysChart';
 
 export const Route = createFileRoute('/_authenticated/admin/reports')({
   component: ClearanceReportsPage,
@@ -33,6 +34,7 @@ interface DepartmentStat {
   approved: number;
   pending: number;
   rejected: number;
+  avgDaysToApprove: number | null;
 }
 
 interface StatusSummary {
@@ -47,6 +49,8 @@ interface DepartmentReviewData {
     code: string | null;
     name: string | null;
   } | null;
+  created_at: string | null;
+  reviewed_at: string | null;
 }
 
 const COLORS = ['#22c55e', '#eab308', '#ef4444', '#3b82f6'];
@@ -58,11 +62,7 @@ export default function ClearanceReportsPage() {
   const [totalApplications, setTotalApplications] = useState(0);
   const [batchFilter, setBatchFilter] = useState('all');
 
-  useEffect(() => {
-    fetchReportData();
-  }, [batchFilter]);
-
-const fetchReportData = async () => {
+  const fetchReportData = useCallback(async () => {
     setLoading(true);
 
     let appQuery = supabase
@@ -70,7 +70,7 @@ const fetchReportData = async () => {
       .select('*, profiles!inner(batch)', { count: 'exact', head: true });
 
     if (batchFilter !== 'all') {
-      appQuery = appQuery.eq('profiles.batch' as any, batchFilter);
+      appQuery = appQuery.eq('profiles.batch', batchFilter);
     }
 
     const { count: appCount, error: appErr } = await appQuery;
@@ -78,9 +78,9 @@ const fetchReportData = async () => {
 
     let reviewQuery = supabase
       .from('department_reviews')
-      .select('status, departments(code, name), clearance_applications!inner(student_id, profiles!inner(batch))');
+      .select('status, departments(code, name), clearance_applications!inner(student_id, profiles!inner(batch)), created_at, reviewed_at');
     if (batchFilter !== 'all') {
-      reviewQuery = reviewQuery.eq('clearance_applications.profiles.batch' as any, batchFilter);
+      reviewQuery = reviewQuery.eq('clearance_applications.profiles.batch', batchFilter);
     }
 
     const { data, error } = await reviewQuery;
@@ -91,6 +91,9 @@ const fetchReportData = async () => {
       let pending = 0;
       let rejected = 0;
 
+      // For time-to-approve calculation
+      const deptTimeMap: Record<string, { totalDays: number; count: number }> = {};
+
       const typedData = data as unknown as DepartmentReviewData[];
 
       typedData.forEach((review) => {
@@ -99,18 +102,41 @@ const fetchReportData = async () => {
           review.departments?.name || review.departments?.code || 'General';
 
         if (!deptMap[dept]) {
-          deptMap[dept] = { department: dept, approved: 0, pending: 0, rejected: 0 };
+          deptMap[dept] = { department: dept, approved: 0, pending: 0, rejected: 0, avgDaysToApprove: null };
         }
 
         if (status === 'approved') {
           approved++;
           deptMap[dept].approved++;
+
+          // Calculate days to approve for this review
+          if (review.created_at && review.reviewed_at) {
+            const created = new Date(review.created_at);
+            const reviewed = new Date(review.reviewed_at);
+            const diffMs = reviewed.getTime() - created.getTime();
+            const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+            if (!deptTimeMap[dept]) {
+              deptTimeMap[dept] = { totalDays: 0, count: 0 };
+            }
+            deptTimeMap[dept].totalDays += diffDays;
+            deptTimeMap[dept].count += 1;
+          }
         } else if (status === 'rejected') {
           rejected++;
           deptMap[dept].rejected++;
         } else {
           pending++;
           deptMap[dept].pending++;
+        }
+      });
+
+      // Compute average days to approve per department
+      Object.keys(deptMap).forEach((dept) => {
+        const timeData = deptTimeMap[dept];
+        if (timeData && timeData.count > 0) {
+          const avg = timeData.totalDays / timeData.count;
+          deptMap[dept]!.avgDaysToApprove = Math.round(avg * 10) / 10; // round to 1 decimal
         }
       });
 
@@ -124,7 +150,11 @@ const fetchReportData = async () => {
     }
 
     setLoading(false);
-  };
+  }, [batchFilter]);
+
+  useEffect(() => {
+    fetchReportData();
+  }, [batchFilter, fetchReportData]);
 
   const handleExportCSV = () => {
     if (deptStats.length === 0) return;
@@ -264,6 +294,10 @@ const fetchReportData = async () => {
           )}
         </div>
       </div>
+
+      {/* Average Days to Approve per Office */}
+      <AvgDaysChart deptStats={deptStats} loading={loading} />
+
     </div>
   );
 }
