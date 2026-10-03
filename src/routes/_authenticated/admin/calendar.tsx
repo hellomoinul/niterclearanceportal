@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -185,7 +184,7 @@ function AdminCalendarPage() {
   });
 
   return (
-    <PortalShell className="max-w-6xl">
+    <div className="max-w-6xl">
       <PageHeader
         title="Academic Calendar"
         description="Manage institute events, exam schedules, deadlines, and holidays."
@@ -419,6 +418,6 @@ function AdminCalendarPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </PortalShell>
+    </div>
   );
 }
