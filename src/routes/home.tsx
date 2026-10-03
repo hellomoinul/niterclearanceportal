@@ -45,7 +45,7 @@ const steps = [
 ];
 
 function HomePage() {
-  const { session } = useAuth();
+  const { session, profile, roles, isStudent } = useAuth();
   const { data: departments } = useQuery({
     queryKey: ["departments"],
     queryFn: async () => {
@@ -63,12 +63,21 @@ function HomePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("notices")
-        .select("id, title, content, created_at")
+        .select("id, title, content, created_at, target_audience")
         .order("created_at", { ascending: false })
         .limit(3);
       if (error) throw error;
       return data ?? [];
     },
+  });
+
+  const visibleNotices = (notices ?? []).filter((notice) => {
+    const audience = (notice.target_audience || 'All').toLowerCase();
+    if (audience === 'all') return true;
+    if (audience === 'students' && isStudent) return true;
+    if (audience.startsWith('office:') && !isStudent) return true;
+    if (audience.startsWith('batch:') && isStudent) return true;
+    return false;
   });
 
   return (
@@ -107,11 +116,11 @@ function HomePage() {
 
         <div className="card-surface p-6">
           <h2 className="text-lg font-semibold">Latest notices</h2>
-          {(notices ?? []).length === 0 ? (
+          {visibleNotices.length === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">No notices published yet.</p>
           ) : (
             <ul className="mt-4 space-y-4">
-              {notices!.map((notice) => (
+              {visibleNotices.map((notice) => (
                 <li key={notice.id}>
                   <p className="text-sm font-semibold">{notice.title}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{notice.content}</p>

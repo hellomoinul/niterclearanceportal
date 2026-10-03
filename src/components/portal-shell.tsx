@@ -136,8 +136,11 @@ export function AdminSidebar() {
 export function PortalHeader() {
   const { session, profile, isOffice, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+
+  const isAdminPath = location.pathname.startsWith("/admin");
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ["notifications-unread"],
@@ -170,8 +173,8 @@ export function PortalHeader() {
   const appLinks = session
     ? [
         ...(isOffice || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
-        ...(isOffice || isAdmin ? [{ to: "/queue", label: isAdmin ? "Department queue" : "My office" }] : []),
-        ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
+        ...(isOffice || isAdmin ? [{ to: "/queue", label: isAdmin ? "Offices" : "My office" }] : []),
+        ...(isAdmin && !isAdminPath ? [{ to: "/admin", label: "Admin control" }] : []),
       ]
     : [];
 
