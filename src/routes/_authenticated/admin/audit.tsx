@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -19,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { History, Search } from 'lucide-react';
+import { ChevronDown, ChevronUp, History, Search } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/admin/audit')({
   beforeLoad: async () => {
@@ -42,18 +43,54 @@ interface AuditEntry {
 }
 
 const PAGE_SIZE = 25;
+const ACTION_SCAN_LIMIT = 5000;
+
+const dayStartIso = (value: string) => new Date(`${value}T00:00:00`).toISOString();
+const dayEndIso = (value: string) => new Date(`${value}T23:59:59.999`).toISOString();
+
+const humanizeAction = (action: string) =>
+  action.replace(/[_.]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+
+const formatDetails = (details: AuditEntry['details']): string | null => {
+  if (details === null || details === undefined) return null;
+  if (typeof details !== 'string') {
+    try {
+      return JSON.stringify(details, null, 2);
+    } catch {
+      return String(details);
+    }
+  }
+  const trimmed = details.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return JSON.stringify(JSON.parse(trimmed), null, 2);
+    } catch {
+      return trimmed;
+    }
+  }
+  return trimmed;
+};
 
 export default function AuditLogPage() {
   const [logs, setLogs] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [actionFilter, setActionFilter] = useState('all');
+  const [actionOptions, setActionOptions] = useState<string[]>([]);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchAuditLogs();
-  }, [page, actionFilter, search]);
+  }, [page, actionFilter, search, dateFrom, dateTo]);
+
+  useEffect(() => {
+    fetchActionOptions();
+  }, []);
 
   const fetchAuditLogs = async () => {
     setLoading(true);
@@ -74,23 +111,69 @@ export default function AuditLogPage() {
       query = query.ilike('actor_name', `%${search.trim()}%`);
     }
 
+    if (dateFrom) {
+      query = query.gte('created_at', dayStartIso(dateFrom));
+    }
+
+    if (dateTo) {
+      query = query.lte('created_at', dayEndIso(dateTo));
+    }
+
     const { data, count, error } = await query;
 
     if (!error && data) {
-      setLogs(data as unknown as AuditEntry[]);
+      setLogs(data);
       setTotalCount(count ?? 0);
     }
     setLoading(false);
   };
 
+  const fetchActionOptions = async () => {
+    const { data, error } = await supabase
+      .from('audit_log')
+      .select('action')
+      .order('action', { ascending: true })
+      .limit(ACTION_SCAN_LIMIT);
+
+    if (error || !data) return;
+
+    const unique = new Set<string>();
+    for (const row of data) {
+      if (row.action) unique.add(row.action);
+    }
+    setActionOptions([...unique].sort((a, b) => a.localeCompare(b)));
+  };
+
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
 
-  const renderDetails = (details: AuditEntry['details']) => {
-    if (!details) return '-';
-    if (typeof details === 'object') {
-      return JSON.stringify(details);
+  const detailsById = useMemo(
+    () => new Map(logs.map((log) => [String(log.id), formatDetails(log.details)])),
+    [logs],
+  );
+
+  const hasFilters = Boolean(dateFrom || dateTo || search.trim() || actionFilter !== 'all');
+  const hasExpandableRows = [...detailsById.values()].some((value) => value !== null);
+  const allExpanded = logs.length > 0 && logs.every((log) => expanded[String(log.id)]);
+
+  const toggleDetails = (id: string | number) => {
+    const key = String(id);
+    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const toggleAllDetails = () => {
+    if (allExpanded) {
+      setExpanded({});
+      return;
     }
-    return String(details);
+    setExpanded(Object.fromEntries(logs.map((log) => [String(log.id), true])));
+  };
+
+  const clearFilters = () => {
+    setSearch('');
+    setActionFilter('all');
+    setDateFrom('');
+    setDateTo('');
+    setPage(1);
   };
 
   const renderEntity = (entity: string | null, entityId: string | null) => {
@@ -150,17 +233,54 @@ export default function AuditLogPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Actions</SelectItem>
-              <SelectItem value="notice_created">Notice Created</SelectItem>
-              <SelectItem value="notice_deleted">Notice Deleted</SelectItem>
-              <SelectItem value="user_password_reset">Password Reset</SelectItem>
-              <SelectItem value="review_approved">Review Approved</SelectItem>
-              <SelectItem value="review_rejected">Review Rejected</SelectItem>
-              <SelectItem value="review_pending">Review Reopened</SelectItem>
-              <SelectItem value="escalation_resolved">Escalation Resolved</SelectItem>
-              <SelectItem value="system_settings_updated">Settings Updated</SelectItem>
+              {actionOptions.map((action) => (
+                <SelectItem key={action} value={action}>
+                  {humanizeAction(action)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="auditDateFrom" className="text-xs text-muted-foreground">From</Label>
+          <Input
+            id="auditDateFrom"
+            type="date"
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value);
+              setPage(1);
+            }}
+            className="w-full sm:w-44"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="auditDateTo" className="text-xs text-muted-foreground">To</Label>
+          <Input
+            id="auditDateTo"
+            type="date"
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value);
+              setPage(1);
+            }}
+            className="w-full sm:w-44"
+          />
+        </div>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearFilters}
+          disabled={!hasFilters}
+          className="h-9 text-muted-foreground"
+        >
+          Clear filters
+        </Button>
       </div>
 
       <div className="border rounded-lg bg-card overflow-x-auto shadow-sm">
@@ -171,7 +291,20 @@ export default function AuditLogPage() {
               <TableHead>Actor</TableHead>
               <TableHead>Action</TableHead>
               <TableHead>Entity</TableHead>
-              <TableHead>Details</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2">
+                  Details
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleAllDetails}
+                    disabled={!hasExpandableRows}
+                    className="h-6 px-2 text-xs text-muted-foreground"
+                  >
+                    {allExpanded ? 'Collapse all' : 'Expand all'}
+                  </Button>
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -188,27 +321,56 @@ export default function AuditLogPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              logs.map((log) => (
-                <TableRow key={log.id} className="hover:bg-muted/30 transition-colors">
-                  <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                    {new Date(log.created_at).toLocaleString('en-GB')}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {log.actor_name || 'System / Unknown'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getActionBadgeVariant(log.action)}>
-                      {log.action}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground font-mono text-xs">
-                    {renderEntity(log.entity, log.entity_id)}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground max-w-xs truncate font-mono">
-                    {renderDetails(log.details)}
-                  </TableCell>
-                </TableRow>
-              ))
+              logs.map((log) => {
+                const key = String(log.id);
+                const details = detailsById.get(key) ?? null;
+                const isExpanded = Boolean(expanded[key]) && details !== null;
+
+                return (
+                  <TableRow key={log.id} className="hover:bg-muted/30 transition-colors">
+                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                      {new Date(log.created_at).toLocaleString('en-GB')}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {log.actor_name || 'System / Unknown'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getActionBadgeVariant(log.action)}>
+                        {log.action}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground font-mono text-xs">
+                      {renderEntity(log.entity, log.entity_id)}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground font-mono align-top">
+                      {details === null ? (
+                        '-'
+                      ) : (
+                        <>
+                          {isExpanded ? (
+                            <pre className="max-w-sm whitespace-pre-wrap break-words rounded bg-muted/40 p-2">
+                              {details}
+                            </pre>
+                          ) : (
+                            <span className="block max-w-xs truncate" title={details}>
+                              {details}
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => toggleDetails(log.id)}
+                            aria-expanded={isExpanded}
+                            className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-foreground/70 hover:text-foreground transition-colors"
+                          >
+                            {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            {isExpanded ? 'Collapse' : 'Expand'}
+                          </button>
+                        </>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
