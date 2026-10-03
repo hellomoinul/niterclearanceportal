@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
 import { supabase } from '@/integrations/supabase/client'
-import { PortalShell } from '@/components/portal-shell'
+import { AdminSidebar } from '@/components/portal-shell'
 
 export const Route = createFileRoute('/_authenticated/admin')({
   beforeLoad: async () => {
@@ -23,8 +23,11 @@ export const Route = createFileRoute('/_authenticated/admin')({
 
 function AdminLayout() {
   return (
-    <PortalShell>
-      <Outlet />
-    </PortalShell>
+    <div className="mx-auto flex w-full max-w-7xl flex-1">
+      <AdminSidebar />
+      <main className="flex-1 px-6 py-8 overflow-x-hidden">
+        <Outlet />
+      </main>
+    </div>
   )
 }
