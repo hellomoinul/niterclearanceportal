@@ -39,6 +39,7 @@ interface AccountRow {
   officeIds: string[];
   officeNames: string[];
   created_at: string | null;
+  is_active: boolean;
 }
 
 interface Department {
@@ -61,6 +62,7 @@ function UsersPage() {
     password: '',
     role: 'office',
     departmentId: '',
+    phone: '',
   });
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -78,7 +80,7 @@ function UsersPage() {
       const [profiles, roles, bindings, departments] = await Promise.all([
         supabase
           .from('profiles')
-          .select('id, user_code, full_name, created_at')
+          .select('id, user_code, full_name, created_at, is_active')
           .order('created_at', { ascending: false }),
         supabase.from('user_roles').select('user_id, role'),
         supabase.from('office_departments').select('user_id, department_id'),
@@ -91,6 +93,7 @@ function UsersPage() {
           user_code: string | null;
           full_name: string | null;
           created_at: string | null;
+          is_active: boolean | null;
         }[],
         roles: (roles.data ?? []) as unknown as { user_id: string; role: string }[],
         bindings: (bindings.data ?? []) as unknown as { user_id: string; department_id: string }[],
@@ -112,15 +115,19 @@ function UsersPage() {
       bindingMap.set(b.user_id, list);
     }
     const deptName = (id: string) => data.departments.find((d) => d.id === id)?.name ?? id;
-    return data.profiles.map((p) => ({
-      id: p.id,
-      user_code: p.user_code,
-      full_name: p.full_name,
-      role: roleMap.get(p.id) ?? 'student',
-      officeIds: bindingMap.get(p.id) ?? [],
-      officeNames: (bindingMap.get(p.id) ?? []).map(deptName),
-      created_at: p.created_at,
-    }));
+    return data.profiles
+      .map((p) => ({
+        id: p.id,
+        user_code: p.user_code,
+        full_name: p.full_name,
+        role: roleMap.get(p.id) ?? 'student',
+        officeIds: bindingMap.get(p.id) ?? [],
+        officeNames: (bindingMap.get(p.id) ?? []).map(deptName),
+        created_at: p.created_at,
+        is_active: p.is_active !== false,
+      }))
+      // S-v3.5: This page is the staff/admin lifecycle view — students are not listed.
+      .filter((r) => r.role !== 'student');
   }, [data]);
 
   const portalEmail = useMemo(() => idToEmail(form.userCode), [form.userCode]);
@@ -163,14 +170,17 @@ function UsersPage() {
       return;
     }
     setCreating(true);
-    const { error } = await (supabase as any).rpc('admin_create_account', {
+    const createRole = form.role === 'admin' ? 'admin' : 'office';
+    const rpcArgs: { p_full_name: string; p_user_code: string; p_email: string; p_role: 'office' | 'admin'; p_phone?: string; p_department_id?: string } = {
       p_full_name: form.fullName.trim(),
       p_user_code: form.userCode.trim(),
       p_email: portalEmail,
-      p_password: form.password,
-      p_role: form.role,
-      p_department_id: form.role === 'office' ? form.departmentId : null,
-    });
+      p_role: createRole,
+    };
+    if (form.phone?.trim()) rpcArgs.p_phone = form.phone.trim();
+    if (createRole === 'office' && form.departmentId) rpcArgs.p_department_id = form.departmentId;
+
+    const { error } = await supabase.rpc('admin_create_account', rpcArgs);
     setCreating(false);
     if (error) {
       toast.error('Could not create account', { description: error.message });
@@ -179,18 +189,18 @@ function UsersPage() {
     toast.success('Account created', {
       description: `${form.fullName.trim()} can sign in with ${portalEmail}`,
     });
-    setForm({ fullName: '', userCode: '', password: '', role: 'office', departmentId: '' });
+    setForm({ fullName: '', userCode: '', password: '', role: 'office', departmentId: '', phone: '' });
     refetch();
   }
 
-  async function changeRole(row: AccountRow, nextRole: string) {
+  async function changeRole(row: AccountRow, nextRole: 'office' | 'admin') {
     if (nextRole === row.role) return;
     if (row.id === user?.id) {
       toast.error('You cannot change your own role');
       return;
     }
     if (!window.confirm(`Change ${row.full_name ?? row.user_code}'s account to ${nextRole}?`)) return;
-    const { error } = await supabase.from('user_roles').update({ role: nextRole as any }).eq('user_id', row.id);
+    const { error } = await supabase.from('user_roles').update({ role: nextRole }).eq('user_id', row.id);
     if (error) {
       toast.error('Could not change role', { description: error.message });
       return;
@@ -237,9 +247,9 @@ function UsersPage() {
 
     setIsSubmitting(true);
     try {
-      const { error: resetError } = await (supabase as any).rpc('admin_reset_password', {
-        user_id: resetRow.id,
-        new_password: newPassword,
+      const { error: resetError } = await supabase.rpc('admin_reset_password', {
+        p_user_id: resetRow.id,
+        p_new_password: newPassword,
       });
 
       if (resetError) throw resetError;
@@ -264,11 +274,46 @@ function UsersPage() {
       setIsResetOpen(false);
       setNewPassword('');
       setResetRow(null);
-    } catch (err: any) {
-      toast.error('Could not reset password', { description: err.message });
+    } catch (err) {
+      toast.error('Could not reset password', {
+        description: err instanceof Error ? err.message : 'Unexpected error',
+      });
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  // S-v3.6 Deactivate/Activate handler (M-v3.1 admin_set_user_active RPC)
+  const [pendingStatusId, setPendingStatusId] = useState<string | null>(null);
+
+  async function toggleActive(row: AccountRow, nextActive: boolean) {
+    if (!nextActive && row.id === user?.id) {
+      toast.error('You cannot deactivate your own account');
+      return;
+    }
+    const label = row.full_name ?? row.user_code ?? 'this account';
+    setPendingStatusId(row.id);
+    const question = nextActive
+      ? `Activate ${label}? They will be able to sign in again.`
+      : `Deactivate ${label}? They will not be able to sign in until reactivated.`;
+    if (!window.confirm(question)) {
+      setPendingStatusId(null);
+      return;
+    }
+
+    const { error } = await supabase.rpc('admin_set_user_active', {
+      p_user_id: row.id,
+      p_active: nextActive,
+    });
+    setPendingStatusId(null);
+    if (error) {
+      toast.error(nextActive ? 'Could not activate account' : 'Could not deactivate account', {
+        description: error.message,
+      });
+      return;
+    }
+    toast.success(nextActive ? 'Account activated' : 'Account deactivated');
+    refetch();
   }
 
   return (
@@ -318,6 +363,15 @@ function UsersPage() {
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone (optional)</Label>
+              <Input
+                id="phone"
+                placeholder="e.g. +8801XXXXXXXXX"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -416,7 +470,7 @@ function UsersPage() {
                           {row.id === user?.id ? 'you' : row.user_code ? idToEmail(row.user_code) : '—'}
                         </td>
                         <td className="py-2 pr-4">
-                          <Badge variant={roleBadgeVariant(row.role) as any}>{row.role}</Badge>
+                          <Badge variant={roleBadgeVariant(row.role)}>{row.role}</Badge>
                         </td>
                         <td className="py-2 pr-4">
                           {row.role === 'office' ? (
@@ -448,7 +502,7 @@ function UsersPage() {
                         <td className="py-2">
                           <div className="flex items-center gap-2">
                             {row.role !== 'student' && row.id !== user?.id && (
-                              <Select value={row.role} onValueChange={(v) => changeRole(row, v)}>
+                              <Select value={row.role} onValueChange={(v) => changeRole(row, v as 'office' | 'admin')}>
                                 <SelectTrigger className="h-8 w-24 text-xs">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -458,6 +512,23 @@ function UsersPage() {
                                 </SelectContent>
                               </Select>
                             )}
+                            <Button
+                              size="sm"
+                              variant={row.is_active ? 'outline' : 'secondary'}
+                              title={
+                                row.id === user?.id
+                                  ? 'You cannot deactivate your own account'
+                                  : undefined
+                              }
+                              disabled={row.id === user?.id || pendingStatusId === row.id}
+                              onClick={() => toggleActive(row, !row.is_active)}
+                            >
+                              {pendingStatusId === row.id
+                                ? '…'
+                                : row.is_active
+                                ? 'Deactivate'
+                                : 'Activate'}
+                            </Button>
                             <Button
                               size="sm"
                               variant="outline"
