@@ -198,7 +198,7 @@ verified live at the API/DB level. Live E2E (M-v2.7) and the RLS negative matrix
 | Per-office queue + filter/search | ✅ Built |
 | Admin dashboard (Needs Attention) + N/A table | ✅ Built (S-v3.2) |
 | Admin override + N/A revert | ✅ Built |
-| Admin UI (calendar, settings/signatures, notices, audit, reports) | ✅ Built (round 2) |
+| Admin UI (calendar, settings/signatures, notices, audit, reports, workflow) | ✅ Built (round 2 + round 3: S-v3.5–S-v3.9) |
 | Grouped sidebar | ✅ Built (S-v3.1) |
 | Live E2E on sequential flow | ✅ Done (M-v2.7) |
 | RLS negative testing | ✅ Cross-student reads 0 rows; PATCH/DELETE no-ops |

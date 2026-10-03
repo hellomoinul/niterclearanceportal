@@ -173,7 +173,32 @@
       "pr": 106,
       "date": "2026-10-03",
       "note": "Escalations page shipped via #106, then repaired for three nonexistent department_reviews columns."
+    },
+    "S-v3.5": {
+      "pr": "local",
+      "date": "2026-10-03",
+      "note": "Users: removed student rows, fixed RPC casts (admin_create_account, admin_reset_password, admin_set_user_active), added is_active column."
+    },
+    "S-v3.6": {
+      "pr": "local",
+      "date": "2026-10-03",
+      "note": "Users: deactivate/activate toggle via admin_set_user_active RPC; Inactive badge; self-deactivation blocked."
+    },
+    "S-v3.7": {
+      "pr": "local",
+      "date": "2026-10-03",
+      "note": "Notices: added edit + structured audience selector (All/Students/Office/Batch); live office/batch dropdowns; notice_updated audit action."
+    },
+    "S-v3.8": {
+      "pr": "local",
+      "date": "2026-10-03",
+      "note": "Workflow: add/remove offices via admin_add_office/admin_remove_office RPCs; editable requirement text; atomic batch save via Promise.all with rollback."
+    },
+    "S-v3.9": {
+      "pr": "local",
+      "date": "2026-10-03",
+      "note": "Audit log: dynamic actions from select distinct, from/to date filters, expandable pretty-printed Details JSON, clear filters button."
     }
   },
-  "updated_at": "2026-10-02"
+  "updated_at": "2026-10-03"
 }

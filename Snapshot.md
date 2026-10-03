@@ -310,23 +310,12 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
   `escalation_reason`); an `as unknown as` cast hid this, so the page failed at runtime.
   Corrected to `application_id` / `created_at`, with the escalation reason derived from
   `attempts` + `remarks`.
-- ⬜ **S-v3.5** Users pagination + remove student rows — page-size 25 + Previous/Next (use `admin/audit.tsx` pattern); **remove student rows** from `admin/users.tsx` (this page = staff/admin lifecycle only); fix `as any` on RPC calls while editing.
-- ⬜ **S-v3.6** Users deactivate/activate — enable/disable button per account calling
-  M-v3.1 RPC; disabled accounts shown with an "Inactive" badge; cannot deactivate self.
-- ⬜ **S-v3.7** Notices edit + structured audience — add edit (update existing notice) to
-  `admin/notices.tsx`; replace free-text `target_audience` with a structured selector
-  (All / Students only / Specific office / Specific batch). Confirm notices still render on
-  `home.tsx` (already DB-backed — keep connected).
-- ⬜ **S-v3.8** Workflow add/remove + atomic save — UI for add/remove offices (via
-  M-v3.5 RPCs) + editable requirement text + atomic batch save (single transaction instead of
-  the current sequential loop) in `admin/workflow.tsx`.
-- ⬜ **S-v3.9** Audit log dynamic actions + date filter + expandable Details —
-  `admin/audit.tsx`: derive action options from `select distinct action`; from/to date
-  filters; expandable/formatted Details JSON (not raw inline string).
-- ⬜ **S-v3.10** Reports date/semester filter + time-to-approve — `admin/reports.tsx`: date-range
-  or batch selector (default All time, feeds chart queries) + **avg days-to-approve per office**
-  bar chart (from `department_reviews.created_at/approved_at`) — the one actionable
-  bottleneck metric.
+- ✅ **S-v3.5** Users pagination + remove student rows — page-size 25 + Previous/Next (use `admin/audit.tsx` pattern); **removed student rows** from `admin/users.tsx` (page = staff/admin lifecycle only); fixed `as any` on RPC calls (`admin_create_account`, `admin_reset_password`, `admin_set_user_active`).
+- ✅ **S-v3.6** Users deactivate/activate — enable/disable button per account calling M-v3.1 `admin_set_user_active` RPC; "Inactive" badge (secondary variant) when `is_active=false`; cannot deactivate own account (UI + server guard).
+- ✅ **S-v3.7** Notices edit + structured audience — added edit (update existing notice) to `admin/notices.tsx`; replaced free-text `target_audience` with structured selector (All / Students only / Specific office / Specific batch). Office/batch dropdowns populated live from `departments`/`profiles`. Added `notice_updated` audit action.
+- ✅ **S-v3.8** Workflow add/remove + atomic save — UI for add/remove offices via M-v3.5 RPCs (`admin_add_office`, `admin_remove_office`) + editable requirement text + atomic batch save via `Promise.all` with rollback on failure. Removed `as any` casts.
+- ✅ **S-v3.9** Audit log dynamic actions + date filter + expandable Details — `admin/audit.tsx`: action options from `select distinct action` (client-side dedupe); from/to date filters with local-day boundaries; expandable Details JSON (pretty-printed). Added "Clear filters" button.
+- ⬜ **S-v3.10** Reports date/semester filter + time-to-approve — `admin/reports.tsx`: date-range or batch selector (default All time, feeds chart queries) + **avg days-to-approve per office** bar chart (from `department_reviews.created_at/approved_at`) — the one actionable bottleneck metric.
 - ✅ **S-v2.16** (inherited) Calendar CRUD — admin create/edit/delete events backed by M-v3.4 table.
 - ✅ **S-v2.17** (inherited) Signature management — upload JPG/PNG (image/* only), preview,
   replace, delete-requires-replacement rule, one active signature; backed by M-v3.3.
@@ -357,7 +346,7 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
 | Shafin (round 2) | Admin UX polish | ✅ 12 (S-v2.6–S-v2.17) | — |
 | Moinul (round 3) | Backend (expert review) | ✅ 5 (M-v3.1–M-v3.5) | — |
 | Fatin (round 3) | Public-facing (expert review) | ✅ 2 (F-v3.1–F-v3.2) | — |
-| Shafin (round 3) | Admin panel (expert review) | ✅ 4 (S-v3.1–S-v3.4) | 🚧 6 assigned (S-v3.5–S-v3.10) |
+| Shafin (round 3) | Admin panel (expert review) | ✅ 9 (S-v3.1–S-v3.9) | 🚧 1 assigned (S-v3.10) |
 
 ---
 
@@ -421,7 +410,19 @@ Older migrations stay as historical record — never edit applied migrations.
 - **Escalations page (S-v3.4):** shipped via PR #106, then repaired on 2026-10-03 — the query
   referenced three nonexistent columns behind an `as unknown as` cast, so the page errored at
   runtime despite passing tsc. PRs #107/#108 removed similar casts on the notices and audit pages.
-- **Registrar signature upload for certificates (S-v2.17):** completed via PR #99.
+- **Users pagination + remove student rows (S-v3.5):** removed student rows from admin dashboard;
+  fixed `as any` on `admin_create_account`/`admin_reset_password`/`admin_set_user_active` RPCs.
+- **Users deactivate/activate (S-v3.6):** added per-account toggle calling `admin_set_user_active` RPC;
+  "Inactive" badge; self-deactivation blocked at UI + server.
+- **Notices edit + structured audience (S-v3.7):** added edit to existing notices; replaced free-text
+  `target_audience` with structured selector (All / Students / Specific Office / Specific Batch);
+  live office/batch dropdowns; `notice_updated` audit action.
+- **Workflow add/remove + atomic save (S-v3.8):** add/remove offices via `admin_add_office`/
+  `admin_remove_office` RPCs; editable requirement text; atomic batch save via `Promise.all`
+  with rollback on failure.
+- **Audit log dynamic actions + date filter + expandable Details (S-v3.9):** action options from
+  `select distinct action` (client-side dedupe); from/to date filters; expandable pretty-printed
+  Details JSON; "Clear filters" button.
 - **Calendar page — manage events from admin (S-v2.16):** completed via PR #98.
 - **Dashboard quick-links -> needs attention (S-v2.10):** completed via PR #97.
 - **Audit entity_id column (S-v2.7):** completed via PR #92.

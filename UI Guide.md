@@ -288,11 +288,11 @@ this page and now includes the **Escalations** entry.
 |------|-------|--------|
 | User Management | `/admin/users` | ✅ Working — CRUD + roles + exactly one office per staff, paginated (S-v2.2/S-v2.12) |
 | Office Editor | `/admin/workflow` | ✅ Working — reorder the 10 offices, set one final sign-off (S-v2.1) |
-| Notices | `/admin/notices` | ✅ Working — CRUD with delete confirmation (S-v2.8); edit + structured audience pending (S-v3.7) |
+| Notices | `/admin/notices` | ✅ Working — CRUD with edit + structured audience selector (All/Students/Office/Batch) (S-v3.7) |
 | Calendar | `/admin/calendar` | ✅ Working — CRUD for calendar events backed by M-v3.4 (S-v2.16) |
 | Settings | `/admin/settings` | ✅ Working — profile + registrar signature management (S-v2.17/M-v3.3) |
-| Audit Log | `/admin/audit` | ✅ Working — entity column + pagination + dynamic actions + date filters (S-v2.7/S-v2.12/S-v2.14); expandable Details pending (S-v3.9) |
-| Reports | `/admin/reports` | ✅ Working — live data + date filters (S-v2.13); avg days-to-approve chart pending (S-v3.10) |
+| Audit Log | `/admin/audit` | ✅ Working — entity column + pagination + dynamic actions (distinct) + date filters + expandable Details JSON (S-v3.9) |
+| Reports | `/admin/reports` | ✅ Working — live data + batch filter (S-v3.10 partial); avg days-to-approve chart pending (S-v3.10) |
 | Escalations | `/admin/escalations` | ✅ Working — open escalations, resolve with decision + note (S-v3.4) |
 
 ### Office Editor `/admin/workflow` (S-v2.1)
