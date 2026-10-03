@@ -5,7 +5,6 @@ import { ExternalLink, FileText, Inbox } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -389,23 +388,21 @@ function QueuePage() {
 
   if (loading || !deptsLoaded) {
     return (
-      <PortalShell>
+      <div>
         <p className="mt-10 text-sm text-muted-foreground">Loading…</p>
-      </PortalShell>
+      </div>
     );
   }
 
   if ((departments?.length ?? 0) === 0) {
     return (
-      <PortalShell>
-        <div className="card-surface mt-10 p-8 text-center">
-          <h1 className="text-lg font-semibold">No office assigned</h1>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Your account has no department office assigned. Ask the
-            admin office to assign you under Admin → Users.
-          </p>
-        </div>
-      </PortalShell>
+      <div className="card-surface mt-10 p-8 text-center">
+        <h1 className="text-lg font-semibold">No office assigned</h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+          Your account has no department office assigned. Ask the
+          admin office to assign you under Admin → Users.
+        </p>
+      </div>
     );
   }
 
@@ -415,7 +412,7 @@ function QueuePage() {
   const rejectedCount = (reviews ?? []).filter((r) => r.status === "rejected").length;
 
   return (
-    <PortalShell>
+    <>
       <PageHeader
         title={isAdmin ? "Department queue" : departments!.map((d) => d.name).join(", ")}
         description={`${isAdmin ? "All offices" : departments!.map((d) => d.name).join(", ")} · ${pendingCount} awaiting review`}
@@ -676,6 +673,6 @@ function QueuePage() {
           </div>
         </div>
       )}
-    </PortalShell>
+    </>
   );
 }

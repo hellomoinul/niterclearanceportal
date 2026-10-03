@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 
@@ -102,7 +101,7 @@ function CalendarPage() {
   const groups = groupByMonth(events ?? []);
 
   return (
-    <PortalShell className="max-w-3xl">
+    <div className="max-w-3xl">
       <PageHeader
         title="Academic calendar"
         description="Key dates for the final-year clearance cycle."
@@ -153,6 +152,6 @@ function CalendarPage() {
           ))
         )}
       </div>
-    </PortalShell>
+    </div>
   );
 }

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -200,7 +199,7 @@ function SectionPage() {
   }
 
   return (
-    <PortalShell className="max-w-3xl">
+    <div className="max-w-3xl">
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">Loading section…</p>
       ) : !review ? (
@@ -388,6 +387,6 @@ function SectionPage() {
           ) : null}
         </>
       )}
-    </PortalShell>
+    </div>
   );
 }

@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Check, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/page-header";
@@ -103,7 +102,7 @@ function NotificationsPage() {
   }
 
   return (
-    <PortalShell className="max-w-3xl">
+    <div className="max-w-3xl">
       <PageHeader
         title="Notifications"
         description="Every clearance decision and remark sent to your account."
@@ -233,6 +232,6 @@ function NotificationsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </PortalShell>
+    </div>
   );
 }

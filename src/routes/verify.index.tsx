@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { ShieldCheck } from "lucide-react";
-import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +38,7 @@ function VerifyPage() {
   }, []);
 
   return (
-    <PortalShell className="max-w-2xl">
+    <div className="max-w-2xl">
       <PageHeader
         title="Certificate verification"
         description="Enter the certificate ID printed on the clearance certificate (e.g. NCP-A83C2B1F), or scan its QR code."
@@ -68,6 +67,6 @@ function VerifyPage() {
           </Button>
         </form>
       </div>
-    </PortalShell>
+    </div>
   );
 }

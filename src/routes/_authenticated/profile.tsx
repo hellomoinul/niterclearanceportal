@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { idToEmail } from "@/lib/portal";
-import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -33,7 +32,7 @@ function ProfilePage() {
   });
 
   return (
-    <PortalShell className="max-w-3xl">
+    <div className="max-w-3xl">
       <PageHeader
         title="My Profile"
         back={{
@@ -98,6 +97,6 @@ function ProfilePage() {
           )}
         </CardContent>
       </Card>
-    </PortalShell>
+    </div>
   );
 }

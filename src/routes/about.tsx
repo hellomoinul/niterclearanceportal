@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
 
 export const Route = createFileRoute("/about")({
@@ -23,7 +22,7 @@ export const Route = createFileRoute("/about")({
 
 function AboutPage() {
   return (
-    <PortalShell className="max-w-4xl">
+    <div className="max-w-4xl">
       <PageHeader title="About NITER clearance" />
 
       <div className="card-surface mt-8 p-6">
@@ -48,6 +47,6 @@ function AboutPage() {
           the Administration office automatically.
         </p>
       </div>
-    </PortalShell>
+    </div>
   );
 }

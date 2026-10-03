@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,7 +78,7 @@ function ApplyPage() {
   }
 
   return (
-    <PortalShell className="max-w-3xl">
+    <div className="max-w-3xl">
       <PageHeader
         title="Clearance application"
         description="Confirm your details below. Once submitted, each office reviews your clearance in order — starting with the first office on the list."
@@ -169,6 +168,6 @@ function ApplyPage() {
           {busy ? "Submitting…" : "Submit application"}
         </Button>
       </form>
-    </PortalShell>
+    </div>
   );
 }

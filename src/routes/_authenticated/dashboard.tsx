@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, FileCheck2, Download, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -159,7 +158,7 @@ function DashboardPage() {
   const percent = total ? Math.round((approved / total) * 100) : 0;
 
   return (
-    <PortalShell>
+    <div>
       <PageHeader
         title={profile?.full_name ? `Hello, ${profile.full_name.split(" ")[0]}` : "My clearance"}
         description={
@@ -303,8 +302,7 @@ function DashboardPage() {
                 <span className="relative inline-block font-bold px-2 mx-1 pb-1">
                   {profile.user_code}
                   <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
-                </span>{" "}
-                of the{" "}
+                </span> of the{" "}
                 <span className="relative inline-block font-bold px-2 mx-1 pb-1">
                   {profile.program}
                   <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
@@ -332,7 +330,7 @@ function DashboardPage() {
                       {certificate.issued_at
                         ? new Date(certificate.issued_at).toLocaleDateString("en-GB")
                         : new Date().toLocaleDateString("en-GB")}
-                    </p>
+                      </p>
                     {certificate.id && (
                       <>
                         <p className="text-[10px] font-semibold text-[#334155] uppercase tracking-wider mt-1.5">Certificate ID</p>
@@ -358,6 +356,6 @@ function DashboardPage() {
           </div>
         </div>
       )}
-    </PortalShell>
+    </div>
   );
 }

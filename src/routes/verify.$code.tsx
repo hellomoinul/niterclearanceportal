@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, XCircle, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
 import { formatCertificateId } from "@/lib/portal";
@@ -90,7 +89,7 @@ function VerifyResult() {
   const verified = result?.verified === true;
 
   return (
-    <PortalShell className="max-w-2xl">
+    <div className="max-w-2xl">
       <PageHeader
         title="Certificate verification"
         description={`Checking certificate ID: ${code}`}
@@ -198,6 +197,6 @@ function VerifyResult() {
           <Link to="/verify">Check another code</Link>
         </Button>
       </div>
-    </PortalShell>
+    </div>
   );
 }

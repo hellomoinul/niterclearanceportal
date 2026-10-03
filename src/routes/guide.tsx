@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { PortalShell } from "@/components/portal-shell";
 import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
 import {
@@ -186,7 +185,7 @@ function GuidePage() {
   const steps = role === "student" ? studentSteps : role === "office" ? officeSteps : adminSteps;
 
   return (
-    <PortalShell className="max-w-3xl">
+    <div className="max-w-3xl">
       <PageHeader
         title="Guide"
         description="How the NITER clearance portal works — a step-by-step walkthrough for your role, plus answers to common questions."
@@ -250,6 +249,6 @@ function GuidePage() {
           ))}
         </Accordion>
       </div>
-    </PortalShell>
+    </div>
   );
 }

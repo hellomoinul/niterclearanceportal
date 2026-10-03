@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, Building2, FileCheck2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { PortalShell } from "@/components/portal-shell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 
@@ -80,13 +79,13 @@ function HomePage() {
     return false;
   });
 
-  return (
-    <PortalShell className="max-w-6xl">
+return (
+    <div className="max-w-6xl">
       <section className="hero-surface hero-fade-in overflow-hidden rounded-xl px-6 py-12 shadow-raised transition-shadow duration-300 hover:shadow-lg sm:px-10 sm:py-16">
         <p className="text-xs font-semibold tracking-[0.18em] uppercase opacity-80">
           National Institute of Textile Engineering and Research
         </p>
-<h1 className="mt-4 max-w-2xl text-3xl font-semibold font-display text-white sm:text-4xl">
+        <h1 className="mt-4 max-w-2xl text-3xl font-semibold font-display text-white sm:text-4xl">
           Final-year clearance, without walking to ten offices
         </h1>
       </section>
@@ -133,6 +132,6 @@ function HomePage() {
           )}
         </div>
       </section>
-    </PortalShell>
+    </div>
   );
 }
