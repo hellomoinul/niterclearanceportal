@@ -315,7 +315,7 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
 - ✅ **S-v3.7** Notices edit + structured audience — added edit (update existing notice) to `admin/notices.tsx`; replaced free-text `target_audience` with structured selector (All / Students only / Specific office / Specific batch). Office/batch dropdowns populated live from `departments`/`profiles`. Added `notice_updated` audit action.
 - ✅ **S-v3.8** Workflow add/remove + atomic save — UI for add/remove offices via M-v3.5 RPCs (`admin_add_office`, `admin_remove_office`) + editable requirement text + atomic batch save via `Promise.all` with rollback on failure. Removed `as any` casts.
 - ✅ **S-v3.9** Audit log dynamic actions + date filter + expandable Details — `admin/audit.tsx`: action options from `select distinct action` (client-side dedupe); from/to date filters with local-day boundaries; expandable Details JSON (pretty-printed). Added "Clear filters" button.
-- ⬜ **S-v3.10** Reports date/semester filter + time-to-approve — `admin/reports.tsx`: date-range or batch selector (default All time, feeds chart queries) + **avg days-to-approve per office** bar chart (from `department_reviews.created_at/approved_at`) — the one actionable bottleneck metric.
+- ✅ **S-v3.10** Reports date/semester filter + time-to-approve — `admin/reports.tsx`: batch selector (default All time, feeds chart queries) + **avg days-to-approve per office** bar chart (from `department_reviews.created_at/reviewed_at`) — the one actionable bottleneck metric.
 - ✅ **S-v2.16** (inherited) Calendar CRUD — admin create/edit/delete events backed by M-v3.4 table.
 - ✅ **S-v2.17** (inherited) Signature management — upload JPG/PNG (image/* only), preview,
   replace, delete-requires-replacement rule, one active signature; backed by M-v3.3.
@@ -346,7 +346,7 @@ distributed to lanes per member's established role. Branch: `shafin/admin-r2-<id
 | Shafin (round 2) | Admin UX polish | ✅ 12 (S-v2.6–S-v2.17) | — |
 | Moinul (round 3) | Backend (expert review) | ✅ 5 (M-v3.1–M-v3.5) | — |
 | Fatin (round 3) | Public-facing (expert review) | ✅ 2 (F-v3.1–F-v3.2) | — |
-| Shafin (round 3) | Admin panel (expert review) | ✅ 9 (S-v3.1–S-v3.9) | 🚧 1 assigned (S-v3.10) |
+| Shafin (round 3) | Admin panel (expert review) | ✅ 10 (S-v3.1–S-v3.10) | — |
 
 ---
 

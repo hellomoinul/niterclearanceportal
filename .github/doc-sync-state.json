@@ -198,6 +198,11 @@
       "pr": "local",
       "date": "2026-10-03",
       "note": "Audit log: dynamic actions from select distinct, from/to date filters, expandable pretty-printed Details JSON, clear filters button."
+    },
+    "S-v3.10": {
+      "pr": "local",
+      "date": "2026-10-03",
+      "note": "Reports: avg days-to-approve per office bar chart (from department_reviews.created_at/reviewed_at); batch filter fixed; AvgDaysChart component added."
     }
   },
   "updated_at": "2026-10-03"
