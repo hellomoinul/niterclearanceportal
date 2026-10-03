@@ -11,8 +11,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "../lib/auth";
-import { supabase } from "../integrations/supabase/client";
-import { Toaster } from "../components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Toaster } from "@/components/ui/sonner";
+import { PortalShell } from "@/components/portal-shell";
 
 function NotFoundComponent() {
   return (
@@ -134,7 +135,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <PortalShell>
+          <Outlet />
+        </PortalShell>
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
