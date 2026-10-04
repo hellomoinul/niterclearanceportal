@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Upload, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useCallback } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Upload, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -18,10 +18,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-export const Route = createFileRoute('/_authenticated/admin/settings')({
+export const Route = createFileRoute("/_authenticated/admin/settings")({
   component: AdminSettingsPage,
 });
 
@@ -65,9 +74,15 @@ export default function AdminSettingsPage() {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [oldSignatures, setOldSignatures] = useState<SignatureRecord[]>([]);
+  const [certRefCounts, setCertRefCounts] = useState<Record<string, number>>({});
+  const [showActiveRemoveDialog, setShowActiveRemoveDialog] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<SignatureRecord | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchActiveSignature();
+    fetchOldSignatures();
   }, []);
 
   const fetchActiveSignature = useCallback(async () => {
@@ -94,6 +109,32 @@ export default function AdminSettingsPage() {
       setPreviewUrl(null);
     }
     setLoading(false);
+  }, []);
+
+  const fetchOldSignatures = useCallback(async () => {
+    const [{ data: sigs, error }, { data: certs }] = await Promise.all([
+      supabase
+        .from("signatures")
+        .select("*")
+        .eq("active", false)
+        .order("created_at", { ascending: false }),
+      supabase.from("certificates").select("signature_id"),
+    ]);
+
+    if (error) {
+      toast.error("Failed to load old signatures", { description: error.message });
+      return;
+    }
+
+    setOldSignatures(sigs ?? []);
+
+    const counts: Record<string, number> = {};
+    for (const cert of certs ?? []) {
+      if (cert.signature_id) {
+        counts[cert.signature_id] = (counts[cert.signature_id] ?? 0) + 1;
+      }
+    }
+    setCertRefCounts(counts);
   }, []);
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -140,10 +181,7 @@ export default function AdminSettingsPage() {
     }
 
     if (activeSignature) {
-      await supabase
-        .from("signatures")
-        .update({ active: false })
-        .eq("id", activeSignature.id);
+      await supabase.from("signatures").update({ active: false }).eq("id", activeSignature.id);
     }
 
     const { error: dbErr } = await supabase.from("signatures").insert([
@@ -162,14 +200,47 @@ export default function AdminSettingsPage() {
       setSelectedFile(null);
       setPreview(null);
       fetchActiveSignature();
+      fetchOldSignatures();
     }
   }
 
   function handleDeleteClick() {
-    toast.error("Cannot delete the active signature", {
-      description:
-        "At least one registrar signature must remain active. Upload a replacement image to update.",
-    });
+    setShowActiveRemoveDialog(true);
+  }
+
+  function handleUploadNewClick() {
+    setShowActiveRemoveDialog(false);
+    document.getElementById("signature-upload")?.click();
+  }
+
+  async function confirmRemoveOld() {
+    const target = pendingRemove;
+    if (!target) return;
+
+    setRemovingId(target.id);
+
+    const { error: rmErr } = await supabase.storage
+      .from("signatures")
+      .remove([target.storage_path]);
+
+    if (rmErr) {
+      setRemovingId(null);
+      toast.error("Failed to remove signature image", { description: rmErr.message });
+      return;
+    }
+
+    const { error: dbErr } = await supabase.from("signatures").delete().eq("id", target.id);
+
+    setRemovingId(null);
+
+    if (dbErr) {
+      toast.error("Failed to remove signature record", { description: dbErr.message });
+      return;
+    }
+
+    setPendingRemove(null);
+    toast.success("Old signature removed");
+    fetchOldSignatures();
   }
 
   function renderSignatureSection() {
@@ -183,7 +254,11 @@ export default function AdminSettingsPage() {
     if (activeSignature) {
       return (
         <div className="relative h-32 w-64 border rounded-lg overflow-hidden bg-muted/30">
-          <img src={previewUrl ?? ""} alt="Active signature preview" className="w-full h-full object-contain" />
+          <img
+            src={previewUrl ?? ""}
+            alt="Active signature preview"
+            className="w-full h-full object-contain"
+          />
         </div>
       );
     }
@@ -215,7 +290,7 @@ export default function AdminSettingsPage() {
               htmlFor="signature-upload"
               className={cn(
                 "flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors",
-                selectedFile ? "bg-green-50 border-green-300" : "hover:bg-muted border-primary"
+                selectedFile ? "bg-green-50 border-green-300" : "hover:bg-muted border-primary",
               )}
             >
               {selectedFile ? (
@@ -273,8 +348,9 @@ export default function AdminSettingsPage() {
         <CardHeader>
           <CardTitle>Registrar Signature</CardTitle>
           <CardDescription>
-            Upload the registrar's signature image. This signature will be embedded on all issued certificates.
-            The image is stored in Supabase Storage and a database record tracks the active version.
+            Upload the registrar's signature image. This signature will be embedded on all issued
+            certificates. The image is stored in Supabase Storage and a database record tracks the
+            active version.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -284,11 +360,7 @@ export default function AdminSettingsPage() {
               {renderSignatureSection()}
               <div className="flex gap-2 pt-2">
                 {activeSignature && (
-                  <Button
-                    variant="destructive"
-                    onClick={handleDeleteClick}
-                    disabled={loading}
-                  >
+                  <Button variant="destructive" onClick={handleDeleteClick} disabled={loading}>
                     Remove Signature
                   </Button>
                 )}
@@ -314,7 +386,9 @@ export default function AdminSettingsPage() {
                     htmlFor="signature-upload"
                     className={cn(
                       "flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors",
-                      selectedFile ? "bg-green-50 border-green-300" : "hover:bg-muted border-primary"
+                      selectedFile
+                        ? "bg-green-50 border-green-300"
+                        : "hover:bg-muted border-primary",
                     )}
                   >
                     {selectedFile ? (
@@ -359,6 +433,105 @@ export default function AdminSettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Old Signatures</CardTitle>
+          <CardDescription>
+            Deactivated signatures from previous uploads. Signatures still used on issued
+            certificates are kept for history.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {oldSignatures.length === 0 ? (
+            <div className="h-24 flex items-center justify-center text-muted-foreground border rounded-lg border-dashed">
+              No old signatures.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {oldSignatures.map((sig) => {
+                const refCount = certRefCounts[sig.id] ?? 0;
+                const { data } = supabase.storage.from("signatures").getPublicUrl(sig.storage_path);
+                return (
+                  <div key={sig.id} className="border rounded-lg p-3 space-y-2">
+                    <div className="h-20 border rounded bg-muted/30 overflow-hidden">
+                      <img
+                        src={data.publicUrl}
+                        alt="Old signature"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Uploaded {new Date(sig.created_at).toLocaleDateString()}
+                    </p>
+                    {refCount > 0 ? (
+                      <span className="inline-block text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
+                        Used by {refCount} certificate{refCount === 1 ? "" : "s"} — kept for history
+                      </span>
+                    ) : (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="w-full"
+                        disabled={removingId === sig.id}
+                        onClick={() => setPendingRemove(sig)}
+                      >
+                        {removingId === sig.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Removing...
+                          </>
+                        ) : (
+                          "Remove"
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={showActiveRemoveDialog} onOpenChange={setShowActiveRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Upload a new signature first</AlertDialogTitle>
+            <AlertDialogDescription>
+              The current active signature cannot be removed on its own. Upload a replacement
+              signature — the current one will move to Old Signatures.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUploadNewClick}>
+              Upload New Signature
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!pendingRemove}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemove(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove old signature?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently deletes the signature image from Storage and its database record.
+              Issued certificates are not affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveOld}>Remove</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

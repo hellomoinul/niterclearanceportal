@@ -1,23 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useMemo, useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/lib/auth';
-import { idToEmail, normalizeCode } from '@/lib/portal';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { KeyRound } from 'lucide-react';
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { idToEmail, normalizeCode } from "@/lib/portal";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { KeyRound } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -25,9 +25,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
-export const Route = createFileRoute('/_authenticated/admin/users')({
+export const Route = createFileRoute("/_authenticated/admin/users")({
   component: UsersPage,
 });
 
@@ -51,40 +51,40 @@ interface Department {
 const PAGE_SIZE = 25;
 
 const roleBadgeVariant = (role: string) =>
-  role === 'admin' ? 'default' : role === 'office' ? 'secondary' : 'outline';
+  role === "admin" ? "default" : role === "office" ? "secondary" : "outline";
 
 function UsersPage() {
   const { user } = useAuth();
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({
-    fullName: '',
-    userCode: '',
-    password: '',
-    role: 'office',
-    departmentId: '',
-    phone: '',
+    fullName: "",
+    userCode: "",
+    password: "",
+    role: "office",
+    departmentId: "",
+    phone: "",
   });
-  const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [page, setPage] = useState(1);
 
   // S-v2.6 Password Reset Dialog States
   const [resetRow, setResetRow] = useState<AccountRow | null>(null);
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data, refetch, isLoading } = useQuery({
-    queryKey: ['admin-accounts'],
+    queryKey: ["admin-accounts"],
     queryFn: async () => {
       const [profiles, roles, bindings, departments] = await Promise.all([
         supabase
-          .from('profiles')
-          .select('id, user_code, full_name, created_at, is_active')
-          .order('created_at', { ascending: false }),
-        supabase.from('user_roles').select('user_id, role'),
-        supabase.from('office_departments').select('user_id, department_id'),
-        supabase.from('departments').select('id, code, name').order('sort_order'),
+          .from("profiles")
+          .select("id, user_code, full_name, created_at, is_active")
+          .order("created_at", { ascending: false }),
+        supabase.from("user_roles").select("user_id, role"),
+        supabase.from("office_departments").select("user_id, department_id"),
+        supabase.from("departments").select("id, code, name").order("sort_order"),
       ]);
       if (profiles.error) throw profiles.error;
       return {
@@ -115,19 +115,21 @@ function UsersPage() {
       bindingMap.set(b.user_id, list);
     }
     const deptName = (id: string) => data.departments.find((d) => d.id === id)?.name ?? id;
-    return data.profiles
-      .map((p) => ({
-        id: p.id,
-        user_code: p.user_code,
-        full_name: p.full_name,
-        role: roleMap.get(p.id) ?? 'student',
-        officeIds: bindingMap.get(p.id) ?? [],
-        officeNames: (bindingMap.get(p.id) ?? []).map(deptName),
-        created_at: p.created_at,
-        is_active: p.is_active !== false,
-      }))
-      // S-v3.5: This page is the staff/admin lifecycle view — students are not listed.
-      .filter((r) => r.role !== 'student');
+    return (
+      data.profiles
+        .map((p) => ({
+          id: p.id,
+          user_code: p.user_code,
+          full_name: p.full_name,
+          role: roleMap.get(p.id) ?? "student",
+          officeIds: bindingMap.get(p.id) ?? [],
+          officeNames: (bindingMap.get(p.id) ?? []).map(deptName),
+          created_at: p.created_at,
+          is_active: p.is_active !== false,
+        }))
+        // S-v3.5: This page is the staff/admin lifecycle view — students are not listed.
+        .filter((r) => r.role !== "student")
+    );
   }, [data]);
 
   const portalEmail = useMemo(() => idToEmail(form.userCode), [form.userCode]);
@@ -135,11 +137,11 @@ function UsersPage() {
   const visible = useMemo(() => {
     const q = normalizeCode(search);
     return rows.filter((r) => {
-      if (roleFilter !== 'all' && r.role !== roleFilter) return false;
+      if (roleFilter !== "all" && r.role !== roleFilter) return false;
       if (!q) return true;
       return (
-        (r.full_name ?? '').toLowerCase().includes(q) ||
-        normalizeCode(r.user_code ?? '').includes(q)
+        (r.full_name ?? "").toLowerCase().includes(q) ||
+        normalizeCode(r.user_code ?? "").includes(q)
       );
     });
   }, [rows, search, roleFilter]);
@@ -158,106 +160,128 @@ function UsersPage() {
   async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.fullName.trim() || !form.userCode.trim()) {
-      toast.error('Name and user code are required');
+      toast.error("Name and user code are required");
       return;
     }
     if (form.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error("Password must be at least 6 characters");
       return;
     }
-    if (form.role === 'office' && !form.departmentId) {
-      toast.error('Select an office for this role');
+    if (form.role === "office" && !form.departmentId) {
+      toast.error("Select an office for this role");
       return;
     }
     setCreating(true);
-    const createRole = form.role === 'admin' ? 'admin' : 'office';
-    const rpcArgs: { p_full_name: string; p_user_code: string; p_email: string; p_role: 'office' | 'admin'; p_phone?: string; p_department_id?: string } = {
+    const createRole = form.role === "admin" ? "admin" : "office";
+    const rpcArgs: {
+      p_full_name: string;
+      p_user_code: string;
+      p_email: string;
+      p_role: "office" | "admin";
+      p_phone?: string;
+      p_department_id?: string;
+    } = {
       p_full_name: form.fullName.trim(),
       p_user_code: form.userCode.trim(),
       p_email: portalEmail,
       p_role: createRole,
     };
     if (form.phone?.trim()) rpcArgs.p_phone = form.phone.trim();
-    if (createRole === 'office' && form.departmentId) rpcArgs.p_department_id = form.departmentId;
+    if (createRole === "office" && form.departmentId) rpcArgs.p_department_id = form.departmentId;
 
-    const { error } = await supabase.rpc('admin_create_account', rpcArgs);
+    const { error } = await supabase.rpc("admin_create_account", rpcArgs);
     setCreating(false);
     if (error) {
-      toast.error('Could not create account', { description: error.message });
+      toast.error("Could not create account", { description: error.message });
       return;
     }
-    toast.success('Account created', {
+    toast.success("Account created", {
       description: `${form.fullName.trim()} can sign in with ${portalEmail}`,
     });
-    setForm({ fullName: '', userCode: '', password: '', role: 'office', departmentId: '', phone: '' });
+    setForm({
+      fullName: "",
+      userCode: "",
+      password: "",
+      role: "office",
+      departmentId: "",
+      phone: "",
+    });
     refetch();
   }
 
-  async function changeRole(row: AccountRow, nextRole: 'office' | 'admin') {
+  async function changeRole(row: AccountRow, nextRole: "office" | "admin") {
     if (nextRole === row.role) return;
     if (row.id === user?.id) {
-      toast.error('You cannot change your own role');
+      toast.error("You cannot change your own role");
       return;
     }
-    if (!window.confirm(`Change ${row.full_name ?? row.user_code}'s account to ${nextRole}?`)) return;
-    const { error } = await supabase.from('user_roles').update({ role: nextRole }).eq('user_id', row.id);
+    if (!window.confirm(`Change ${row.full_name ?? row.user_code}'s account to ${nextRole}?`))
+      return;
+    const { error } = await supabase
+      .from("user_roles")
+      .update({ role: nextRole })
+      .eq("user_id", row.id);
     if (error) {
-      toast.error('Could not change role', { description: error.message });
+      toast.error("Could not change role", { description: error.message });
       return;
     }
-    if (nextRole === 'admin') {
-      await supabase.from('office_departments').delete().eq('user_id', row.id);
+    if (nextRole === "admin") {
+      await supabase.from("office_departments").delete().eq("user_id", row.id);
     }
-    toast.success('Role updated');
+    toast.success("Role updated");
     refetch();
   }
 
   async function changeOffice(row: AccountRow, departmentId: string) {
-    if ((row.officeIds[0] ?? '') === departmentId) return;
-    if (departmentId && !window.confirm(`Assign ${row.full_name ?? row.user_code} to the selected office?`)) return;
-    const deleteRes = await supabase.from('office_departments').delete().eq('user_id', row.id);
+    if ((row.officeIds[0] ?? "") === departmentId) return;
+    if (
+      departmentId &&
+      !window.confirm(`Assign ${row.full_name ?? row.user_code} to the selected office?`)
+    )
+      return;
+    const deleteRes = await supabase.from("office_departments").delete().eq("user_id", row.id);
     if (deleteRes.error) {
-      toast.error('Could not update office', { description: deleteRes.error.message });
+      toast.error("Could not update office", { description: deleteRes.error.message });
       return;
     }
     if (departmentId) {
-      const insRes = await supabase.from('office_departments').insert({
+      const insRes = await supabase.from("office_departments").insert({
         user_id: row.id,
         department_id: departmentId,
       });
       if (insRes.error) {
-        toast.error('Could not assign office', { description: insRes.error.message });
+        toast.error("Could not assign office", { description: insRes.error.message });
         return;
       }
     }
-    toast.success(departmentId ? 'Office assigned' : 'Office assignment removed');
+    toast.success(departmentId ? "Office assigned" : "Office assignment removed");
     refetch();
   }
 
   // S-v2.6 Password Reset Handler
   async function handlePasswordReset() {
     if (!resetRow || !newPassword) {
-      toast.error('Please enter a new password');
+      toast.error("Please enter a new password");
       return;
     }
     if (newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const { error: resetError } = await supabase.rpc('admin_reset_password', {
+      const { error: resetError } = await supabase.rpc("admin_reset_password", {
         p_user_id: resetRow.id,
         p_new_password: newPassword,
       });
 
       if (resetError) throw resetError;
 
-      const targetEmail = resetRow.user_code ? idToEmail(resetRow.user_code) : 'N/A';
-      const { error: auditError } = await supabase.from('audit_log').insert({
-        action: 'user_password_reset',
-        entity: 'users',
+      const targetEmail = resetRow.user_code ? idToEmail(resetRow.user_code) : "N/A";
+      const { error: auditError } = await supabase.from("audit_log").insert({
+        action: "user_password_reset",
+        entity: "users",
         entity_id: resetRow.id,
         details: JSON.stringify({
           reset_by: user?.id,
@@ -267,16 +291,16 @@ function UsersPage() {
       });
 
       if (auditError) {
-        console.error('Failed to insert audit log for password reset:', auditError);
+        console.error("Failed to insert audit log for password reset:", auditError);
       }
 
-      toast.success('Password updated successfully');
+      toast.success("Password updated successfully");
       setIsResetOpen(false);
-      setNewPassword('');
+      setNewPassword("");
       setResetRow(null);
     } catch (err) {
-      toast.error('Could not reset password', {
-        description: err instanceof Error ? err.message : 'Unexpected error',
+      toast.error("Could not reset password", {
+        description: err instanceof Error ? err.message : "Unexpected error",
       });
     } finally {
       setIsSubmitting(false);
@@ -288,10 +312,10 @@ function UsersPage() {
 
   async function toggleActive(row: AccountRow, nextActive: boolean) {
     if (!nextActive && row.id === user?.id) {
-      toast.error('You cannot deactivate your own account');
+      toast.error("You cannot deactivate your own account");
       return;
     }
-    const label = row.full_name ?? row.user_code ?? 'this account';
+    const label = row.full_name ?? row.user_code ?? "this account";
     setPendingStatusId(row.id);
     const question = nextActive
       ? `Activate ${label}? They will be able to sign in again.`
@@ -301,18 +325,18 @@ function UsersPage() {
       return;
     }
 
-    const { error } = await supabase.rpc('admin_set_user_active', {
+    const { error } = await supabase.rpc("admin_set_user_active", {
       p_user_id: row.id,
       p_active: nextActive,
     });
     setPendingStatusId(null);
     if (error) {
-      toast.error(nextActive ? 'Could not activate account' : 'Could not deactivate account', {
+      toast.error(nextActive ? "Could not activate account" : "Could not deactivate account", {
         description: error.message,
       });
       return;
     }
-    toast.success(nextActive ? 'Account activated' : 'Account deactivated');
+    toast.success(nextActive ? "Account activated" : "Account deactivated");
     refetch();
   }
 
@@ -330,7 +354,10 @@ function UsersPage() {
           <CardTitle>Create a staff account</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleCreate} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <form
+            onSubmit={handleCreate}
+            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          >
             <div className="space-y-2">
               <Label htmlFor="fullName">Full name</Label>
               <Input
@@ -378,7 +405,13 @@ function UsersPage() {
               <Label htmlFor="role">Role</Label>
               <Select
                 value={form.role}
-                onValueChange={(v) => setForm({ ...form, role: v, departmentId: v === 'admin' ? '' : form.departmentId })}
+                onValueChange={(v) =>
+                  setForm({
+                    ...form,
+                    role: v,
+                    departmentId: v === "admin" ? "" : form.departmentId,
+                  })
+                }
               >
                 <SelectTrigger id="role" className="w-full">
                   <SelectValue placeholder="Role" />
@@ -389,10 +422,13 @@ function UsersPage() {
                 </SelectContent>
               </Select>
             </div>
-            {form.role === 'office' && (
+            {form.role === "office" && (
               <div className="space-y-2">
                 <Label htmlFor="office">Office</Label>
-                <Select value={form.departmentId} onValueChange={(v) => setForm({ ...form, departmentId: v })}>
+                <Select
+                  value={form.departmentId}
+                  onValueChange={(v) => setForm({ ...form, departmentId: v })}
+                >
                   <SelectTrigger id="office" className="w-full">
                     <SelectValue placeholder="Select an office" />
                   </SelectTrigger>
@@ -408,7 +444,7 @@ function UsersPage() {
             )}
             <div className="flex items-end">
               <Button type="submit" disabled={creating} className="w-full">
-                {creating ? 'Creating…' : 'Create account'}
+                {creating ? "Creating…" : "Create account"}
               </Button>
             </div>
           </form>
@@ -443,9 +479,7 @@ function UsersPage() {
           {isLoading ? (
             <p className="py-4 text-sm text-muted-foreground">Loading accounts…</p>
           ) : visible.length === 0 ? (
-            <p className="py-4 text-sm text-muted-foreground">
-              No accounts match your filters.
-            </p>
+            <p className="py-4 text-sm text-muted-foreground">No accounts match your filters.</p>
           ) : (
             <>
               <div className="overflow-x-auto">
@@ -464,24 +498,26 @@ function UsersPage() {
                   <tbody>
                     {paginatedVisible.map((row) => (
                       <tr key={row.id} className="border-b last:border-b-0 align-middle">
-                        <td className="py-2 pr-4 font-medium">{row.full_name ?? '—'}</td>
-                        <td className="py-2 pr-4">{row.user_code ?? '—'}</td>
+                        <td className="py-2 pr-4 font-medium">{row.full_name ?? "—"}</td>
+                        <td className="py-2 pr-4">{row.user_code ?? "—"}</td>
                         <td className="py-2 pr-4 text-muted-foreground">
-                          {row.id === user?.id ? 'you' : row.user_code ? idToEmail(row.user_code) : '—'}
+                          {row.id === user?.id
+                            ? "you"
+                            : row.user_code
+                              ? idToEmail(row.user_code)
+                              : "—"}
                         </td>
                         <td className="py-2 pr-4">
                           <Badge variant={roleBadgeVariant(row.role)}>{row.role}</Badge>
                         </td>
                         <td className="py-2 pr-4">
-                          {row.role === 'office' ? (
+                          {row.role === "office" ? (
                             <Select
-                              value={row.officeIds[0] ?? ''}
+                              value={row.officeIds[0] ?? ""}
                               onValueChange={(v) => changeOffice(row, v)}
                             >
                               <SelectTrigger className="w-44">
-                                <SelectValue
-                                  placeholder={row.officeNames[0] ?? 'Unassigned'}
-                                />
+                                <SelectValue placeholder={row.officeNames[0] ?? "Unassigned"} />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="">Unassigned</SelectItem>
@@ -497,12 +533,17 @@ function UsersPage() {
                           )}
                         </td>
                         <td className="py-2 pr-4 text-muted-foreground">
-                          {row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB') : '—'}
+                          {row.created_at
+                            ? new Date(row.created_at).toLocaleDateString("en-GB")
+                            : "—"}
                         </td>
                         <td className="py-2">
                           <div className="flex items-center gap-2">
-                            {row.role !== 'student' && row.id !== user?.id && (
-                              <Select value={row.role} onValueChange={(v) => changeRole(row, v as 'office' | 'admin')}>
+                            {row.role !== "student" && row.id !== user?.id && (
+                              <Select
+                                value={row.role}
+                                onValueChange={(v) => changeRole(row, v as "office" | "admin")}
+                              >
                                 <SelectTrigger className="h-8 w-24 text-xs">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -514,27 +555,27 @@ function UsersPage() {
                             )}
                             <Button
                               size="sm"
-                              variant={row.is_active ? 'outline' : 'secondary'}
+                              variant={row.is_active ? "outline" : "secondary"}
                               title={
                                 row.id === user?.id
-                                  ? 'You cannot deactivate your own account'
+                                  ? "You cannot deactivate your own account"
                                   : undefined
                               }
                               disabled={row.id === user?.id || pendingStatusId === row.id}
                               onClick={() => toggleActive(row, !row.is_active)}
                             >
                               {pendingStatusId === row.id
-                                ? '…'
+                                ? "…"
                                 : row.is_active
-                                ? 'Deactivate'
-                                : 'Activate'}
+                                  ? "Deactivate"
+                                  : "Activate"}
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => {
                                 setResetRow(row);
-                                setNewPassword('');
+                                setNewPassword("");
                                 setIsResetOpen(true);
                               }}
                             >
@@ -586,7 +627,7 @@ function UsersPage() {
               Reset User Password
             </DialogTitle>
             <DialogDescription>
-              Set a new password for{' '}
+              Set a new password for{" "}
               <span className="font-semibold text-foreground">
                 {resetRow?.full_name ?? resetRow?.user_code}
               </span>
@@ -622,7 +663,7 @@ function UsersPage() {
               onClick={handlePasswordReset}
               disabled={!newPassword || isSubmitting}
             >
-              {isSubmitting ? 'Resetting…' : 'Confirm Reset'}
+              {isSubmitting ? "Resetting…" : "Confirm Reset"}
             </Button>
           </DialogFooter>
         </DialogContent>

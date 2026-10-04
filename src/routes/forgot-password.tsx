@@ -1,42 +1,45 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
-import { supabase } from '@/integrations/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2 } from 'lucide-react'
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute('/forgot-password')({
+export const Route = createFileRoute("/forgot-password")({
   component: ForgotPasswordPage,
-})
+});
 
 function ForgotPasswordPage() {
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setMessage(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage(null);
 
     try {
       // Tell Supabase to send the email, and where to redirect them after they click the link
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/update-password`, 
-      })
+        redirectTo: `${window.location.origin}/update-password`,
+      });
 
-      if (error) throw error
+      if (error) throw error;
 
-      setMessage({ type: 'success', text: 'Check your email for the password reset link!' })
-      setEmail('') // Clear the input on success
-    } catch (error: any) {
-      console.error("Reset error:", error)
-      setMessage({ type: 'error', text: error.message || 'Failed to send reset email.' })
+      setMessage({ type: "success", text: "Check your email for the password reset link!" });
+      setEmail(""); // Clear the input on success
+    } catch (err) {
+      console.error("Reset error:", err);
+      setMessage({
+        type: "error",
+        text: err instanceof Error ? err.message : "Failed to send reset email.",
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4">
@@ -59,13 +62,15 @@ function ForgotPasswordPage() {
                 className="w-full"
               />
             </div>
-            
+
             {message && (
-              <div className={`p-3 rounded-md text-sm font-medium ${
-                message.type === 'success' 
-                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' 
-                  : 'bg-red-50 text-red-600 border border-red-200'
-              }`}>
+              <div
+                className={`p-3 rounded-md text-sm font-medium ${
+                  message.type === "success"
+                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                    : "bg-red-50 text-red-600 border border-red-200"
+                }`}
+              >
                 {message.text}
               </div>
             )}
@@ -74,10 +79,13 @@ function ForgotPasswordPage() {
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Send Reset Link
             </Button>
-            
+
             <div className="text-center mt-6">
               {/* Assuming your login page is at the root '/' */}
-              <Link to="/" className="text-sm font-medium text-[#3b82f6] hover:text-[#2563eb] hover:underline underline-offset-4">
+              <Link
+                to="/"
+                className="text-sm font-medium text-[#3b82f6] hover:text-[#2563eb] hover:underline underline-offset-4"
+              >
                 Back to Login
               </Link>
             </div>
@@ -85,5 +93,5 @@ function ForgotPasswordPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -3,8 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
@@ -16,10 +15,10 @@ serve(async (req) => {
     const { record } = await req.json();
 
     if (!record?.user_id || !record?.title) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(
@@ -34,18 +33,18 @@ serve(async (req) => {
       .single();
 
     if (!profile?.personal_email) {
-      return new Response(
-        JSON.stringify({ skipped: true, reason: "No personal email on file" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ skipped: true, reason: "No personal email on file" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) {
-      return new Response(
-        JSON.stringify({ error: "RESEND_API_KEY not set" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "RESEND_API_KEY not set" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const recipientLabel = `${profile.full_name || "User"} <${profile.personal_email}>`;
@@ -81,22 +80,22 @@ serve(async (req) => {
     if (!resendRes.ok) {
       const err = await resendRes.text();
       console.error("Resend error:", err);
-      return new Response(
-        JSON.stringify({ error: "Email send failed", detail: err }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Email send failed", detail: err }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const resendData = await resendRes.json();
-    return new Response(
-      JSON.stringify({ sent: true, id: resendData.id }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ sent: true, id: resendData.id }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (e) {
     console.error(e);
-    return new Response(
-      JSON.stringify({ error: "Internal error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ error: "Internal error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

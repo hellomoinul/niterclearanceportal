@@ -28,9 +28,9 @@ function AboutPage() {
       <div className="card-surface mt-8 p-6">
         <h2 className="text-lg font-semibold">How final-year clearance works</h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          How NITER final-year clearance works: the offices involved, the documents required and
-          the academic calendar deadlines. Each office lists its own document requirement inside
-          your application, and every deadline lives on the{" "}
+          How NITER final-year clearance works: the offices involved, the documents required and the
+          academic calendar deadlines. Each office lists its own document requirement inside your
+          application, and every deadline lives on the{" "}
           <a href="/calendar" className="text-primary underline-offset-4 hover:underline">
             Academic calendar
           </a>{" "}
@@ -41,10 +41,10 @@ function AboutPage() {
       <div className="card-surface mt-6 p-6">
         <h2 className="text-lg font-semibold">How decisions are recorded</h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          Every approval or rejection is stored with the reviewing officer's identity and a timestamp in
-          an audit log. If an office rejects a section, only that section reopens — the rest of your
-          application keeps its approvals. After three rejected re-uploads, the case is escalated to
-          the Administration office automatically.
+          Every approval or rejection is stored with the reviewing officer's identity and a
+          timestamp in an audit log. If an office rejects a section, only that section reopens — the
+          rest of your application keeps its approvals. After three rejected re-uploads, the case is
+          escalated to the Administration office automatically.
         </p>
       </div>
     </div>

@@ -51,13 +51,13 @@ export const adminNavGroups = [
       { label: "Reports & Analytics", to: "/admin/reports", icon: BarChart3 },
     ],
   },
-{
-  category: "Operations",
-  items: [
-  { label: "Clearance Queue", to: "/queue", icon: FileCheck2 },
-  { label: "Workflows", to: "/admin/workflow", icon: Workflow },
-  { label: "Escalations", to: "/admin/escalations", icon: ShieldAlert },
-  ],
+  {
+    category: "Operations",
+    items: [
+      { label: "Clearance Queue", to: "/queue", icon: FileCheck2 },
+      { label: "Workflows", to: "/admin/workflow", icon: Workflow },
+      { label: "Escalations", to: "/admin/escalations", icon: ShieldAlert },
+    ],
   },
   {
     category: "Content",
@@ -89,12 +89,8 @@ export function AdminSidebar() {
     <aside className="w-64 shrink-0 border-r border-border bg-card/50 p-4 min-h-[calc(100vh-4rem)] hidden md:block">
       <div className="space-y-6">
         <div className="px-3 py-1">
-          <h2 className="text-sm font-bold tracking-tight text-primary uppercase">
-            Admin Panel
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Grouped Management Links
-          </p>
+          <h2 className="text-sm font-bold tracking-tight text-primary uppercase">Admin Panel</h2>
+          <p className="text-xs text-muted-foreground">Grouped Management Links</p>
         </div>
 
         <nav className="space-y-6">
@@ -116,7 +112,7 @@ export function AdminSidebar() {
                         "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
                         isActive
                           ? "bg-primary text-primary-foreground font-semibold hover:bg-primary/90 hover:text-primary-foreground"
-                          : "text-muted-foreground"
+                          : "text-muted-foreground",
                       )}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
@@ -170,7 +166,9 @@ export function PortalHeader() {
   const appLinks = session
     ? [
         ...(isOffice || isAdmin ? [] : [{ to: "/dashboard", label: "Dashboard" }]),
-        ...(isOffice || isAdmin ? [{ to: "/queue", label: isAdmin ? "Offices" : "My office" }] : []),
+        ...(isOffice || isAdmin
+          ? [{ to: "/queue", label: isAdmin ? "Offices" : "My office" }]
+          : []),
         ...(isAdmin ? [{ to: "/admin", label: "Admin control" }] : []),
       ]
     : [];
@@ -190,21 +188,21 @@ export function PortalHeader() {
 
         <nav className="ml-auto hidden items-center gap-1 md:flex">
           {[...publicLinks, ...appLinks, guideLink]
-            .filter((link) => session ? link.to !== "/about" : true)
+            .filter((link) => (session ? link.to !== "/about" : true))
             .map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={cn(
-                "relative rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                "after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:scale-x-0 after:transition-transform hover:after:scale-x-100",
-                "[&[data-active]]:text-foreground [&[data-active]]:after:scale-x-100",
-              )}
-              activeOptions={{ exact: link.to === "/home" }}
-            >
-              {link.label}
-            </Link>
-          ))}
+              <Link
+                key={link.to}
+                to={link.to}
+                className={cn(
+                  "relative rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                  "after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:scale-x-0 after:transition-transform hover:after:scale-x-100",
+                  "[&[data-active]]:text-foreground [&[data-active]]:after:scale-x-100",
+                )}
+                activeOptions={{ exact: link.to === "/home" }}
+              >
+                {link.label}
+              </Link>
+            ))}
         </nav>
 
         <div className="ml-auto flex items-center gap-2 md:ml-2">
@@ -222,7 +220,11 @@ export function PortalHeader() {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="hidden gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hidden gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
+                  >
                     <User className="size-4" />
                     {profile?.user_code ?? "Account"}
                   </Button>
@@ -241,7 +243,10 @@ export function PortalHeader() {
                     </DropdownMenuItem>
                   ) : null}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
                     <LogOut className="size-4" /> Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -267,17 +272,17 @@ export function PortalHeader() {
       {open ? (
         <nav className="animate-in fade-in slide-in-from-top-1 border-t border-border bg-surface px-4 py-2 duration-200 md:hidden">
           {[...publicLinks, ...appLinks, guideLink]
-            .filter((link) => session ? link.to !== "/about" : true)
+            .filter((link) => (session ? link.to !== "/about" : true))
             .map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setOpen(false)}
-              className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-            >
-              {link.label}
-            </Link>
-          ))}
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setOpen(false)}
+                className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ))}
           {session ? (
             <div className="mt-2 border-t border-border pt-2">
               <Link
@@ -299,7 +304,10 @@ export function PortalHeader() {
                 </Link>
               ) : null}
               <button
-                onClick={() => { setOpen(false); handleSignOut(); }}
+                onClick={() => {
+                  setOpen(false);
+                  handleSignOut();
+                }}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
               >
                 <LogOut className="size-4" />
@@ -321,9 +329,7 @@ export function PortalFooter() {
           <p className="font-display text-base font-semibold text-white">
             National Institute of Textile Engineering and Research
           </p>
-          <p className="mt-1 text-xs text-gray-500">
-            Savar, Dhaka-1350, Bangladesh
-          </p>
+          <p className="mt-1 text-xs text-gray-500">Savar, Dhaka-1350, Bangladesh</p>
         </div>
         <div className="text-right">
           <p className="text-xs text-gray-500">
@@ -351,9 +357,7 @@ export function PortalShell({
       {isAdminPath ? (
         <div className="mx-auto flex w-full max-w-7xl flex-1">
           <AdminSidebar />
-          <main className={cn("flex-1 px-6 py-8 overflow-x-hidden", className)}>
-            {children}
-          </main>
+          <main className={cn("flex-1 px-6 py-8 overflow-x-hidden", className)}>{children}</main>
         </div>
       ) : (
         <main className={cn("mx-auto w-full max-w-6xl flex-1 px-4 py-8", className)}>
