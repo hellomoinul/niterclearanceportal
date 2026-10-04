@@ -4,7 +4,6 @@ import type { ToOptions } from "@tanstack/react-router";
 import { AlertCircle, ArrowRight, CheckCircle2, Clock, History, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type RoutePath = NonNullable<ToOptions["to"]>;
@@ -83,17 +82,9 @@ export function NeedsAttentionPanel() {
   return (
     <Card className="border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-            <CardTitle className="text-lg font-bold">Needs Attention</CardTitle>
-          </div>
-          <Badge
-            variant="outline"
-            className="border-amber-500/50 text-amber-700 dark:text-amber-400"
-          >
-            S-v3.2
-          </Badge>
+        <div className="flex items-center gap-2">
+          <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
+          <CardTitle className="text-lg font-bold">Needs Attention</CardTitle>
         </div>
         <CardDescription>
           Operational items that require administrative review or action.

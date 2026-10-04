@@ -44,7 +44,7 @@ const steps = [
 ];
 
 function HomePage() {
-  const { session, profile, roles, isStudent } = useAuth();
+  const { session, profile, isStudent, isOffice, isAdmin } = useAuth();
   const { data: departments } = useQuery({
     queryKey: ["departments"],
     queryFn: async () => {
@@ -64,20 +64,50 @@ function HomePage() {
         .from("notices")
         .select("id, title, content, created_at, target_audience")
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(12);
       if (error) throw error;
       return data ?? [];
     },
   });
 
-  const visibleNotices = (notices ?? []).filter((notice) => {
-    const audience = (notice.target_audience || "All").toLowerCase();
-    if (audience === "all") return true;
-    if (audience === "students" && isStudent) return true;
-    if (audience.startsWith("office:") && !isStudent) return true;
-    if (audience.startsWith("batch:") && isStudent) return true;
-    return false;
+  // Office users need to know which offices they belong to, so an
+  // "Office: Library" notice never leaks to other offices (e.g. Laboratory).
+  const { data: myOfficeNames } = useQuery({
+    enabled: !!session?.user && isOffice && !isAdmin,
+    queryKey: ["my-office-names", session?.user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("office_departments")
+        .select("departments(name)")
+        .eq("user_id", session!.user.id);
+      if (error) throw error;
+      return (data ?? [])
+        .map((row) => row.departments?.name)
+        .filter((name): name is string => Boolean(name));
+    },
   });
+
+  const visibleNotices = (notices ?? [])
+    .filter((notice) => {
+      const raw = (notice.target_audience || "All").trim();
+      const audience = raw.toLowerCase();
+      if (audience === "all") return true;
+      if (isAdmin) return true;
+      if (audience === "students") return isStudent;
+      if (audience.startsWith("office")) {
+        // Only staff bound to that exact office (never guests or students).
+        if (!isOffice || !myOfficeNames) return false;
+        const target = audience.replace(/^office:?\s*/, "");
+        return myOfficeNames.some((name) => name.trim().toLowerCase() === target);
+      }
+      if (audience.startsWith("batch:")) {
+        // Only students of that exact batch.
+        if (!isStudent || !profile?.batch) return false;
+        return profile.batch.trim().toLowerCase() === audience.slice("batch:".length).trim();
+      }
+      return false;
+    })
+    .slice(0, 3);
 
   return (
     <div className="max-w-6xl">

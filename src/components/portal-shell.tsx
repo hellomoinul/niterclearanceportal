@@ -15,6 +15,7 @@ import {
   History,
   BarChart3,
   ShieldAlert,
+  ChevronDown,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
@@ -82,9 +83,46 @@ export const adminNavGroups = [
   items: readonly { label: string; to: RoutePath; icon: unknown }[];
 }[];
 
-export function AdminSidebar() {
+function AdminNavGroups({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
 
+  return (
+    <nav className="space-y-6">
+      {adminNavGroups.map((group) => (
+        <div key={group.category} className="space-y-2">
+          <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            {group.category}
+          </h3>
+          <div className="space-y-1">
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.to;
+
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={onNavigate}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                    isActive
+                      ? "bg-primary text-primary-foreground font-semibold hover:bg-primary/90 hover:text-primary-foreground"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+export function AdminSidebar() {
   return (
     <aside className="w-64 shrink-0 border-r border-border bg-card/50 p-4 min-h-[calc(100vh-4rem)] hidden md:block">
       <div className="space-y-6">
@@ -92,40 +130,42 @@ export function AdminSidebar() {
           <h2 className="text-sm font-bold tracking-tight text-primary uppercase">Admin Panel</h2>
           <p className="text-xs text-muted-foreground">Grouped Management Links</p>
         </div>
-
-        <nav className="space-y-6">
-          {adminNavGroups.map((group) => (
-            <div key={group.category} className="space-y-2">
-              <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                {group.category}
-              </h3>
-              <div className="space-y-1">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.to;
-
-                  return (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      className={cn(
-                        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                        isActive
-                          ? "bg-primary text-primary-foreground font-semibold hover:bg-primary/90 hover:text-primary-foreground"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
+        <AdminNavGroups />
       </div>
     </aside>
+  );
+}
+
+export function MobileAdminNav() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mb-6 rounded-lg border border-border bg-card/50 md:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+      >
+        <span>
+          <span className="block text-sm font-bold tracking-tight text-primary uppercase">
+            Admin Panel
+          </span>
+          <span className="block text-xs text-muted-foreground">Grouped Management Links</span>
+        </span>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+      {open ? (
+        <div className="border-t border-border p-4">
+          <AdminNavGroups onNavigate={() => setOpen(false)} />
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -238,7 +278,7 @@ export function PortalHeader() {
                   {isAdmin ? (
                     <DropdownMenuItem asChild>
                       <Link to="/admin/settings" className="cursor-pointer">
-                        <Settings className="size-4" /> Settings
+                        <Settings className="size-4" /> System Settings
                       </Link>
                     </DropdownMenuItem>
                   ) : null}
@@ -300,7 +340,7 @@ export function PortalHeader() {
                   className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                 >
                   <Settings className="size-4" />
-                  Settings
+                  System Settings
                 </Link>
               ) : null}
               <button
@@ -357,7 +397,10 @@ export function PortalShell({
       {isAdminPath ? (
         <div className="mx-auto flex w-full max-w-7xl flex-1">
           <AdminSidebar />
-          <main className={cn("flex-1 px-6 py-8 overflow-x-hidden", className)}>{children}</main>
+          <main className={cn("flex-1 px-6 py-8 overflow-x-hidden", className)}>
+            <MobileAdminNav />
+            {children}
+          </main>
         </div>
       ) : (
         <main className={cn("mx-auto w-full max-w-6xl flex-1 px-4 py-8", className)}>
