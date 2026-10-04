@@ -137,21 +137,6 @@ const summarizeDetails = (log: AuditEntry, parsed: ParsedDetails): string => {
   return parts.length > 0 ? parts.join(" · ") : JSON.stringify(parsed);
 };
 
-const relativeTime = (iso: string): string => {
-  const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-};
-
 const dayLabel = (iso: string): string => {
   const date = new Date(iso);
   const today = new Date();
@@ -466,17 +451,21 @@ export default function AuditLogPage() {
                     const key = String(log.id);
                     const details = detailsById.get(key) ?? null;
                     const isExpanded = Boolean(expanded[key]) && details !== null;
-                    const exactTime = new Date(log.created_at).toLocaleString("en-GB");
+                    const exactTime = new Date(log.created_at).toLocaleString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    });
                     const actorLabel = log.actor_name || "System / Unknown";
                     const tone = actionTone(log.action);
 
                     return (
                       <TableRow key={log.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell
-                          className="whitespace-nowrap text-xs text-muted-foreground"
-                          title={exactTime}
-                        >
-                          {relativeTime(log.created_at)}
+                        <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                          {exactTime}
                         </TableCell>
                         <TableCell className="font-medium">
                           <span className="block max-w-[160px] truncate" title={actorLabel}>
