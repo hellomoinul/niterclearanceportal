@@ -1,16 +1,18 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShieldAlert, CheckCircle2, RefreshCw } from 'lucide-react';
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, ShieldAlert, CheckCircle2, RefreshCw } from "lucide-react";
 
-export const Route = createFileRoute('/_authenticated/admin/escalations')({
+export const Route = createFileRoute("/_authenticated/admin/escalations")({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('Not authenticated');
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("Not authenticated");
   },
   component: EscalationsPage,
 });
@@ -41,8 +43,9 @@ export function EscalationsPage() {
   async function loadEscalations() {
     setLoading(true);
     const { data, error } = await supabase
-      .from('department_reviews')
-      .select(`
+      .from("department_reviews")
+      .select(
+        `
         id,
         application_id,
         status,
@@ -53,12 +56,13 @@ export function EscalationsPage() {
         clearance_applications(
           profiles(full_name, user_code, program)
         )
-      `)
-      .eq('escalated', true)
-      .order('created_at', { ascending: false });
+      `,
+      )
+      .eq("escalated", true)
+      .order("created_at", { ascending: false });
 
     if (error) {
-      toast.error('Failed to load escalations', { description: error.message });
+      toast.error("Failed to load escalations", { description: error.message });
     } else if (data) {
       const raw = data as unknown as {
         id: string;
@@ -76,12 +80,12 @@ export function EscalationsPage() {
       const mapped: EscalatedItem[] = raw.map((r) => ({
         reviewId: r.id,
         appId: r.application_id,
-        studentName: r.clearance_applications?.profiles?.full_name ?? 'Unknown',
-        userCode: r.clearance_applications?.profiles?.user_code ?? '—',
+        studentName: r.clearance_applications?.profiles?.full_name ?? "Unknown",
+        userCode: r.clearance_applications?.profiles?.user_code ?? "—",
         program: r.clearance_applications?.profiles?.program ?? null,
-        deptName: r.departments?.name ?? '—',
+        deptName: r.departments?.name ?? "—",
         escalatedAt: r.created_at,
-        escalatedBy: 'Office Staff',
+        escalatedBy: "Office Staff",
         attempts: r.attempts,
         status: r.status,
       }));
@@ -90,41 +94,43 @@ export function EscalationsPage() {
     setLoading(false);
   }
 
-  async function handleResolve(reviewId: string, action: 'approve' | 'reject' | 'unescalate') {
+  async function handleResolve(reviewId: string, action: "approve" | "reject" | "unescalate") {
     setProcessingId(reviewId);
-    const note = actionNotes[reviewId] ?? '';
+    const note = actionNotes[reviewId] ?? "";
 
-    let updateStatus: 'approved' | 'rejected' | undefined = undefined;
-    let remarksNote = '';
+    let updateStatus: "approved" | "rejected" | undefined = undefined;
+    let remarksNote = "";
 
-    if (action === 'approve') {
-      updateStatus = 'approved';
-      remarksNote = note ? `Admin Approved: ${note}` : 'Approved by Admin after escalation';
-    } else if (action === 'reject') {
-      updateStatus = 'rejected';
-      remarksNote = note ? `Admin Rejected: ${note}` : 'Rejected by Admin after escalation';
+    if (action === "approve") {
+      updateStatus = "approved";
+      remarksNote = note ? `Admin Approved: ${note}` : "Approved by Admin after escalation";
+    } else if (action === "reject") {
+      updateStatus = "rejected";
+      remarksNote = note ? `Admin Rejected: ${note}` : "Rejected by Admin after escalation";
     } else {
-      remarksNote = note ? `De-escalated by Admin: ${note}` : 'De-escalated back to department review';
+      remarksNote = note
+        ? `De-escalated by Admin: ${note}`
+        : "De-escalated back to department review";
     }
 
     const { error } = await supabase
-      .from('department_reviews')
+      .from("department_reviews")
       .update({
         escalated: false,
         ...(updateStatus ? { status: updateStatus } : {}),
         remarks: remarksNote,
       })
-      .eq('id', reviewId);
+      .eq("id", reviewId);
 
     if (error) {
-      toast.error('Failed to process escalation', { description: error.message });
+      toast.error("Failed to process escalation", { description: error.message });
     } else {
       toast.success(
-        action === 'approve'
-          ? 'Review approved successfully'
-          : action === 'reject'
-          ? 'Review rejected'
-          : 'Case de-escalated back to department'
+        action === "approve"
+          ? "Review approved successfully"
+          : action === "reject"
+            ? "Review rejected"
+            : "Case de-escalated back to department",
       );
       loadEscalations();
     }
@@ -153,7 +159,7 @@ export function EscalationsPage() {
             Total Flagged Cases: <Badge variant="secondary">{items.length}</Badge>
           </span>
           <Button size="sm" variant="outline" onClick={loadEscalations} disabled={loading}>
-            <RefreshCw className={`w-3.5 h-3.5 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
+            <RefreshCw className={`w-3.5 h-3.5 mr-1 ${loading ? "animate-spin" : ""}`} /> Refresh
           </Button>
         </div>
 
@@ -163,7 +169,9 @@ export function EscalationsPage() {
           <div className="py-12 text-center space-y-2">
             <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
             <h3 className="font-semibold text-lg">No Active Escalations</h3>
-            <p className="text-sm text-muted-foreground">All flagged issues have been reviewed and resolved.</p>
+            <p className="text-sm text-muted-foreground">
+              All flagged issues have been reviewed and resolved.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -173,26 +181,39 @@ export function EscalationsPage() {
                   <div>
                     <h4 className="font-bold text-base">{item.studentName}</h4>
                     <p className="text-xs text-muted-foreground">
-                      ID: <span className="font-medium text-foreground">{item.userCode}</span> | Program: {item.program ?? 'N/A'}
+                      ID: <span className="font-medium text-foreground">{item.userCode}</span> |
+                      Program: {item.program ?? "N/A"}
                     </p>
                   </div>
                   <div className="text-right">
-                    <Badge variant="outline" className="border-rose-300 text-rose-600 dark:border-rose-800 dark:text-rose-400">
+                    <Badge
+                      variant="outline"
+                      className="border-rose-300 text-rose-600 dark:border-rose-800 dark:text-rose-400"
+                    >
                       Office: {item.deptName}
                     </Badge>
                     <p className="text-[11px] text-muted-foreground mt-1">
-                      Flagged: {new Date(item.escalatedAt).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}
+                      Flagged:{" "}
+                      {new Date(item.escalatedAt).toLocaleString("en-GB", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
                     </p>
                   </div>
                 </div>
 
                 <div className="bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 p-3 rounded-md text-xs flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span className="font-semibold text-rose-600 dark:text-rose-400">Reason for Escalation:</span>
-                  <span className="text-foreground/90">
-                    Rejected and resubmitted {item.attempts} {item.attempts === 1 ? 'time' : 'times'} by office staff without resolution.
+                  <span className="font-semibold text-rose-600 dark:text-rose-400">
+                    Reason for Escalation:
                   </span>
-                  {item.status !== 'pending' && (
-                    <Badge variant="outline" className="text-[10px]">{item.status}</Badge>
+                  <span className="text-foreground/90">
+                    Rejected and resubmitted {item.attempts}{" "}
+                    {item.attempts === 1 ? "time" : "times"} by office staff without resolution.
+                  </span>
+                  {item.status !== "pending" && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {item.status}
+                    </Badge>
                   )}
                 </div>
 
@@ -200,17 +221,19 @@ export function EscalationsPage() {
                   <Textarea
                     placeholder="Admin decision note / remarks (optional)…"
                     className="text-xs min-h-[60px]"
-                    value={actionNotes[item.reviewId] || ''}
-                    onChange={(e) => setActionNotes({ ...actionNotes, [item.reviewId]: e.target.value })}
+                    value={actionNotes[item.reviewId] || ""}
+                    onChange={(e) =>
+                      setActionNotes({ ...actionNotes, [item.reviewId]: e.target.value })
+                    }
                   />
-                  
+
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <Button
                       size="sm"
                       variant="ghost"
                       className="text-xs"
                       disabled={processingId === item.reviewId}
-                      onClick={() => handleResolve(item.reviewId, 'unescalate')}
+                      onClick={() => handleResolve(item.reviewId, "unescalate")}
                     >
                       Return to Staff
                     </Button>
@@ -219,7 +242,7 @@ export function EscalationsPage() {
                       variant="destructive"
                       className="text-xs"
                       disabled={processingId === item.reviewId}
-                      onClick={() => handleResolve(item.reviewId, 'reject')}
+                      onClick={() => handleResolve(item.reviewId, "reject")}
                     >
                       Reject Application
                     </Button>
@@ -227,7 +250,7 @@ export function EscalationsPage() {
                       size="sm"
                       className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
                       disabled={processingId === item.reviewId}
-                      onClick={() => handleResolve(item.reviewId, 'approve')}
+                      onClick={() => handleResolve(item.reviewId, "approve")}
                     >
                       Overrule & Approve
                     </Button>

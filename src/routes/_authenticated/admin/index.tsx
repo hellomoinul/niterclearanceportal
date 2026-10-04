@@ -1,24 +1,26 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { AlertCircle, ArrowRight, ShieldAlert, ExternalLink } from 'lucide-react';
-import { NeedsAttentionPanel } from '@/components/Admin/needs-attention-panel';
+} from "@/components/ui/select";
+import { AlertCircle, ArrowRight, ShieldAlert, ExternalLink } from "lucide-react";
+import { NeedsAttentionPanel } from "@/components/Admin/needs-attention-panel";
 
-export const Route = createFileRoute('/_authenticated/admin/')({
+export const Route = createFileRoute("/_authenticated/admin/")({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('Not authenticated');
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("Not authenticated");
   },
   component: AdminDashboard,
 });
@@ -33,26 +35,39 @@ interface NaRow {
   clearedAt: string | null;
 }
 
-type SortKey = 'fullName' | 'userCode' | 'deptName' | 'clearedAt';
+type SortKey = "fullName" | "userCode" | "deptName" | "clearedAt";
 
 export function AdminDashboard() {
   const [stats, setStats] = useState({ students: 0, cleared: 0, pending: 0 });
   const [naRows, setNaRows] = useState<NaRow[]>([]);
   const [naLoading, setNaLoading] = useState(true);
   const [escalatedCount, setEscalatedCount] = useState(0);
-  const [search, setSearch] = useState('');
-  const [deptFilter, setDeptFilter] = useState<string>('all');
-  const [sortKey, setSortKey] = useState<SortKey>('clearedAt');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [search, setSearch] = useState("");
+  const [deptFilter, setDeptFilter] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("clearedAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     async function loadStatsAndAttention() {
-      const [{ count: cleared }, { count: inReview }, { count: students }, { count: escalated }] = await Promise.all([
-        supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'cleared'),
-        supabase.from('clearance_applications').select('*', { count: 'exact', head: true }).eq('status', 'in_review'),
-        supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
-        supabase.from('department_reviews').select('*', { count: 'exact', head: true }).eq('escalated', true),
-      ]);
+      const [{ count: cleared }, { count: inReview }, { count: students }, { count: escalated }] =
+        await Promise.all([
+          supabase
+            .from("clearance_applications")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "cleared"),
+          supabase
+            .from("clearance_applications")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "in_review"),
+          supabase
+            .from("user_roles")
+            .select("*", { count: "exact", head: true })
+            .eq("role", "student"),
+          supabase
+            .from("department_reviews")
+            .select("*", { count: "exact", head: true })
+            .eq("escalated", true),
+        ]);
 
       setStats({ students: students ?? 0, cleared: cleared ?? 0, pending: inReview ?? 0 });
       setEscalatedCount(escalated ?? 0);
@@ -66,8 +81,9 @@ export function AdminDashboard() {
 
   async function loadNa() {
     const { data, error } = await supabase
-      .from('department_reviews')
-      .select(`
+      .from("department_reviews")
+      .select(
+        `
         id,
         status,
         departments(name),
@@ -76,8 +92,9 @@ export function AdminDashboard() {
           cleared_at,
           profiles(full_name, user_code, program)
         )
-      `)
-      .eq('is_na', true);
+      `,
+      )
+      .eq("is_na", true);
     if (!error && data) {
       const raw = data as unknown as {
         id: string;
@@ -91,11 +108,11 @@ export function AdminDashboard() {
       }[];
       const rows: NaRow[] = raw.map((r) => ({
         reviewId: r.id,
-        fullName: r.clearance_applications?.profiles?.full_name ?? 'Unknown',
-        userCode: r.clearance_applications?.profiles?.user_code ?? '—',
+        fullName: r.clearance_applications?.profiles?.full_name ?? "Unknown",
+        userCode: r.clearance_applications?.profiles?.user_code ?? "—",
         program: r.clearance_applications?.profiles?.program ?? null,
-        deptName: r.departments?.name ?? '—',
-        appStatus: r.clearance_applications?.status ?? '—',
+        deptName: r.departments?.name ?? "—",
+        appStatus: r.clearance_applications?.status ?? "—",
         clearedAt: r.clearance_applications?.cleared_at ?? null,
       }));
       setNaRows(rows);
@@ -111,31 +128,28 @@ export function AdminDashboard() {
     ) {
       return;
     }
-    const { error } = await supabase.rpc('reopen_na_review', { p_review_id: row.reviewId });
+    const { error } = await supabase.rpc("reopen_na_review", { p_review_id: row.reviewId });
     if (error) {
-      toast.error('Could not revert declaration', { description: error.message });
+      toast.error("Could not revert declaration", { description: error.message });
       return;
     }
-    toast.success('N/A declaration reverted to pending');
+    toast.success("N/A declaration reverted to pending");
     loadNa();
   }
 
-  const deptOptions = useMemo(
-    () => [...new Set(naRows.map((r) => r.deptName))].sort(),
-    [naRows],
-  );
+  const deptOptions = useMemo(() => [...new Set(naRows.map((r) => r.deptName))].sort(), [naRows]);
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     const filtered = naRows.filter((r) => {
-      if (deptFilter !== 'all' && r.deptName !== deptFilter) return false;
+      if (deptFilter !== "all" && r.deptName !== deptFilter) return false;
       if (!q) return true;
       return r.fullName.toLowerCase().includes(q) || r.userCode.toLowerCase().includes(q);
     });
-    const dir = sortDir === 'asc' ? 1 : -1;
+    const dir = sortDir === "asc" ? 1 : -1;
     return filtered.sort((a, b) => {
       let cmp = 0;
-      if (sortKey === 'clearedAt') {
+      if (sortKey === "clearedAt") {
         const av = a.clearedAt ? new Date(a.clearedAt).getTime() : 0;
         const bv = b.clearedAt ? new Date(b.clearedAt).getTime() : 0;
         cmp = av - bv;
@@ -148,45 +162,53 @@ export function AdminDashboard() {
 
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
-      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
       setSortKey(key);
-      setSortDir('asc');
+      setSortDir("asc");
     }
   }
 
   function sortIndicator(key: SortKey) {
-    if (key !== sortKey) return '';
-    return sortDir === 'asc' ? ' ↑' : ' ↓';
+    if (key !== sortKey) return "";
+    return sortDir === "asc" ? " ↑" : " ↓";
   }
 
   return (
     <div className="p-6 space-y-8">
       <div>
         <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-        <p className="text-sm text-muted-foreground">Overview of portal clearance applications and administrative task queue.</p>
+        <p className="text-sm text-muted-foreground">
+          Overview of portal clearance applications and administrative task queue.
+        </p>
       </div>
 
       {/* S-v3.3: 4 Stat Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-card p-4 rounded-lg border shadow-sm">
-          <p className="text-sm text-muted-foreground">Registered students <span className="text-xs italic">(accounts)</span></p>
+          <p className="text-sm text-muted-foreground">
+            Registered students <span className="text-xs italic">(accounts)</span>
+          </p>
           <p className="text-2xl font-bold mt-1">{stats.students}</p>
         </div>
 
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <p className="text-sm text-muted-foreground">Cleared applications</p>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{stats.cleared}</p>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+            {stats.cleared}
+          </p>
         </div>
 
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <p className="text-sm text-muted-foreground">Pending applications</p>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{stats.pending}</p>
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">
+            {stats.pending}
+          </p>
         </div>
 
         {/* 4th Stat Card: Escalated - route added by S-v3.4 */}
-        <Link 
-          to={"/admin/escalations"} 
+        <Link
+          to={"/admin/escalations"}
           className="bg-card p-4 rounded-lg border border-rose-200 dark:border-rose-900/50 shadow-sm hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition group block"
         >
           <div className="flex items-center justify-between">
@@ -195,7 +217,9 @@ export function AdminDashboard() {
             </p>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-rose-600 transition" />
           </div>
-          <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">{escalatedCount}</p>
+          <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">
+            {escalatedCount}
+          </p>
         </Link>
       </div>
 
@@ -211,7 +235,9 @@ export function AdminDashboard() {
               claims before accepting certificates.
             </p>
           </div>
-          <span className="text-sm font-semibold">{visible.length} record{visible.length === 1 ? '' : 's'}</span>
+          <span className="text-sm font-semibold">
+            {visible.length} record{visible.length === 1 ? "" : "s"}
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -245,19 +271,31 @@ export function AdminDashboard() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="py-2 pr-4 cursor-pointer select-none" onClick={() => toggleSort('fullName')}>
-                    Student{sortIndicator('fullName')}
+                  <th
+                    className="py-2 pr-4 cursor-pointer select-none"
+                    onClick={() => toggleSort("fullName")}
+                  >
+                    Student{sortIndicator("fullName")}
                   </th>
-                  <th className="py-2 pr-4 cursor-pointer select-none" onClick={() => toggleSort('userCode')}>
-                    ID{sortIndicator('userCode')}
+                  <th
+                    className="py-2 pr-4 cursor-pointer select-none"
+                    onClick={() => toggleSort("userCode")}
+                  >
+                    ID{sortIndicator("userCode")}
                   </th>
                   <th className="py-2 pr-4">Program</th>
-                  <th className="py-2 pr-4 cursor-pointer select-none" onClick={() => toggleSort('deptName')}>
-                    Declared N/A{sortIndicator('deptName')}
+                  <th
+                    className="py-2 pr-4 cursor-pointer select-none"
+                    onClick={() => toggleSort("deptName")}
+                  >
+                    Declared N/A{sortIndicator("deptName")}
                   </th>
                   <th className="py-2 pr-4">Application</th>
-                  <th className="py-2 cursor-pointer select-none" onClick={() => toggleSort('clearedAt')}>
-                    Certificate issued{sortIndicator('clearedAt')}
+                  <th
+                    className="py-2 cursor-pointer select-none"
+                    onClick={() => toggleSort("clearedAt")}
+                  >
+                    Certificate issued{sortIndicator("clearedAt")}
                   </th>
                   <th className="py-2 pl-4">Action</th>
                 </tr>
@@ -267,20 +305,20 @@ export function AdminDashboard() {
                   <tr key={r.reviewId} className="border-b last:border-b-0">
                     <td className="py-2 pr-4 font-medium">{r.fullName}</td>
                     <td className="py-2 pr-4">{r.userCode}</td>
-                    <td className="py-2 pr-4">{r.program ?? '—'}</td>
+                    <td className="py-2 pr-4">{r.program ?? "—"}</td>
                     <td className="py-2 pr-4">{r.deptName}</td>
                     <td className="py-2 pr-4">
-                      {r.appStatus === 'cleared' ? (
+                      {r.appStatus === "cleared" ? (
                         <span className="text-emerald-600 font-medium">Cleared</span>
                       ) : (
                         <span className="text-amber-600 font-medium">In review</span>
                       )}
                     </td>
                     <td className="py-2">
-                      {r.clearedAt ? new Date(r.clearedAt).toLocaleDateString('en-GB') : 'Not yet'}
+                      {r.clearedAt ? new Date(r.clearedAt).toLocaleDateString("en-GB") : "Not yet"}
                     </td>
                     <td className="py-2 pl-4">
-                      {r.appStatus === 'cleared' ? (
+                      {r.appStatus === "cleared" ? (
                         <span className="text-xs text-muted-foreground">Issued</span>
                       ) : (
                         <Button size="sm" variant="outline" onClick={() => handleRevertNa(r)}>
@@ -301,13 +339,29 @@ export function AdminDashboard() {
               variant="outline"
               size="sm"
               onClick={() => {
-                const header = ['Student', 'ID', 'Program', 'Declared N/A', 'Application', 'Certificate issued'];
+                const header = [
+                  "Student",
+                  "ID",
+                  "Program",
+                  "Declared N/A",
+                  "Application",
+                  "Certificate issued",
+                ];
                 const lines = visible.map((r) =>
-                  [r.fullName, r.userCode, r.program ?? '', r.deptName, r.appStatus, r.clearedAt ?? 'Not yet'].join(','),
+                  [
+                    r.fullName,
+                    r.userCode,
+                    r.program ?? "",
+                    r.deptName,
+                    r.appStatus,
+                    r.clearedAt ?? "Not yet",
+                  ].join(","),
                 );
-                const blob = new Blob([[header.join(','), ...lines].join('\n')], { type: 'text/csv' });
+                const blob = new Blob([[header.join(","), ...lines].join("\n")], {
+                  type: "text/csv",
+                });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
+                const a = document.createElement("a");
                 a.href = url;
                 a.download = `na-declarations-${new Date().toISOString().slice(0, 10)}.csv`;
                 a.click();

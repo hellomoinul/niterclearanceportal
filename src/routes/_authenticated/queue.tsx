@@ -149,7 +149,9 @@ function QueuePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("department_reviews")
-        .select("*, departments(code, name, is_final_signoff), clearance_applications(id, student_id)")
+        .select(
+          "*, departments(code, name, is_final_signoff), clearance_applications(id, student_id)",
+        )
         .in("status", ["pending", "rejected"])
         .in("department_id", scopedDeptIds);
       if (error) throw error;
@@ -225,11 +227,12 @@ function QueuePage() {
 
   const visible = useMemo(() => {
     const list = (reviews ?? []).filter((r) => {
-      const matchesTab = r.status === "pending"
-        ? tab === "pending"
-        : r.status === "rejected"
-          ? tab === "rejected"
-          : false;
+      const matchesTab =
+        r.status === "pending"
+          ? tab === "pending"
+          : r.status === "rejected"
+            ? tab === "rejected"
+            : false;
       if (!matchesTab) return false;
       // Final sign-off (Administration) reviews show only once triggered (prior offices approved);
       // they never have documents, so exempt them from the zero-document rule.
@@ -352,10 +355,7 @@ function QueuePage() {
     toast.success(`Approved ${ids.length} student${ids.length === 1 ? "" : "s"}`);
   }
 
-  async function resolveEscalation(
-    review: QueueReview,
-    decision: "approved" | "rejected",
-  ) {
+  async function resolveEscalation(review: QueueReview, decision: "approved" | "rejected") {
     const note = (resolveNotes[review.id] ?? "").trim();
     if (!note) {
       toast.error("Note required", {
@@ -399,8 +399,8 @@ function QueuePage() {
       <div className="card-surface mt-10 p-8 text-center">
         <h1 className="text-lg font-semibold">No office assigned</h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Your account has no department office assigned. Ask the
-          admin office to assign you under Admin → Users.
+          Your account has no department office assigned. Ask the admin office to assign you under
+          Admin → Users.
         </p>
       </div>
     );
@@ -507,7 +507,10 @@ function QueuePage() {
                         </span>
                       </h2>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {[student?.program, student?.batch ? `Academic year ${student.batch}` : null]
+                        {[
+                          student?.program,
+                          student?.batch ? `Academic year ${student.batch}` : null,
+                        ]
                           .filter(Boolean)
                           .join(" · ") || "—"}
                       </p>
@@ -547,8 +550,8 @@ function QueuePage() {
                       Escalated case — resolve
                     </h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      This review was rejected 3 times. Record the outcome and reason to close
-                      the escalation.
+                      This review was rejected 3 times. Record the outcome and reason to close the
+                      escalation.
                     </p>
                     <Textarea
                       rows={2}
@@ -573,9 +576,7 @@ function QueuePage() {
                         disabled={resolveBusyId === review.id}
                         onClick={() => resolveEscalation(review, "approved")}
                       >
-                        {resolveBusyId === review.id
-                          ? "Resolving…"
-                          : "Approve despite rejections"}
+                        {resolveBusyId === review.id ? "Resolving…" : "Approve despite rejections"}
                       </Button>
                     </div>
                   </div>
@@ -585,36 +586,37 @@ function QueuePage() {
                   <div className="mt-4">
                     <h3 className="text-sm font-semibold">Final sign-off</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      No document required — the Administration office reviews this student's clearance.
+                      No document required — the Administration office reviews this student's
+                      clearance.
                     </p>
                   </div>
                 ) : (
-                <div className="mt-4">
-                  <h3 className="text-sm font-semibold">Proof documents ({docs.length})</h3>
-                  {docs.length === 0 ? (
-                    <p className="mt-1 text-sm text-muted-foreground">None uploaded yet.</p>
-                  ) : (
-                    <ul className="mt-2 divide-y divide-border">
-                      {docs.map((doc) => (
-                        <li key={doc.id} className="flex items-center justify-between gap-3 py-2">
-                          <button
-                            type="button"
-                            onClick={() => openDocument(doc.file_path)}
-                            className="flex min-w-0 items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
-                          >
-                            <FileText className="size-4 shrink-0" aria-hidden />
-                            <span className="truncate">{doc.file_name}</span>
-                            <ExternalLink className="size-3 shrink-0 opacity-60" aria-hidden />
-                          </button>
-                          <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
-                            {new Date(doc.uploaded_at).toLocaleString()}
-                            <StatusBadge status={doc.status} />
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                  <div className="mt-4">
+                    <h3 className="text-sm font-semibold">Proof documents ({docs.length})</h3>
+                    {docs.length === 0 ? (
+                      <p className="mt-1 text-sm text-muted-foreground">None uploaded yet.</p>
+                    ) : (
+                      <ul className="mt-2 divide-y divide-border">
+                        {docs.map((doc) => (
+                          <li key={doc.id} className="flex items-center justify-between gap-3 py-2">
+                            <button
+                              type="button"
+                              onClick={() => openDocument(doc.file_path)}
+                              className="flex min-w-0 items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
+                            >
+                              <FileText className="size-4 shrink-0" aria-hidden />
+                              <span className="truncate">{doc.file_name}</span>
+                              <ExternalLink className="size-3 shrink-0 opacity-60" aria-hidden />
+                            </button>
+                            <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                              {new Date(doc.uploaded_at).toLocaleString()}
+                              <StatusBadge status={doc.status} />
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 )}
 
                 {review.status !== "approved" && (

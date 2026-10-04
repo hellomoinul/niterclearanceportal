@@ -57,7 +57,8 @@ function NotificationsPage() {
   });
 
   const allVisibleIds = data?.map((n) => n.id) ?? [];
-  const selectAllChecked = allVisibleIds.length > 0 && allVisibleIds.every((id) => selected.has(id));
+  const selectAllChecked =
+    allVisibleIds.length > 0 && allVisibleIds.every((id) => selected.has(id));
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -82,21 +83,34 @@ function NotificationsPage() {
   }
 
   async function deleteOne(id: string) {
-    await supabase.from("notifications").update({ deleted_at: new Date().toISOString() }).eq("id", id);
-    setSelected((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    await supabase
+      .from("notifications")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id);
+    setSelected((prev) => {
+      const n = new Set(prev);
+      n.delete(id);
+      return n;
+    });
     await queryClient.invalidateQueries({ queryKey: ["notifications"] });
   }
 
   async function deleteSelected() {
     const ids = [...selected];
     if (ids.length === 0) return;
-    await supabase.from("notifications").update({ deleted_at: new Date().toISOString() }).in("id", ids);
+    await supabase
+      .from("notifications")
+      .update({ deleted_at: new Date().toISOString() })
+      .in("id", ids);
     setSelected(new Set());
     await queryClient.invalidateQueries({ queryKey: ["notifications"] });
   }
 
   async function deleteAll() {
-    await supabase.from("notifications").update({ deleted_at: new Date().toISOString() }).is("deleted_at", null);
+    await supabase
+      .from("notifications")
+      .update({ deleted_at: new Date().toISOString() })
+      .is("deleted_at", null);
     setSelected(new Set());
     await queryClient.invalidateQueries({ queryKey: ["notifications"] });
   }
@@ -135,7 +149,9 @@ function NotificationsPage() {
                 {selectAllChecked && <Check className="size-3" />}
               </button>
               <span className="text-xs text-muted-foreground">
-                {selected.size > 0 ? `${selected.size} selected` : `${allVisibleIds.length} notifications`}
+                {selected.size > 0
+                  ? `${selected.size} selected`
+                  : `${allVisibleIds.length} notifications`}
               </span>
             </div>
 
@@ -184,11 +200,7 @@ function NotificationsPage() {
 
             {selected.size > 0 && (
               <div className="mt-4 flex justify-end">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setConfirmSelected(true)}
-                >
+                <Button variant="destructive" size="sm" onClick={() => setConfirmSelected(true)}>
                   Delete selected ({selected.size})
                 </Button>
               </div>
@@ -204,12 +216,16 @@ function NotificationsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete all notifications?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will hide all notifications from your view. They can still be accessed by the admin for audit purposes.
+              This will hide all notifications from your view. They can still be accessed by the
+              admin for audit purposes.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={deleteAll} className="bg-red-600 hover:bg-red-700 text-white">
+            <AlertDialogAction
+              onClick={deleteAll}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
               Delete all
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -219,14 +235,20 @@ function NotificationsPage() {
       <AlertDialog open={confirmSelected} onOpenChange={setConfirmSelected}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {selected.size} notification{selected.size === 1 ? "" : "s"}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete {selected.size} notification{selected.size === 1 ? "" : "s"}?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This will hide the selected notifications from your view. They can still be accessed by the admin for audit purposes.
+              This will hide the selected notifications from your view. They can still be accessed
+              by the admin for audit purposes.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={deleteSelected} className="bg-red-600 hover:bg-red-700 text-white">
+            <AlertDialogAction
+              onClick={deleteSelected}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
               Delete selected
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -1,18 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect, useMemo } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -20,25 +20,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Trash2, Plus, Megaphone, Edit2 } from 'lucide-react';
+} from "@/components/ui/select";
+import { Trash2, Plus, Megaphone, Edit2 } from "lucide-react";
 
-export const Route = createFileRoute('/_authenticated/admin/notices')({
+export const Route = createFileRoute("/_authenticated/admin/notices")({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('Not authenticated');
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("Not authenticated");
   },
   component: NoticeBoardPage,
 });
 
-type AudienceType = 'all' | 'students' | 'office' | 'batch';
+type AudienceType = "all" | "students" | "office" | "batch";
 
 interface Notice {
   id: string;
@@ -46,7 +48,7 @@ interface Notice {
   content: string;
   created_at: string;
   target_audience?: string;
-  audience_type?: 'all' | 'students' | 'office' | 'batch';
+  audience_type?: "all" | "students" | "office" | "batch";
   audience_value?: string;
 }
 
@@ -55,20 +57,22 @@ export default function NoticeBoardPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [targetAudience, setTargetAudience] = useState('All');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [targetAudience, setTargetAudience] = useState("All");
 
   // Edit state
   const [editing, setEditing] = useState<Notice | null>(null);
-  const [editTitle, setEditTitle] = useState('');
-  const [editContent, setEditContent] = useState('');
-  const [editAudienceType, setEditAudienceType] = useState<'all' | 'students' | 'office' | 'batch'>('all');
-  const [editAudienceValue, setEditAudienceValue] = useState('');
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editAudienceType, setEditAudienceType] = useState<"all" | "students" | "office" | "batch">(
+    "all",
+  );
+  const [editAudienceValue, setEditAudienceValue] = useState("");
 
   // Structured audience for create
-  const [audienceType, setAudienceType] = useState<'all' | 'students' | 'office' | 'batch'>('all');
-  const [audienceValue, setAudienceValue] = useState('');
+  const [audienceType, setAudienceType] = useState<"all" | "students" | "office" | "batch">("all");
+  const [audienceValue, setAudienceValue] = useState("");
 
   // Offices and batches for dropdowns
   const [offices, setOffices] = useState<{ id: string; name: string }[]>([]);
@@ -81,8 +85,8 @@ export default function NoticeBoardPage() {
 
   const fetchOfficesAndBatches = async () => {
     const [depts, profiles] = await Promise.all([
-      supabase.from('departments').select('id, name').order('sort_order'),
-      supabase.from('profiles').select('batch').not('batch', 'is', null),
+      supabase.from("departments").select("id, name").order("sort_order"),
+      supabase.from("profiles").select("batch").not("batch", "is", null),
     ]);
     if (!depts.error && depts.data) setOffices(depts.data);
     if (!profiles.error && profiles.data) {
@@ -94,9 +98,9 @@ export default function NoticeBoardPage() {
   const fetchNotices = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from('notices')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from("notices")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (!error && data) {
       setNotices(data as Notice[]);
@@ -104,20 +108,23 @@ export default function NoticeBoardPage() {
     setLoading(false);
   };
 
-  const buildAudienceString = (type: 'all' | 'students' | 'office' | 'batch', value: string): string => {
+  const buildAudienceString = (
+    type: "all" | "students" | "office" | "batch",
+    value: string,
+  ): string => {
     switch (type) {
-      case 'all':
-        return 'All';
-      case 'students':
-        return 'Students';
-      case 'office': {
+      case "all":
+        return "All";
+      case "students":
+        return "Students";
+      case "office": {
         const office = offices.find((o) => o.id === value);
-        return office ? `Office: ${office.name}` : 'Office';
+        return office ? `Office: ${office.name}` : "Office";
       }
-      case 'batch':
+      case "batch":
         return `Batch: ${value}`;
       default:
-        return 'All';
+        return "All";
     }
   };
 
@@ -131,7 +138,7 @@ export default function NoticeBoardPage() {
     const audienceStr = buildAudienceString(audienceType, audienceValue);
 
     const { data: newNotice, error } = await supabase
-      .from('notices')
+      .from("notices")
       .insert({
         title: title.trim(),
         content: content.trim(),
@@ -141,7 +148,7 @@ export default function NoticeBoardPage() {
       .single();
 
     if (error) {
-      console.error('Notice create error:', error);
+      console.error("Notice create error:", error);
       alert(`Failed to publish notice: ${error.message}`);
       setIsSubmitting(false);
       return;
@@ -149,21 +156,21 @@ export default function NoticeBoardPage() {
 
     // Insert into audit_log
     const createdNotice = newNotice as Notice | null;
-await supabase.from('audit_log').insert({
-        action: 'notice_created',
-        entity: 'notices',
-        entity_id: createdNotice?.id ?? null,
-        details: JSON.stringify({
-          title: title.trim(),
-          target_audience: audienceStr,
-          created_by: userData?.user?.id,
-        }),
-      });
+    await supabase.from("audit_log").insert({
+      action: "notice_created",
+      entity: "notices",
+      entity_id: createdNotice?.id ?? null,
+      details: JSON.stringify({
+        title: title.trim(),
+        target_audience: audienceStr,
+        created_by: userData?.user?.id,
+      }),
+    });
 
-    setTitle('');
-    setContent('');
-    setAudienceType('all');
-    setAudienceValue('');
+    setTitle("");
+    setContent("");
+    setAudienceType("all");
+    setAudienceValue("");
     setOpen(false);
     setIsSubmitting(false);
     fetchNotices();
@@ -174,16 +181,13 @@ await supabase.from('audit_log').insert({
 
     const { data: userData } = await supabase.auth.getUser();
 
-    const { error } = await supabase
-      .from('notices')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from("notices").delete().eq("id", id);
 
     if (!error) {
       // Insert into audit_log
-      await supabase.from('audit_log').insert({
-        action: 'notice_deleted',
-        entity: 'notices',
+      await supabase.from("audit_log").insert({
+        action: "notice_deleted",
+        entity: "notices",
         entity_id: id,
         details: JSON.stringify({
           title: noticeTitle,
@@ -202,23 +206,23 @@ await supabase.from('audit_log').insert({
     setEditing(notice);
     setEditTitle(notice.title);
     setEditContent(notice.content);
-    if (notice.target_audience === 'All' || !notice.target_audience) {
-      setEditAudienceType('all');
-      setEditAudienceValue('');
-    } else if (notice.target_audience === 'Students') {
-      setEditAudienceType('students');
-      setEditAudienceValue('');
-    } else if (notice.target_audience?.startsWith('Office: ')) {
-      setEditAudienceType('office');
-      const officeName = notice.target_audience.replace('Office: ', '');
+    if (notice.target_audience === "All" || !notice.target_audience) {
+      setEditAudienceType("all");
+      setEditAudienceValue("");
+    } else if (notice.target_audience === "Students") {
+      setEditAudienceType("students");
+      setEditAudienceValue("");
+    } else if (notice.target_audience?.startsWith("Office: ")) {
+      setEditAudienceType("office");
+      const officeName = notice.target_audience.replace("Office: ", "");
       const office = offices.find((o) => o.name === officeName);
-      setEditAudienceValue(office?.id || '');
-    } else if (notice.target_audience?.startsWith('Batch: ')) {
-      setEditAudienceType('batch');
-      setEditAudienceValue(notice.target_audience.replace('Batch: ', ''));
+      setEditAudienceValue(office?.id || "");
+    } else if (notice.target_audience?.startsWith("Batch: ")) {
+      setEditAudienceType("batch");
+      setEditAudienceValue(notice.target_audience.replace("Batch: ", ""));
     } else {
-      setEditAudienceType('all');
-      setEditAudienceValue('');
+      setEditAudienceType("all");
+      setEditAudienceValue("");
     }
     setOpen(true);
   };
@@ -233,25 +237,25 @@ await supabase.from('audit_log').insert({
     const audienceStr = buildAudienceString(editAudienceType, editAudienceValue);
 
     const { error } = await supabase
-      .from('notices')
+      .from("notices")
       .update({
         title: editTitle.trim(),
         content: editContent.trim(),
         target_audience: audienceStr,
       })
-      .eq('id', editing.id);
+      .eq("id", editing.id);
 
     if (error) {
-      console.error('Notice update error:', error);
+      console.error("Notice update error:", error);
       alert(`Failed to update notice: ${error.message}`);
       setIsSubmitting(false);
       return;
     }
 
     // Insert into audit_log
-    await supabase.from('audit_log').insert({
-      action: 'notice_updated',
-      entity: 'notices',
+    await supabase.from("audit_log").insert({
+      action: "notice_updated",
+      entity: "notices",
       entity_id: editing.id,
       details: JSON.stringify({
         title: editTitle.trim(),
@@ -261,10 +265,10 @@ await supabase.from('audit_log').insert({
     });
 
     setEditing(null);
-    setEditTitle('');
-    setEditContent('');
-    setEditAudienceType('all');
-    setEditAudienceValue('');
+    setEditTitle("");
+    setEditContent("");
+    setEditAudienceType("all");
+    setEditAudienceValue("");
     setOpen(false);
     setIsSubmitting(false);
     fetchNotices();
@@ -272,14 +276,14 @@ await supabase.from('audit_log').insert({
 
   const closeDialog = () => {
     setEditing(null);
-    setTitle('');
-    setContent('');
-    setAudienceType('all');
-    setAudienceValue('');
-    setEditTitle('');
-    setEditContent('');
-    setEditAudienceType('all');
-    setEditAudienceValue('');
+    setTitle("");
+    setContent("");
+    setAudienceType("all");
+    setAudienceValue("");
+    setEditTitle("");
+    setEditContent("");
+    setEditAudienceType("all");
+    setEditAudienceValue("");
     setOpen(false);
   };
 
@@ -301,7 +305,7 @@ await supabase.from('audit_log').insert({
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>{editing ? 'Edit Notice' : 'Publish New Notice'}</DialogTitle>
+              <DialogTitle>{editing ? "Edit Notice" : "Publish New Notice"}</DialogTitle>
             </DialogHeader>
             <form
               onSubmit={editing ? handleEditNotice : handleCreateNotice}
@@ -325,7 +329,9 @@ await supabase.from('audit_log').insert({
                   <Select
                     value={editing ? editAudienceType : audienceType}
                     onValueChange={(v) =>
-                      editing ? setEditAudienceType(v as 'all' | 'students' | 'office' | 'batch') : setAudienceType(v as 'all' | 'students' | 'office' | 'batch')
+                      editing
+                        ? setEditAudienceType(v as "all" | "students" | "office" | "batch")
+                        : setAudienceType(v as "all" | "students" | "office" | "batch")
                     }
                     disabled={isSubmitting}
                   >
@@ -339,7 +345,7 @@ await supabase.from('audit_log').insert({
                       <SelectItem value="batch">Specific Batch</SelectItem>
                     </SelectContent>
                   </Select>
-                  {(editing ? editAudienceType : audienceType) === 'office' && (
+                  {(editing ? editAudienceType : audienceType) === "office" && (
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Office</label>
                       <Select
@@ -368,7 +374,7 @@ await supabase.from('audit_log').insert({
                       </Select>
                     </div>
                   )}
-                  {(editing ? editAudienceType : audienceType) === 'batch' && (
+                  {(editing ? editAudienceType : audienceType) === "batch" && (
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Batch</label>
                       <Select
@@ -397,11 +403,12 @@ await supabase.from('audit_log').insert({
                       </Select>
                     </div>
                   )}
-                  {(editing ? editAudienceType : audienceType) === 'all' || (editing ? editAudienceType : audienceType) === 'students' ? (
+                  {(editing ? editAudienceType : audienceType) === "all" ||
+                  (editing ? editAudienceType : audienceType) === "students" ? (
                     <p className="text-xs text-muted-foreground">
-                      {(editing ? editAudienceType : audienceType) === 'all'
-                        ? 'Visible to all users'
-                        : 'Visible to all students (not staff/admin)'}
+                      {(editing ? editAudienceType : audienceType) === "all"
+                        ? "Visible to all users"
+                        : "Visible to all students (not staff/admin)"}
                     </p>
                   ) : null}
                 </div>
@@ -413,9 +420,7 @@ await supabase.from('audit_log').insert({
                   rows={4}
                   value={editing ? editContent : content}
                   onChange={(e) =>
-                    editing
-                      ? setEditContent(e.target.value)
-                      : setContent(e.target.value)
+                    editing ? setEditContent(e.target.value) : setContent(e.target.value)
                   }
                   required
                 />
@@ -430,11 +435,7 @@ await supabase.from('audit_log').insert({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting
-                    ? 'Saving...'
-                    : editing
-                    ? 'Save Changes'
-                    : 'Publish Notice'}
+                  {isSubmitting ? "Saving..." : editing ? "Save Changes" : "Publish Notice"}
                 </Button>
               </div>
             </form>
@@ -480,13 +481,13 @@ await supabase.from('audit_log').insert({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{notice.target_audience || 'All'}</Badge>
+                    <Badge variant="outline">{notice.target_audience || "All"}</Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(notice.created_at).toLocaleDateString('en-GB', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
+                    {new Date(notice.created_at).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
                     })}
                   </TableCell>
                   <TableCell className="text-right">

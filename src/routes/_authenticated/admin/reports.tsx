@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Download, Filter } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Download, Filter } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   BarChart,
   Bar,
@@ -22,10 +22,10 @@ import {
   PieChart,
   Pie,
   Cell,
-} from 'recharts';
-import { AvgDaysChart } from '@/components/Admin/AvgDaysChart';
+} from "recharts";
+import { AvgDaysChart } from "@/components/Admin/AvgDaysChart";
 
-export const Route = createFileRoute('/_authenticated/admin/reports')({
+export const Route = createFileRoute("/_authenticated/admin/reports")({
   component: ClearanceReportsPage,
 });
 
@@ -53,34 +53,36 @@ interface DepartmentReviewData {
   reviewed_at: string | null;
 }
 
-const COLORS = ['#22c55e', '#eab308', '#ef4444', '#3b82f6'];
+const COLORS = ["#22c55e", "#eab308", "#ef4444", "#3b82f6"];
 
 export default function ClearanceReportsPage() {
   const [loading, setLoading] = useState(true);
   const [deptStats, setDeptStats] = useState<DepartmentStat[]>([]);
   const [statusStats, setStatusStats] = useState<StatusSummary[]>([]);
   const [totalApplications, setTotalApplications] = useState(0);
-  const [batchFilter, setBatchFilter] = useState('all');
+  const [batchFilter, setBatchFilter] = useState("all");
 
   const fetchReportData = useCallback(async () => {
     setLoading(true);
 
     let appQuery = supabase
-      .from('clearance_applications')
-      .select('*, profiles!inner(batch)', { count: 'exact', head: true });
+      .from("clearance_applications")
+      .select("*, profiles!inner(batch)", { count: "exact", head: true });
 
-    if (batchFilter !== 'all') {
-      appQuery = appQuery.eq('profiles.batch', batchFilter);
+    if (batchFilter !== "all") {
+      appQuery = appQuery.eq("profiles.batch", batchFilter);
     }
 
     const { count: appCount, error: appErr } = await appQuery;
-    setTotalApplications(appErr ? 0 : appCount ?? 0);
+    setTotalApplications(appErr ? 0 : (appCount ?? 0));
 
     let reviewQuery = supabase
-      .from('department_reviews')
-      .select('status, departments(code, name), clearance_applications!inner(student_id, profiles!inner(batch)), created_at, reviewed_at');
-    if (batchFilter !== 'all') {
-      reviewQuery = reviewQuery.eq('clearance_applications.profiles.batch', batchFilter);
+      .from("department_reviews")
+      .select(
+        "status, departments(code, name), clearance_applications!inner(student_id, profiles!inner(batch)), created_at, reviewed_at",
+      );
+    if (batchFilter !== "all") {
+      reviewQuery = reviewQuery.eq("clearance_applications.profiles.batch", batchFilter);
     }
 
     const { data, error } = await reviewQuery;
@@ -97,15 +99,20 @@ export default function ClearanceReportsPage() {
       const typedData = data as unknown as DepartmentReviewData[];
 
       typedData.forEach((review) => {
-        const status = (review.status || 'pending').toLowerCase();
-        const dept =
-          review.departments?.name || review.departments?.code || 'General';
+        const status = (review.status || "pending").toLowerCase();
+        const dept = review.departments?.name || review.departments?.code || "General";
 
         if (!deptMap[dept]) {
-          deptMap[dept] = { department: dept, approved: 0, pending: 0, rejected: 0, avgDaysToApprove: null };
+          deptMap[dept] = {
+            department: dept,
+            approved: 0,
+            pending: 0,
+            rejected: 0,
+            avgDaysToApprove: null,
+          };
         }
 
-        if (status === 'approved') {
+        if (status === "approved") {
           approved++;
           deptMap[dept].approved++;
 
@@ -122,7 +129,7 @@ export default function ClearanceReportsPage() {
             deptTimeMap[dept].totalDays += diffDays;
             deptTimeMap[dept].count += 1;
           }
-        } else if (status === 'rejected') {
+        } else if (status === "rejected") {
           rejected++;
           deptMap[dept].rejected++;
         } else {
@@ -141,9 +148,9 @@ export default function ClearanceReportsPage() {
       });
 
       setStatusStats([
-        { name: 'Approved', value: approved, color: '#22c55e' },
-        { name: 'Pending', value: pending, color: '#eab308' },
-        { name: 'Rejected', value: rejected, color: '#ef4444' },
+        { name: "Approved", value: approved, color: "#22c55e" },
+        { name: "Pending", value: pending, color: "#eab308" },
+        { name: "Rejected", value: rejected, color: "#ef4444" },
       ]);
 
       setDeptStats(Object.values(deptMap));
@@ -158,19 +165,20 @@ export default function ClearanceReportsPage() {
 
   const handleExportCSV = () => {
     if (deptStats.length === 0) return;
-    const headers = ['Department', 'Approved', 'Pending', 'Rejected'];
+    const headers = ["Department", "Approved", "Pending", "Rejected"];
     const rows = deptStats.map((d) => [d.department, d.approved, d.pending, d.rejected]);
 
-    const csvContent = [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const csvContent = [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    const filename = batchFilter === 'all' 
-      ? 'clearance_department_report_all.csv' 
-      : `clearance_department_report_${batchFilter}.csv`;
-    link.setAttribute('download', filename);
+    const filename =
+      batchFilter === "all"
+        ? "clearance_department_report_all.csv"
+        : `clearance_department_report_${batchFilter}.csv`;
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -222,7 +230,7 @@ export default function ClearanceReportsPage() {
             Approved Reviews
           </span>
           <p className="text-2xl font-bold text-green-600 mt-2">
-            {statusStats.find((s) => s.name === 'Approved')?.value || 0}
+            {statusStats.find((s) => s.name === "Approved")?.value || 0}
           </p>
         </div>
         <div className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -230,7 +238,7 @@ export default function ClearanceReportsPage() {
             Pending Reviews
           </span>
           <p className="text-2xl font-bold text-amber-500 mt-2">
-            {statusStats.find((s) => s.name === 'Pending')?.value || 0}
+            {statusStats.find((s) => s.name === "Pending")?.value || 0}
           </p>
         </div>
       </div>
@@ -297,7 +305,6 @@ export default function ClearanceReportsPage() {
 
       {/* Average Days to Approve per Office */}
       <AvgDaysChart deptStats={deptStats} loading={loading} />
-
     </div>
   );
 }

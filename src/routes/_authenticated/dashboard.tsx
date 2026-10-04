@@ -145,9 +145,10 @@ function DashboardPage() {
 
       pdf.addImage(imgData, "PNG", xOffset, yOffset, finalWidth, finalHeight);
       pdf.save(`Clearance_Certificate_${profile?.user_code || "NITER"}.pdf`);
-    } catch (error: any) {
-      console.error("Error generating document:", error);
-      alert(`Download Failed: ${error.message || "Please try again."}`);
+    } catch (err) {
+      console.error("Error generating document:", err);
+      const message = err instanceof Error ? err.message : "Please try again.";
+      alert(`Download Failed: ${message}`);
     } finally {
       setIsDownloading(false);
     }
@@ -191,7 +192,8 @@ function DashboardPage() {
           <FileCheck2 className="mx-auto size-7 text-primary" aria-hidden />
           <h2 className="mt-3 text-lg font-semibold">No clearance application yet</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Submit once and offices unlock in strict order — the first one opens the moment you apply.
+            Submit once and offices unlock in strict order — the first one opens the moment you
+            apply.
           </p>
           <Button asChild className="mt-6">
             <Link to="/apply">
@@ -283,7 +285,9 @@ function DashboardPage() {
                 <h2 className="text-3xl font-serif font-bold uppercase tracking-wider text-[#0f172a]">
                   National Institute of Textile Engineering and Research
                 </h2>
-                <p className="text-[#64748b] uppercase tracking-widest text-sm">Nayarhat, Savar, Dhaka</p>
+                <p className="text-[#64748b] uppercase tracking-widest text-sm">
+                  Nayarhat, Savar, Dhaka
+                </p>
               </div>
 
               <div className="text-center">
@@ -302,7 +306,8 @@ function DashboardPage() {
                 <span className="relative inline-block font-bold px-2 mx-1 pb-1">
                   {profile.user_code}
                   <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
-                </span> of the{" "}
+                </span>{" "}
+                of the{" "}
                 <span className="relative inline-block font-bold px-2 mx-1 pb-1">
                   {profile.program}
                   <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
@@ -312,7 +317,8 @@ function DashboardPage() {
                   {profile.batch}
                   <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
                 </span>
-                , has successfully completed all necessary departmental and administrative clearance procedures.
+                , has successfully completed all necessary departmental and administrative clearance
+                procedures.
               </div>
 
               <div className="flex justify-between items-end px-8 mb-2">
@@ -325,17 +331,25 @@ function DashboardPage() {
                     </div>
                   )}
                   <div className="text-center">
-                    <p className="text-[10px] font-semibold text-[#334155] uppercase tracking-wider">Date Issued</p>
+                    <p className="text-[10px] font-semibold text-[#334155] uppercase tracking-wider">
+                      Date Issued
+                    </p>
                     <p className="text-xs font-medium text-[#0f172a] mt-0.5">
                       {certificate.issued_at
                         ? new Date(certificate.issued_at).toLocaleDateString("en-GB")
                         : new Date().toLocaleDateString("en-GB")}
-                      </p>
+                    </p>
                     {certificate.id && (
                       <>
-                        <p className="text-[10px] font-semibold text-[#334155] uppercase tracking-wider mt-1.5">Certificate ID</p>
-                        <p className="text-xs font-bold font-mono text-[#0f172a] mt-0.5 tracking-wide">{formatCertificateId(certificate.id)}</p>
-                        <p className="text-[8px] font-mono text-[#94a3b8] mt-0.5 break-all">{certificate.id}</p>
+                        <p className="text-[10px] font-semibold text-[#334155] uppercase tracking-wider mt-1.5">
+                          Certificate ID
+                        </p>
+                        <p className="text-xs font-bold font-mono text-[#0f172a] mt-0.5 tracking-wide">
+                          {formatCertificateId(certificate.id)}
+                        </p>
+                        <p className="text-[8px] font-mono text-[#94a3b8] mt-0.5 break-all">
+                          {certificate.id}
+                        </p>
                       </>
                     )}
                   </div>
@@ -348,7 +362,9 @@ function DashboardPage() {
                     className="h-16 object-contain mb-2 opacity-80"
                   />
                   <div className="border-t-[1.5px] border-[#1e293b] w-48 mb-1 mx-auto"></div>
-                  <p className="text-xs font-bold text-[#1e293b] uppercase tracking-wider">Administration</p>
+                  <p className="text-xs font-bold text-[#1e293b] uppercase tracking-wider">
+                    Administration
+                  </p>
                   <p className="text-[10px] text-[#64748b] tracking-widest mt-0.5">NITER</p>
                 </div>
               </div>

@@ -1,61 +1,60 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { supabase } from '@/integrations/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
-export const Route = createFileRoute('/update-password')({
+export const Route = createFileRoute("/update-password")({
   component: UpdatePasswordPage,
-})
+});
 
 function UpdatePasswordPage() {
-  const navigate = useNavigate()
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Verify the user actually came from an email link
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        toast.error("Invalid or expired link. Please request a new password reset.")
-        navigate({ to: '/forgot-password' })
+        toast.error("Invalid or expired link. Please request a new password reset.");
+        navigate({ to: "/forgot-password" });
       }
-    })
-  }, [navigate])
+    });
+  }, [navigate]);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match")
-      return
+      toast.error("Passwords do not match");
+      return;
     }
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters")
-      return
+      toast.error("Password must be at least 8 characters");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({ password })
+      const { error } = await supabase.auth.updateUser({ password });
 
-      if (error) throw error
+      if (error) throw error;
 
-      toast.success("Password updated successfully!")
-      navigate({ to: '/' })
-      
-    } catch (error: any) {
-      console.error("Update error:", error)
-      toast.error(error.message || 'Failed to update password.')
+      toast.success("Password updated successfully!");
+      navigate({ to: "/" });
+    } catch (err) {
+      console.error("Update error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to update password.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4">
@@ -79,7 +78,7 @@ function UpdatePasswordPage() {
                 className="w-full"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-[#0f172a]">Confirm Password</label>
               <Input
@@ -100,5 +99,5 @@ function UpdatePasswordPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -131,14 +131,14 @@ function AdminCalendarPage() {
       description: description.trim() || null,
       event_type: eventType,
       start_date: startDate,
-      end_date: endDate || null,
+      end_date: endDate || "",
       target_audience: targetAudience,
     };
 
     if (editingEvent) {
       const { error } = await supabase
         .from("calendar_events")
-        .update(payload as any)
+        .update(payload)
         .eq("id", editingEvent.id);
 
       if (error) {
@@ -149,7 +149,7 @@ function AdminCalendarPage() {
         fetchEvents();
       }
     } else {
-      const { error } = await supabase.from("calendar_events").insert([payload as any]);
+      const { error } = await supabase.from("calendar_events").insert([payload]);
 
       if (error) {
         toast.error("Failed to create event", { description: error.message });
@@ -272,18 +272,10 @@ function AdminCalendarPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenDialog(ev)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(ev)}>
                           <Pencil className="w-4 h-4 text-muted-foreground" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteId(ev.id)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(ev.id)}>
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
@@ -385,11 +377,7 @@ function AdminCalendarPage() {
             </div>
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>
@@ -407,12 +395,16 @@ function AdminCalendarPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Calendar Event?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The event will be permanently removed from the student calendar view.
+              This action cannot be undone. The event will be permanently removed from the student
+              calendar view.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

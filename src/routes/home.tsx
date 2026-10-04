@@ -71,15 +71,15 @@ function HomePage() {
   });
 
   const visibleNotices = (notices ?? []).filter((notice) => {
-    const audience = (notice.target_audience || 'All').toLowerCase();
-    if (audience === 'all') return true;
-    if (audience === 'students' && isStudent) return true;
-    if (audience.startsWith('office:') && !isStudent) return true;
-    if (audience.startsWith('batch:') && isStudent) return true;
+    const audience = (notice.target_audience || "All").toLowerCase();
+    if (audience === "all") return true;
+    if (audience === "students" && isStudent) return true;
+    if (audience.startsWith("office:") && !isStudent) return true;
+    if (audience.startsWith("batch:") && isStudent) return true;
     return false;
   });
 
-return (
+  return (
     <div className="max-w-6xl">
       <section className="hero-surface hero-fade-in overflow-hidden rounded-xl px-6 py-12 shadow-raised transition-shadow duration-300 hover:shadow-lg sm:px-10 sm:py-16">
         <p className="text-xs font-semibold tracking-[0.18em] uppercase opacity-80">

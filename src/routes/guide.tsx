@@ -2,12 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Accordion,
   AccordionContent,
@@ -27,7 +22,8 @@ export const Route = createFileRoute("/guide")({
       { property: "og:title", content: "Guide — NITER Clearance Portal" },
       {
         property: "og:description",
-        content: "Step-by-step guide for students, office staff and admins using the NITER clearance portal.",
+        content:
+          "Step-by-step guide for students, office staff and admins using the NITER clearance portal.",
       },
     ],
   }),
@@ -206,8 +202,8 @@ function GuidePage() {
             {roleTabs.map((tab) => (
               <TabsContent key={tab.value} value={tab.value} className="mt-2">
                 <p className="text-sm text-muted-foreground">
-                  Guide for the{" "}
-                  <span className="font-semibold text-foreground">{tab.label}</span> role.
+                  Guide for the <span className="font-semibold text-foreground">{tab.label}</span>{" "}
+                  role.
                 </p>
               </TabsContent>
             ))}
@@ -234,7 +230,8 @@ function GuidePage() {
 
       <div className="card-surface mt-6 px-6 py-2">
         <h2 className="py-3 text-base font-semibold">
-          Frequently asked questions{role !== "student" ? ` — ${role === "admin" ? "Admin" : "Office"}` : ""}
+          Frequently asked questions
+          {role !== "student" ? ` — ${role === "admin" ? "Admin" : "Office"}` : ""}
         </h2>
         <Accordion type="single" collapsible>
           {faqs[role].map((item, index) => (

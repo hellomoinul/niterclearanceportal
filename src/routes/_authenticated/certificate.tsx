@@ -1,170 +1,197 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState, useRef } from 'react'
-import { supabase } from '@/integrations/supabase/client'
-import { Button } from '@/components/ui/button'
-import { formatCertificateId, resolveSignatureUrl } from '@/lib/portal'
-import { Download, Loader2, Printer } from 'lucide-react'
-import { jsPDF } from 'jspdf'
-import html2canvas from 'html2canvas-pro'
-import QRCode from 'qrcode'
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { formatCertificateId, resolveSignatureUrl } from "@/lib/portal";
+import { Download, Loader2, Printer } from "lucide-react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas-pro";
+import QRCode from "qrcode";
+import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute('/_authenticated/certificate')({
-  component: CertificatePage,
-})
+interface Profile {
+  id: string;
+  full_name: string;
+  user_code: string;
+  program: string | null;
+  batch: string | null;
+  // add other fields as needed
+}
+
+interface Application {
+  id: string;
+  student_id: string;
+  status: string;
+  thesis_title: string | null;
+  supervisor_name: string | null;
+  expected_graduation: string | null;
+  submitted_at: string;
+  cleared_at: string | null;
+}
 
 function CertificatePage() {
-  const [profile, setProfile] = useState<any>(null)
-  const [application, setApplication] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [application, setApplication] = useState<Application | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [qrCodeUrl, setQrCodeUrl] = useState('')
-  const [certId, setCertId] = useState('')
-  const certificateRef = useRef<HTMLDivElement>(null)
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [certId, setCertId] = useState("");
+  const certificateRef = useRef<HTMLDivElement>(null);
 
-  const [signatureUrl, setSignatureUrl] = useState('/signature.png')
+  const [signatureUrl, setSignatureUrl] = useState("/signature.png");
 
   useEffect(() => {
     async function loadData() {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         // Fetch Profile
         const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-        setProfile(profileData)
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        setProfile(profileData as Profile | null);
 
         // Fetch Application
         const { data: appData } = await supabase
-          .from('clearance_applications')
-          .select('*')
-          .eq('student_id', user.id)
-          .maybeSingle()
-        setApplication(appData)
+          .from("clearance_applications")
+          .select("*")
+          .eq("student_id", user.id)
+          .maybeSingle();
+        setApplication(appData);
 
         // Fetch Certificate Data (for the QR Code)
         if (appData) {
           const { data: certData } = await supabase
-            .from('certificates')
-            .select('*')
-            .eq('application_id', appData.id)
-            .maybeSingle()
+            .from("certificates")
+            .select("*")
+            .eq("application_id", appData.id)
+            .maybeSingle();
 
           if (certData?.id) {
-            setCertId(certData.id)
-            const formattedCode = formatCertificateId(certData.id)
-            const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(formattedCode)}`
+            setCertId(certData.id);
+            const formattedCode = formatCertificateId(certData.id);
+            const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(formattedCode)}`;
 
-            const resolvedSignature = await resolveSignatureUrl(certData.signature_id)
-            if (resolvedSignature) setSignatureUrl(resolvedSignature)
+            const resolvedSignature = await resolveSignatureUrl(certData.signature_id);
+            if (resolvedSignature) setSignatureUrl(resolvedSignature);
 
             try {
-              const url = await QRCode.toDataURL(verifyUrl, { width: 100, margin: 0 })
-              setQrCodeUrl(url)
+              const url = await QRCode.toDataURL(verifyUrl, { width: 100, margin: 0 });
+              setQrCodeUrl(url);
             } catch (err) {
-              console.error("Failed to generate QR code", err)
+              console.error("Failed to generate QR code", err);
             }
           }
         }
       }
-      setLoading(false)
+      setLoading(false);
     }
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   // Unified function for both Downloading and Printing
-  const handleGenerateDocument = async (action: 'download' | 'print') => {
-    if (!certificateRef.current) return
-    setIsGenerating(true)
+  const handleGenerateDocument = async (action: "download" | "print") => {
+    if (!certificateRef.current) return;
+    setIsGenerating(true);
 
     try {
       // 1. Take a high-res screenshot of the certificate div
       const canvas = await html2canvas(certificateRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff'
-      })
+        backgroundColor: "#ffffff",
+      });
 
-      const imgData = canvas.toDataURL('image/png')
+      const imgData = canvas.toDataURL("image/png");
 
       // 2. Create an A4 Landscape PDF
-      const pdf = new jsPDF('l', 'mm', 'a4')
+      const pdf = new jsPDF("l", "mm", "a4");
 
       // 3. Smart Scaling Math
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = pdf.internal.pageSize.getHeight()
-      const canvasRatio = canvas.width / canvas.height
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const canvasRatio = canvas.width / canvas.height;
 
-      let finalWidth = pdfWidth
-      let finalHeight = pdfWidth / canvasRatio
+      let finalWidth = pdfWidth;
+      let finalHeight = pdfWidth / canvasRatio;
 
       if (finalHeight > pdfHeight) {
-        finalHeight = pdfHeight
-        finalWidth = pdfHeight * canvasRatio
+        finalHeight = pdfHeight;
+        finalWidth = pdfHeight * canvasRatio;
       }
 
-      const xOffset = (pdfWidth - finalWidth) / 2
-      const yOffset = (pdfHeight - finalHeight) / 2
+      const xOffset = (pdfWidth - finalWidth) / 2;
+      const yOffset = (pdfHeight - finalHeight) / 2;
 
       // 4. Inject image
-      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight)
+      pdf.addImage(imgData, "PNG", xOffset, yOffset, finalWidth, finalHeight);
 
       // 5. Handle Action (Download vs Print)
-      if (action === 'download') {
-        pdf.save(`Clearance_Certificate_${profile?.user_code || 'NITER'}.pdf`)
-      } else if (action === 'print') {
-        pdf.autoPrint()
-        window.open(pdf.output('bloburl'), '_blank')
+      if (action === "download") {
+        pdf.save(`Clearance_Certificate_${profile?.user_code || "NITER"}.pdf`);
+      } else if (action === "print") {
+        pdf.autoPrint();
+        window.open(pdf.output("bloburl"), "_blank");
       }
-
-    } catch (error: any) {
-      console.error("Error generating document:", error)
-      alert(`Generation Failed: ${error.message || "Check the console for details."}`)
+    } catch (err) {
+      console.error("Error generating document:", err);
+      const message = err instanceof Error ? err.message : "Check the console for details.";
+      alert(`Generation Failed: ${message}`);
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   if (loading) {
-    return <div className="p-8 text-center text-[#64748b]">Loading your certificate...</div>
+    return <div className="p-8 text-center text-[#64748b]">Loading your certificate...</div>;
   }
 
   if (!profile) {
-    return <div className="p-8 text-center text-red-500">Error loading profile data.</div>
+    return <div className="p-8 text-center text-red-500">Error loading profile data.</div>;
   }
 
-  const isCleared = application?.status === 'cleared'
+  const isCleared = application?.status === "cleared";
 
   return (
     <div className="container mx-auto p-4 sm:p-6 flex flex-col items-center">
-      
       {/* Action Header */}
       <div className="flex flex-col sm:flex-row w-full max-w-[1000px] justify-between items-center mb-6 gap-4 print:hidden">
         <h1 className="text-3xl font-bold">Clearance Certificate</h1>
-        
+
         <div className="flex gap-3 w-full sm:w-auto">
-          <Button 
-            onClick={() => handleGenerateDocument('print')} 
-            disabled={!isCleared || isGenerating} 
+          <Button
+            onClick={() => handleGenerateDocument("print")}
+            disabled={!isCleared || isGenerating}
             variant="outline"
             className="flex-1 sm:flex-none"
           >
-            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Printer className="mr-2 h-4 w-4" />}
+            {isGenerating ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Printer className="mr-2 h-4 w-4" />
+            )}
             Print Certificate
           </Button>
 
-          <Button 
-            onClick={() => handleGenerateDocument('download')} 
-            disabled={!isCleared || isGenerating} 
+          <Button
+            onClick={() => handleGenerateDocument("download")}
+            disabled={!isCleared || isGenerating}
             variant="default"
             className="flex-1 sm:flex-none"
           >
             {isGenerating ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
+              </>
             ) : (
-              <><Download className="mr-2 h-4 w-4" /> Download PDF</>
+              <>
+                <Download className="mr-2 h-4 w-4" /> Download PDF
+              </>
             )}
           </Button>
         </div>
@@ -172,17 +199,18 @@ function CertificatePage() {
 
       {/* Horizontal Scroll Wrapper for Mobile Viewports */}
       <div className="w-full max-w-full overflow-x-auto pb-6 flex justify-start lg:justify-center">
-        <div 
-          ref={certificateRef} 
+        <div
+          ref={certificateRef}
           className="w-[950px] min-w-[950px] aspect-[1.414] bg-[#ffffff] p-8 flex flex-col shadow-md rounded-lg border border-slate-100"
         >
           <div className="border-[6px] border-double border-[#cbd5e1] rounded-2xl p-10 flex-1 flex flex-col justify-between bg-[#ffffff]">
-            
             <div className="text-center space-y-2 mt-2">
               <h2 className="text-3xl font-serif font-bold uppercase tracking-wider text-[#0f172a]">
                 National Institute of Textile Engineering and Research
               </h2>
-              <p className="text-[#64748b] uppercase tracking-widest text-sm">Nayarhat, Savar, Dhaka</p>
+              <p className="text-[#64748b] uppercase tracking-widest text-sm">
+                Nayarhat, Savar, Dhaka
+              </p>
             </div>
 
             <div className="text-center">
@@ -192,31 +220,32 @@ function CertificatePage() {
             </div>
 
             <div className="text-lg leading-loose text-[#1e293b] text-center max-w-3xl mx-auto font-serif">
-              This is to certify that 
+              This is to certify that
               <span className="relative inline-block font-bold px-2 mx-1 pb-1">
                 {profile.full_name}
                 <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
-              </span>, 
-              Student ID 
+              </span>
+              , Student ID
               <span className="relative inline-block font-bold px-2 mx-1 pb-1">
                 {profile.user_code}
                 <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
-              </span> of the 
+              </span>{" "}
+              of the
               <span className="relative inline-block font-bold px-2 mx-1 pb-1">
                 {profile.program}
                 <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
-              </span> department, 
-              Academic year 
+              </span>{" "}
+              department, Academic year
               <span className="relative inline-block font-bold px-2 mx-1 pb-1">
                 {profile.batch}
                 <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#94a3b8]"></span>
-              </span>, 
-              has successfully completed all necessary departmental and administrative clearance procedures.
+              </span>
+              , has successfully completed all necessary departmental and administrative clearance
+              procedures.
             </div>
 
             {/* Signature & Verification Area */}
             <div className="flex justify-between items-end px-8 mb-2">
-              
               {/* Left Area: QR Code & Date */}
               <div className="flex flex-col items-center justify-end">
                 {isCleared && qrCodeUrl ? (
@@ -227,26 +256,34 @@ function CertificatePage() {
                   </div>
                 )}
                 <div className="text-center">
-                  <p className="text-[11px] font-semibold text-[#334155] uppercase tracking-wider">Date Issued</p>
+                  <p className="text-[11px] font-semibold text-[#334155] uppercase tracking-wider">
+                    Date Issued
+                  </p>
                   <p className="text-xs font-medium text-[#0f172a] mt-0.5">
-                    {isCleared ? new Date().toLocaleDateString('en-GB') : 'N/A'}
+                    {isCleared ? new Date().toLocaleDateString("en-GB") : "N/A"}
                   </p>
                   {certId && (
                     <>
-                      <p className="text-[11px] font-semibold text-[#334155] uppercase tracking-wider mt-2">Certificate ID</p>
-                      <p className="text-xs font-bold font-mono text-[#0f172a] mt-0.5 tracking-wide">{formatCertificateId(certId)}</p>
-                      <p className="text-[8px] font-mono text-[#94a3b8] mt-0.5 break-all">{certId}</p>
+                      <p className="text-[11px] font-semibold text-[#334155] uppercase tracking-wider mt-2">
+                        Certificate ID
+                      </p>
+                      <p className="text-xs font-bold font-mono text-[#0f172a] mt-0.5 tracking-wide">
+                        {formatCertificateId(certId)}
+                      </p>
+                      <p className="text-[8px] font-mono text-[#94a3b8] mt-0.5 break-all">
+                        {certId}
+                      </p>
                     </>
                   )}
                 </div>
               </div>
-              
+
               {/* Right Area: Administration Signature */}
               <div className="text-center flex flex-col items-center justify-end">
                 {isCleared ? (
-                  <img 
-                    src={signatureUrl} 
-                    alt="Administration Signature" 
+                  <img
+                    src={signatureUrl}
+                    alt="Administration Signature"
                     className="h-16 object-contain mb-2 opacity-80"
                   />
                 ) : (
@@ -255,14 +292,35 @@ function CertificatePage() {
                   </div>
                 )}
                 <div className="border-t-[1.5px] border-[#1e293b] w-48 mb-1 mx-auto"></div>
-                <p className="text-xs font-bold text-[#1e293b] uppercase tracking-wider">Registrar</p>
+                <p className="text-xs font-bold text-[#1e293b] uppercase tracking-wider">
+                  Registrar
+                </p>
                 <p className="text-[10px] text-[#64748b] tracking-widest mt-0.5">NITER</p>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
-  )
+  );
+}
+
+interface Profile {
+  id: string;
+  full_name: string;
+  user_code: string;
+  program: string | null;
+  batch: string | null;
+  // add other fields as needed
+}
+
+interface Application {
+  id: string;
+  student_id: string;
+  status: string;
+  thesis_title: string | null;
+  supervisor_name: string | null;
+  expected_graduation: string | null;
+  submitted_at: string;
+  cleared_at: string | null;
 }

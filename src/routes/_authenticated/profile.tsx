@@ -25,9 +25,7 @@ function ProfilePage() {
         .select("departments(name)")
         .eq("user_id", user!.id);
       if (error) throw error;
-      return (data ?? [])
-        .map((row) => row.departments?.name)
-        .filter(Boolean) as string[];
+      return (data ?? []).map((row) => row.departments?.name).filter(Boolean) as string[];
     },
   });
 
@@ -53,7 +51,9 @@ function ProfilePage() {
                 {profile.full_name || "Not provided"}
               </div>
               <div>
-                <span className="font-semibold">{isOffice || isAdmin ? "Office ID: " : "Student ID: "}</span>
+                <span className="font-semibold">
+                  {isOffice || isAdmin ? "Office ID: " : "Student ID: "}
+                </span>
                 {profile.user_code || "Not provided"}
               </div>
               <div>

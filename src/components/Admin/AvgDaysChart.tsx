@@ -1,4 +1,13 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 interface DepartmentStat {
   department: string;
@@ -43,7 +52,12 @@ export function AvgDaysChart({ deptStats, loading }: AvgDaysChartProps) {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="avgDaysToApprove" fill="#3b82f6" name="Avg Days to Approve" radius={[4, 4, 0, 0]} />
+          <Bar
+            dataKey="avgDaysToApprove"
+            fill="#3b82f6"
+            name="Avg Days to Approve"
+            radius={[4, 4, 0, 0]}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
