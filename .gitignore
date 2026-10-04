@@ -38,3 +38,6 @@ supabase/.temp/
 .vercel
 .env*
 !.env.example
+
+# /brag skill output
+brag-output/
