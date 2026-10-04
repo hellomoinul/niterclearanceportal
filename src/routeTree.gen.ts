@@ -24,6 +24,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedQueueRouteImport } from './routes/_authenticated/queue'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as VerifyIndexRouteImport } from './routes/verify.index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
@@ -112,6 +113,11 @@ const AuthenticatedQueueRoute = AuthenticatedQueueRouteImport.update({
   path: '/queue',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const VerifyIndexRoute = VerifyIndexRouteImport.update({
   id: '/verify/',
   path: '/verify/',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/queue': typeof AuthenticatedQueueRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/verify/': typeof VerifyIndexRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/queue': typeof AuthenticatedQueueRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/verify': typeof VerifyIndexRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -252,6 +260,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/queue': typeof AuthenticatedQueueRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/verify/': typeof VerifyIndexRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/queue'
+    | '/settings'
     | '/verify/$code'
     | '/verify/'
     | '/admin/audit'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/queue'
+    | '/settings'
     | '/verify/$code'
     | '/verify'
     | '/admin/audit'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
     | '/_authenticated/queue'
+    | '/_authenticated/settings'
     | '/verify/$code'
     | '/verify/'
     | '/_authenticated/admin/audit'
@@ -473,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedQueueRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/verify/': {
       id: '/verify/'
       path: '/verify'
@@ -597,6 +616,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQueueRoute: typeof AuthenticatedQueueRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSectionCodeRoute: typeof AuthenticatedSectionCodeRoute
 }
 
@@ -607,6 +627,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQueueRoute: AuthenticatedQueueRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSectionCodeRoute: AuthenticatedSectionCodeRoute,
 }
 

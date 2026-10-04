@@ -275,13 +275,11 @@ export function PortalHeader() {
                       <User className="size-4" /> Profile
                     </Link>
                   </DropdownMenuItem>
-                  {isAdmin ? (
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/settings" className="cursor-pointer">
-                        <Settings className="size-4" /> System Settings
-                      </Link>
-                    </DropdownMenuItem>
-                  ) : null}
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings" className="cursor-pointer">
+                      <Settings className="size-4" /> Settings
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleSignOut}
@@ -333,16 +331,14 @@ export function PortalHeader() {
                 <User className="size-4" />
                 {profile?.user_code ?? "Profile"}
               </Link>
-              {isAdmin ? (
-                <Link
-                  to="/admin/settings"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-                >
-                  <Settings className="size-4" />
-                  System Settings
-                </Link>
-              ) : null}
+              <Link
+                to="/settings"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                <Settings className="size-4" />
+                Settings
+              </Link>
               <button
                 onClick={() => {
                   setOpen(false);
