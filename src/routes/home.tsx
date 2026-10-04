@@ -144,7 +144,11 @@ function HomePage() {
         </div>
 
         <div className="card-surface p-6">
-          <h2 className="text-lg font-semibold">Latest notices</h2>
+          <h2 className="text-lg font-semibold">
+            <span className="hero-surface notice-blink inline-block rounded-md px-2.5 py-1 shadow-sm">
+              Latest notices
+            </span>
+          </h2>
           {visibleNotices.length === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">No notices published yet.</p>
           ) : (
