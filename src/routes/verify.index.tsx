@@ -33,9 +33,9 @@ function VerifyPage() {
     const params = new URLSearchParams(window.location.search);
     const queryCode = params.get("id") || params.get("code");
     if (queryCode) {
-      setCode(queryCode.trim());
+      navigate({ to: "/verify/$code", params: { code: queryCode.trim() } });
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="max-w-2xl">

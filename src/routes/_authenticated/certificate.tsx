@@ -75,7 +75,7 @@ function CertificatePage() {
           if (certData?.id) {
             setCertId(certData.id);
             const formattedCode = formatCertificateId(certData.id);
-            const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(formattedCode)}`;
+            const verifyUrl = `${window.location.origin}/verify/${encodeURIComponent(formattedCode)}`;
 
             const resolvedSignature = await resolveSignatureUrl(certData.signature_id);
             if (resolvedSignature) setSignatureUrl(resolvedSignature);
