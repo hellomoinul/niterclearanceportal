@@ -155,7 +155,7 @@ function CertificatePage() {
     return <div className="p-8 text-center text-red-500">Error loading profile data.</div>;
   }
 
-  const isCleared = application?.status === "cleared";
+  const isCleared = application?.status?.trim().toLowerCase() === "cleared";
 
   return (
     <div className="container mx-auto p-4 sm:p-6 flex flex-col items-center">
