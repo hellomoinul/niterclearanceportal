@@ -78,7 +78,7 @@ function ApplyPage() {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <PageHeader
         title="Clearance application"
         description="Confirm your details below. Once submitted, each office reviews your clearance in order — starting with the first office on the list."

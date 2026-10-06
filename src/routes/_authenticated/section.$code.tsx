@@ -197,7 +197,7 @@ function SectionPage() {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">Loading section…</p>
       ) : !review ? (

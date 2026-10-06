@@ -22,7 +22,7 @@ export const Route = createFileRoute("/about")({
 
 function AboutPage() {
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl mx-auto">
       <PageHeader title="About NITER clearance" />
 
       <div className="card-surface mt-8 p-6">

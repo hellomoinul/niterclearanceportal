@@ -38,7 +38,7 @@ function VerifyPage() {
   }, []);
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl mx-auto">
       <PageHeader
         title="Certificate verification"
         description="Enter the certificate ID printed on the clearance certificate (e.g. NCP-A83C2B1F), or scan its QR code."

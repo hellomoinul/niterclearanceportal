@@ -116,7 +116,7 @@ function NotificationsPage() {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <PageHeader
         title="Notifications"
         description="Every clearance decision and remark sent to your account."

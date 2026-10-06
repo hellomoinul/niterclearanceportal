@@ -184,7 +184,7 @@ function AdminCalendarPage() {
   });
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl mx-auto">
       <PageHeader
         title="Academic Calendar"
         description="Manage institute events, exam schedules, deadlines, and holidays."

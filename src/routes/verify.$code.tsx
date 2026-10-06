@@ -89,7 +89,7 @@ function VerifyResult() {
   const verified = result?.verified === true;
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl mx-auto">
       <PageHeader
         title="Certificate verification"
         description={`Checking certificate ID: ${code}`}

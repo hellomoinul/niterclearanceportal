@@ -101,7 +101,7 @@ function CalendarPage() {
   const groups = groupByMonth(events ?? []);
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <PageHeader
         title="Academic calendar"
         description="Key dates for the final-year clearance cycle."

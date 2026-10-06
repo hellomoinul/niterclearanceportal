@@ -30,7 +30,7 @@ function ProfilePage() {
   });
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <PageHeader
         title="My Profile"
         back={{

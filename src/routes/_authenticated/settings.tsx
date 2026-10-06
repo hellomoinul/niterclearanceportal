@@ -115,7 +115,7 @@ function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <PageHeader
         title="Settings"
         description="Manage your profile details."
