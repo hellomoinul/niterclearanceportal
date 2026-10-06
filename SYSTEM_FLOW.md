@@ -1,6 +1,6 @@
 # NITER Clearance Portal — Complete System Flow
 
-> For presentations, viva voce, and team reference. Last updated: 2 Oct 2026.
+> For presentations, viva voce, and team reference. Last updated: 6 Oct 2026.
 
 ---
 
@@ -80,16 +80,18 @@ Everyone gets: 🔔 Notifications bell, ⚙️ Settings, their ID (→ Profile),
 
 8. **Certificate unlock:** when the **Administration** (final) approval lands, a trigger marks the
    application `cleared` and the certificate is issued. The Certificate page shows a formal A4
-   certificate with **PDF download**, a **QR code linking to `/verify/<certificate-id>`**, and the
-   **registrar's signature**. The registrar uploads that signature once in
+   certificate with **PDF download**, a **QR code linking to `/verify/<certificate-id>`** (path
+   parameter), and the **registrar's signature**. The registrar uploads that signature once in
    **`/admin/settings` → Signature**; it is stored in `settings.registrar_signature_path` and every
    issued certificate renders a **frozen snapshot** of it in `certificate_signatures`, so later
    re-uploads never alter already-issued certificates. The certificate shows a friendly short ID —
    **`NCP-A83C2B1F`** (the first 8 hex digits of the certificate UUID) with the full UUID beneath it.
 
 9. Anyone — even logged-out visitors — can enter the certificate ID (or scan the QR) in **Verify**
-   and see the authentic certificate record straight from the DB. The verifier accepts the full
-   UUID, the `NCP-` code, or the bare 8 hex digits, all resolved via `resolve_certificate_id`.
+   and see the authentic certificate record straight from the DB. The Verify entry page
+   (`/verify`) accepts `?id=` or `?code=` query params and redirects to `/verify/<code>`; the
+   result page (`/verify/<code>`) resolves via `resolve_certificate_id` + `verify_clearance_status`
+   RPCs. The verifier accepts the full UUID, the `NCP-` code, or the bare 8 hex digits.
 
 ---
 
@@ -97,10 +99,11 @@ Everyone gets: 🔔 Notifications bell, ⚙️ Settings, their ID (→ Profile),
 
 An **Office** account is a **role**, an office employee bound to **exactly one office** via `office_departments`. After login they land straight on **My office** — the queue showing only students whose review belongs to *their* bound office:
 
-- **Two tabs:** Pending / Rejected (with counts).
+- **Three tabs:** Pending / **Approved** / Rejected (with counts on each).
 - Each card: student name + ID + program/academic year + **which office** + proof documents (openable) + status badge.
-- Actions per card: **Approve** (one click) or **Reject** (remark mandatory — enforced client-side **and** by RLS).
-- **Bulk approve:** checkboxes + Select-all + bottom action bar.
+- **Search:** filter by student name or ID (case-insensitive).
+- Actions per card: **Approve** (one click) or **Reject** (remark mandatory — enforced client-side **and** by RLS). **Approved and Rejected tabs are read-only** (no action buttons).
+- **Bulk approve:** checkboxes + Select-all + bottom action bar (Pending tab only).
 - Effects ripple automatically: documents get stamped with reviewer name/time, the student gets an in-app notification, everything is written to the `audit_log`.
 
 The final certificate step belongs to the **Administration** office. Its office staff (or the admin) sees the final Administration review in queue once offices 1–9 have approved, and issues the certificate with a single approval. There is no separate office "Final Queue" page for certificate issuance anymore — final sign-off is the Administration office's step in the same ordered queue.
@@ -195,7 +198,7 @@ verified live at the API/DB level. Live E2E (M-v2.7) and the RLS negative matrix
 | Office logins / role bindings | ✅ Verified live (E2E — fresh office account bound via `office_departments`) |
 | Student apply + dashboard (sequential) | ✅ Built + E2E-verified |
 | Section upload + N/A (per active step) | ✅ Built; upload lock + N/A limits verified |
-| Per-office queue + filter/search | ✅ Built |
+| Per-office queue + filter/search | ✅ Built (Approved tab + student search added) |
 | Admin dashboard (Needs Attention) + N/A table | ✅ Built (S-v3.2) |
 | Admin override + N/A revert | ✅ Built |
 | Admin UI (calendar, settings/signatures, notices, audit, reports, workflow) | ✅ Built (round 2 + round 3: S-v3.5–S-v3.10) |
@@ -206,6 +209,10 @@ verified live at the API/DB level. Live E2E (M-v2.7) and the RLS negative matrix
 | Secret hygiene | ✅ No secret values in built bundles (169 files grepped) |
 | Email pipeline | ✅ Wired (DB webhook → Edge Function); delivery scope limited to monitoring mailbox |
 | Escalations page | ✅ Built (S-v3.4) |
+| Home page layout | ✅ Latest notices above Offices (stacked mobile, side-by-side desktop) |
+| Certificate QR/verify | ✅ Path-param routing (`/verify/<code>`), query-param fallback |
+| Desktop centering | ✅ All constrained pages centered (`mx-auto`) |
+| Navbar Sign in | ✅ Hidden on `/auth` page |
 
 **Other known gaps:**
 - **Email delivery scope** — the pipeline is wired (see Section 7), but outbound mail is pointed at

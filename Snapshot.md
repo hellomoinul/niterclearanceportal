@@ -1,6 +1,6 @@
 # 📋 NITER Clearance Portal — Snapshot
 
-> **Last updated:** 2026-10-03 · **Phase:** v2 live + round-3 complete (M-v3.1–M-v3.5, F-v3.1–F-v3.2, S-v3.1–S-v3.10) · **Progress:** 100%
+> **Last updated:** 2026-10-06 · **Phase:** v2 live + round-3 complete + post-round-3 fixes (M-v3.1–M-v3.5, F-v3.1–F-v3.2, S-v3.1–S-v3.10, F-v4.1–F-v4.3, S-v3.11) · **Progress:** 100%
 
 ---
 
@@ -483,6 +483,23 @@ Older migrations stay as historical record — never edit applied migrations.
 - **Data hygiene:** leftover RLS-test users cleaned → **0 test users/apps/reviews** on live.
 - `REVIEW_RESPONSE_v2.md` updated: §0/4b/4d/4e/`workflow_steps` all **RESOLVED with evidence**;
   only item 2 (registrar confirmation) + email remain.
+
+### 2026-10-06 — Post-round-3 polish & fixes (F-v4.1–F-v4.3, S-v3.11)
+- **Certificate 404 fixed** — added missing TanStack Router route export to `certificate.tsx`; cleaned
+  UTF-16 null-byte corruption; case-insensitive `status === "cleared"` check with trim.
+- **QR/verify routing corrected** — QR codes now link to `/verify/<code>` (path param) in both
+  `certificate.tsx` and `dashboard.tsx`; verify page accepts `?id=`/` ?code=` query params and
+  redirects to `/verify/$code`; `$code` page resolves via `resolve_certificate_id` + `verify_clearance_status`.
+- **Home page reorder** — "Latest notices" now above "Offices in the clearance workflow"; stacked
+  on mobile, side-by-side on desktop (`md:grid-cols-2`).
+- **Queue page enhancements** — added **Approved tab** (read-only), student search by name/ID
+  (case-insensitive), Pending/Approved/Rejected tab counts, empty states per tab.
+- **Desktop centering** — added `mx-auto` to constrained containers on verify, guide, calendar,
+  notifications, profile, settings, about, apply, section, home, admin calendar; grid centering
+  (`justify-items-center`) on home steps + dashboard reviews.
+- **Navbar Sign in button** — hidden on `/auth` page to avoid duplicate with sign-in card
+  (`location.pathname !== "/auth"` conditional).
+- Build passes, all changes committed and pushed to `main` (GitHub synced).
 
 ### 2026-09-07 — Review-response groundwork (working tree)
 - Registrar→office rename migration `20260907000000`; thesis/supervisor/graduation dropped
