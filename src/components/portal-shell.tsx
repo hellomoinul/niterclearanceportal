@@ -173,6 +173,7 @@ export function PortalHeader() {
   const { session, profile, isOffice, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
 
   const { data: unreadCount = 0 } = useQuery({
