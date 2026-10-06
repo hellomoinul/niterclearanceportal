@@ -290,11 +290,11 @@ export function PortalHeader() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
-          ) : (
+          ) : location.pathname !== "/auth" ? (
             <Button asChild size="sm">
               <Link to="/auth">Sign in</Link>
             </Button>
-          )}
+          ) : null}
           <Button
             variant="ghost"
             size="icon"
