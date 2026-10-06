@@ -75,7 +75,7 @@ function CertificatePage() {
           if (certData?.id) {
             setCertId(certData.id);
             const formattedCode = formatCertificateId(certData.id);
-            const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(formattedCode)}`;
+            const verifyUrl = `${window.location.origin}/verify/${encodeURIComponent(formattedCode)}`;
 
             const resolvedSignature = await resolveSignatureUrl(certData.signature_id);
             if (resolvedSignature) setSignatureUrl(resolvedSignature);
@@ -324,3 +324,10 @@ interface Application {
   submitted_at: string;
   cleared_at: string | null;
 }
+
+
+export const Route = createFileRoute("/_authenticated/certificate")({
+  ssr: false,
+  component: CertificatePage,
+});
+

@@ -5,16 +5,13 @@
 <h1 align="center">NITER Clearance Portal</h1>
 
 <p align="center">
-  A digital clearance management system for final-year students at<br/>
-  <strong>National Institute of Textile Engineering and Research</strong>
+  A digital clearance management system for final-year students at the<br/>
+  <strong>National Institute of Textile Engineering and Research (NITER)</strong>
 </p>
 
 <p align="center">
   <a href="https://niterclearanceportal.vercel.app">
     <img src="https://img.shields.io/badge/LIVE-Portal-4e65ff" alt="Live Portal" />
-  </a>
-  <a href="https://github.com/hellomoinul/niterclearanceportal/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/hellomoinul/niterclearanceportal/doc-sync.yml?label=doc-sync" alt="Doc Sync" />
   </a>
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" alt="React 19" />
   <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss" alt="Tailwind 4" />
@@ -24,27 +21,26 @@
 
 ---
 
-## What it does
+## Overview
 
-Students apply once. The ten clearance sections are reviewed **in strict order**, mirroring the
-physical Student Clearance Form — the next office only opens once the previous one approves.
-When the **Administration** section (the final sign-off) approves, a **QR-verifiable clearance
-certificate** is generated instantly.
+Final-year students at NITER have traditionally obtained clearance by visiting each
+administrative office in person, collecting a signature on a physical form before their degree
+can be processed. This portal digitizes that process: a student submits one application, and
+the ten clearance sections are reviewed in strict sequential order — mirroring the institute's
+physical Student Clearance Form — with each office unlocking only once the previous one has
+approved. Once the final section, Administration, signs off, a QR-verifiable digital
+certificate is issued automatically.
 
 ```
-Student applies → Office 1 (Lab) … walks the 10-step sequence in order …
-                  Each step: upload → office approves/rejects → next step opens
-                  Final step: Administration approves → Certificate auto-issued
-                          ↓                              ↓
-                    Reject with remark           QR code links to
-                    → Student re-uploads         public verification page
-                    → Escalates after 3 rejections
+Student applies → Section 1 (Laboratory) → … sequence continues in order …
+                   Each section: document upload → office review → next section unlocks
+                   Final section: Administration approves → certificate issued
 ```
 
-## The 10 clearance sections
+## Clearance sections
 
-| # | Section | Note |
-|---|---------|------|
+| # | Section | Notes |
+|---|---------|-------|
 | 1 | Laboratory | |
 | 2 | Dept. Head | |
 | 3 | Hostel Superintendent | |
@@ -54,41 +50,38 @@ Student applies → Office 1 (Lab) … walks the 10-step sequence in order …
 | 7 | Caretaker & Security Inspector | |
 | 8 | Exam Section | |
 | 9 | Accounts Section | |
-| 10 | Administration | **final sign-off → issues certificate** |
+| 10 | Administration | Final sign-off — issues the certificate |
 
-Each student walks the fixed **10 sections in order** — there is no per-variant routing; every
-office reviews every student's clearance. A step stays locked — *"Clearance not received from
-[office]"* — until the one before it approves. The lock is enforced in the database, not just
-hidden in the UI.
+Every student proceeds through all ten sections in the same fixed order. A section remains
+locked, displaying *"Clearance not received from [office]"*, until the preceding section has
+approved. This sequence is enforced at the database level, not only in the interface.
 
-## Features
+## Key features
 
-| Feature | Description |
-|---------|-------------|
-| **Single application** | One form starts a timed, ordered 10-step clearance |
-| **Sequential review** | Each office opens only after the previous one approves — a true mirror of the paper form |
-| **Backend lock** | Uploads to a locked office are rejected at the database level, not just hidden |
-| **Real-time tracking** | Students see locked / active / approved / not-applicable per step |
-| **Automatic certificate** | Generated the moment Administration approves — scannable QR code + typeable ID (`NCP-XXXXXXXX`); carries the registrar's **uploaded signature** |
-| **Academic calendar** | Public calendar page fed by a live `calendar_events` table — admins add/edit/delete events (exams, holidays, deadlines) |
-| **Escalation** | Three rejected re-uploads auto-escalate to Administration |
-| **Audit trail** | Every decision stored with the reviewing officer's identity and timestamp |
-| **Email notifications** | Admins, reviewers, and students notified at each step |
-| **Role-based portals** | Dedicated dashboards for students, office staff, and admins |
-| **Bulk actions** | Reviewers can approve multiple pending requests at once |
-| **N/A declarations** | Students flag the *active* office as not applicable (e.g. Hostel for a day-scholar); admin audit table catches false claims |
-| **Public verification** | Anyone can verify a certificate via QR code or the certificate ID (`NCP-XXXXXXXX`) — no login required |
+- **Single application** — one form initiates the full ten-step clearance process
+- **Sequential review** — each office opens only after the previous one approves
+- **Database-enforced locking** — document uploads to a locked section are rejected server-side
+- **Status tracking** — students can view locked, active, approved, and not-applicable states for each section
+- **Automatic certificate issuance** — generated on final approval, with a scannable QR code, a typeable certificate ID (`NCP-XXXXXXXX`), and the registrar's uploaded signature
+- **Academic calendar** — a public calendar of institute events, deadlines, and holidays, managed by administrators
+- **Escalation handling** — a section rejected three times is automatically escalated to Administration for resolution
+- **Audit trail** — every review decision is recorded with the responsible officer's identity and timestamp
+- **Notifications** — in-app and email alerts for students, office staff, and administrators
+- **Role-based access** — separate portals for students, office staff, and administrators
+- **Bulk review actions** — office staff can act on multiple pending requests at once
+- **Not-applicable declarations** — students may flag a section as not applicable (e.g. Hostel for a day scholar), subject to administrative audit
+- **Public verification** — anyone can verify an issued certificate via QR code or certificate ID, without logging in
 
 ## Tech stack
 
 | Layer | Technology |
 |-------|------------|
-| **Framework** | [TanStack Start](https://tanstack.com/start) (React 19, SSR) + TanStack Router/Query |
-| **Styling** | [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) components |
-| **Backend** | [Supabase](https://supabase.com) (Postgres, Auth, Storage, Edge Functions) |
-| **PDF** | jsPDF + html2canvas + qrcode |
-| **Build** | Vite + Nitro (SSR output runs on Node.js) |
-| **Hosting** | [Vercel](https://vercel.com) — auto-deploys on every push to `main` |
+| Framework | [TanStack Start](https://tanstack.com/start) (React 19, SSR) with TanStack Router and Query |
+| Styling | [Tailwind CSS v4](https://tailwindcss.com) with [shadcn/ui](https://ui.shadcn.com) |
+| Backend | [Supabase](https://supabase.com) (PostgreSQL, Auth, Storage, Edge Functions) |
+| Document generation | jsPDF, html2canvas, qrcode |
+| Build | Vite with Nitro (SSR output on Node.js) |
+| Hosting | [Vercel](https://vercel.com), deployed automatically from `main` |
 
 ## Getting started
 
@@ -101,104 +94,64 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:8080**. Copy `.env.example` to `.env` and add your Supabase URL + publishable key.
+The application runs at `http://localhost:8080`. Copy `.env.example` to `.env` and provide
+your Supabase project URL and publishable key.
 
 ### Scripts
 
-| Command | What it does |
+| Command | Description |
 |---------|--------------|
-| `npm run dev` | Start dev server at localhost:8080 |
-| `npm run build` | Production build → `.output/` (Node.js server) |
+| `npm run dev` | Start the development server |
+| `npm run build` | Create a production build in `.output/` |
 | `node .output/server/index.mjs` | Run the production build locally |
 | `npm run lint` | Check code style |
-| `npm run format` | Auto-format all files |
+| `npm run format` | Format all files |
 
 ## Project structure
 
 ```
 src/
-├── routes/                          # Pages (one file = one URL)
-│   ├── index.tsx                    # Redirects to /home (landing)
-│   ├── home.tsx                     # Public home page
-│   ├── auth.tsx                     # Sign in / register
-│   ├── about.tsx                    # About page
-│   ├── calendar.tsx                 # Academic calendar (live calendar_events)
-│   ├── guide.tsx                    # Role-based guide (+ folded-in FAQ)
-│   ├── verify.index.tsx             # Public certificate verification
-│   ├── verify.$code.tsx             # Verified result page
-│   ├── forgot-password.tsx          # Password recovery
-│   ├── update-password.tsx          # Set new password from recovery link
-│   └── _authenticated/              # Requires login
-│       ├── dashboard.tsx            # Student dashboard (sequential stepper)
-│       ├── apply.tsx                # Clearance application form
-│       ├── section.$code.tsx        # Per-office section (upload docs)
-│       ├── certificate.tsx          # Certificate view + PDF download
-│       ├── profile.tsx              # Read-only profile card
-│       ├── notifications.tsx        # In-app notifications
-│       ├── queue.tsx                # Office queue (staff/admin review)
-│       └── admin/                   # Admin-only pages
-│           ├── route.tsx            # Layout guard (admin role check) + PortalShell
-│           ├── index.tsx            # Admin dashboard: stats + Needs Attention + N/A audit table
-│           ├── workflow.tsx         # Office Editor (10 office rows: order + final sign-off)
-│           ├── users.tsx            # User management
-│           ├── notices.tsx          # Notices management
-│           ├── calendar.tsx         # Admin CRUD for calendar events
-│           ├── settings.tsx         # System settings + registrar signature upload
-│           ├── audit.tsx            # Audit log viewer
-│           └── reports.tsx          # Batch reports
-├── components/
-│   ├── portal-shell.tsx             # Header + footer + nav (grouped admin sidebar)
-│   ├── status-badge.tsx             # Approval status badges
-│   └── ui/                          # shadcn/ui primitives
-├── integrations/supabase/           # Database client + types
-├── lib/
-│   ├── auth.tsx                     # Auth provider + useAuth hook
-│   ├── portal.ts                    # Shared constants + helpers
-│   └── departments.ts               # Department + academic year data
-└── supabase/
-    ├── migrations/                  # SQL schema changes
-    └── consolidated_setup.sql       # Full schema reference
+├── routes/                 # Application pages (file-based routing)
+│   ├── home.tsx, auth.tsx, about.tsx, calendar.tsx, guide.tsx, verify.*
+│   └── _authenticated/     # Pages requiring sign-in
+│       ├── dashboard.tsx, apply.tsx, section.$code.tsx, certificate.tsx
+│       ├── profile.tsx, notifications.tsx, queue.tsx
+│       └── admin/          # Administrator-only pages
+├── components/              # Shared UI components (shell, navigation, status badges)
+├── integrations/supabase/   # Database client and generated types
+├── lib/                     # Shared constants, auth context, and helpers
+└── supabase/                # Database migrations and schema reference
 ```
 
-## Roles
+## Roles and access
 
-A role is **not** an office. **Office** is the role of an office employee; the **10 offices** are the clearance sections (Laboratory … Administration). Each office staff account is bound to exactly one office via `office_departments`.
+A distinction is made between *roles* and *offices*: an office is one of the ten clearance
+sections above, while a role determines what a user can access within the system.
 
-| Role | Who | Capabilities |
-|------|-----|-------------|
-| **Student** | Final-year students | Apply for clearance, walk the 10-step sequence, upload per active office, track progress, download certificate |
-| **Office** (staff) | One account per office — bound to exactly one of the 10 offices | Review **their assigned office's** queue, approve/reject with remarks |
-| **Admin** | Administration office | Full queue visibility, user + office management, N/A audit, final sign-off |
+| Role | Description | Access |
+|------|--------------|--------|
+| **Student** | Final-year students | Submit an application, progress through the ten-step sequence, upload documents, track status, download the certificate |
+| **Office** | One account per clearance section | Review and act on their assigned section's queue only |
+| **Admin** | Administration office | Full visibility across all sections, user and workflow management, audit review, and final sign-off |
 
-Student accounts are created via self-registration. Office staff and admin accounts are provisioned separately — each Office-staff account is bound to **exactly one of the 10 office sections** (Laboratory … Administration). After sign-in, an Office staff member sees only their own office's queue; admin sees all sections and acts as the Administration (final) sign-off.
+Student accounts are created through self-registration. Office and admin accounts are
+provisioned separately; each office account is bound to exactly one of the ten clearance
+sections.
 
 ## Deployment
 
-The site auto-deploys to Vercel on every push to `main`:
+The application deploys automatically to Vercel on every push to `main`:
 
 **https://niterclearanceportal.vercel.app**
 
-Database migrations are applied via the Supabase CLI (`npx supabase db query --linked`) or the Supabase dashboard.
+Database migrations are applied via the Supabase CLI or the Supabase dashboard.
 
-## Team workflow
+## Contributing
 
-1. **Never push directly to `main`.** Work on personal branches.
-2. Read [`Snapshot.md`](Snapshot.md) for ownership, task specs, and current status.
-3. Daily loop:
-
-   ```sh
-   git switch main && git pull
-   git switch -c <your-name>/<task>
-   # ...code...
-   npx tsc --noEmit && npx vite build    # verify before pushing
-   git add . && git commit -m "short message"
-   git push -u origin <branch>
-   ```
-
-4. Open a Pull Request → Moinul reviews and merges.
-5. Update your checklist + log progress in [`Snapshot.md`](Snapshot.md) in the same PR.
-6. Stuck more than 30 minutes? Post in the group chat.
+Contributions follow a standard branch-and-pull-request workflow: create a feature branch from
+`main`, verify the build locally (`npx tsc --noEmit && npx vite build`), and open a pull
+request for review before merging. See `CONTRIBUTING.md` for detailed guidelines.
 
 ## License
 
-This project is built for NITER (National Institute of Textile Engineering and Research). All rights reserved.
+© National Institute of Textile Engineering and Research (NITER). All rights reserved.

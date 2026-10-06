@@ -88,7 +88,7 @@ function DashboardPage() {
   useEffect(() => {
     if (!certificate?.id) return;
     const formattedCode = formatCertificateId(certificate.id);
-    const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(formattedCode)}`;
+    const verifyUrl = `${window.location.origin}/verify/${encodeURIComponent(formattedCode)}`;
     QRCode.toDataURL(verifyUrl, { width: 100, margin: 0 })
       .then(setQrCodeUrl)
       .catch((err) => console.error("Failed to generate QR code", err));
@@ -232,7 +232,7 @@ function DashboardPage() {
             <Progress value={percent} className="mt-4" />
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 justify-items-center">
             {(reviews ?? []).map((review) => (
               <Link
                 key={review.id}

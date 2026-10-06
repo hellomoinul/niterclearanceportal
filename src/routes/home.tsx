@@ -120,7 +120,7 @@ function HomePage() {
         </h1>
       </section>
 
-      <section className="mt-10 grid gap-4 sm:grid-cols-3">
+      <section className="mt-10 grid gap-4 sm:grid-cols-3 justify-items-center">
         {steps.map((step) => (
           <div key={step.title} className="card-surface p-5">
             <step.icon className="size-5 text-primary" aria-hidden />
@@ -130,19 +130,7 @@ function HomePage() {
         ))}
       </section>
 
-      <section className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="card-surface p-6">
-          <h2 className="text-lg font-semibold">Offices in the clearance workflow</h2>
-          <ul className="mt-4 divide-y divide-border">
-            {(departments ?? []).map((dept) => (
-              <li key={dept.id} className="py-3">
-                <p className="text-sm font-semibold">{dept.name}</p>
-                <p className="text-sm text-muted-foreground">{dept.requirement}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-
+      <section className="mt-10 space-y-6">
         <div className="card-surface p-6">
           <h2 className="text-lg font-semibold">
             <span className="hero-surface notice-blink inline-block rounded-md px-2.5 py-1 shadow-sm">
@@ -164,6 +152,18 @@ function HomePage() {
               ))}
             </ul>
           )}
+        </div>
+
+        <div className="card-surface p-6">
+          <h2 className="text-lg font-semibold">Offices in the clearance workflow</h2>
+          <ul className="mt-4 divide-y divide-border">
+            {(departments ?? []).map((dept) => (
+              <li key={dept.id} className="py-3">
+                <p className="text-sm font-semibold">{dept.name}</p>
+                <p className="text-sm text-muted-foreground">{dept.requirement}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </div>

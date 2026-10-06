@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,8 @@ export const Route = createFileRoute("/_authenticated/queue")({
 });
 
 type ReviewStatus = "pending" | "approved" | "rejected";
+
+type QueueTab = "pending" | "approved" | "rejected";
 
 interface QueueDocument {
   id: string;
@@ -81,7 +84,8 @@ function QueuePage() {
   const { user, isOffice, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<"pending" | "rejected">("pending");
+  const [tab, setTab] = useState<QueueTab>("pending");
+  const [search, setSearch] = useState("");
   const [deptCode, setDeptCode] = useState<string>("all");
   const [remarks, setRemarks] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -152,7 +156,7 @@ function QueuePage() {
         .select(
           "*, departments(code, name, is_final_signoff), clearance_applications(id, student_id)",
         )
-        .in("status", ["pending", "rejected"])
+        .in("status", ["pending", "approved", "rejected"])
         .in("department_id", scopedDeptIds);
       if (error) throw error;
 
@@ -230,9 +234,11 @@ function QueuePage() {
       const matchesTab =
         r.status === "pending"
           ? tab === "pending"
-          : r.status === "rejected"
-            ? tab === "rejected"
-            : false;
+          : r.status === "approved"
+            ? tab === "approved"
+            : r.status === "rejected"
+              ? tab === "rejected"
+              : false;
       if (!matchesTab) return false;
       // Final sign-off (Administration) reviews show only once triggered (prior offices approved);
       // they never have documents, so exempt them from the zero-document rule.
@@ -243,12 +249,24 @@ function QueuePage() {
       if (r.status === "pending" && (docsByReview[r.id] ?? []).length === 0) return false;
       return true;
     });
-    return list.sort((a, b) =>
+
+    // Apply search filter
+    const filtered = search
+      ? list.filter((r) => {
+          const student = r.clearance_applications?.profiles;
+          const name = (student?.full_name ?? "").toLowerCase();
+          const id = (student?.user_code ?? "").toLowerCase();
+          const query = search.toLowerCase();
+          return name.includes(query) || id.includes(query);
+        })
+      : list;
+
+    return filtered.sort((a, b) =>
       (a.clearance_applications?.profiles?.user_code ?? "").localeCompare(
         b.clearance_applications?.profiles?.user_code ?? "",
       ),
     );
-  }, [reviews, tab, docsByReview]);
+  }, [reviews, tab, docsByReview, search]);
 
   async function openDocument(path: string) {
     const { data, error } = await supabase.storage.from(DOCS_BUCKET).createSignedUrl(path, 300);
@@ -409,6 +427,7 @@ function QueuePage() {
   const pendingCount = (reviews ?? []).filter(
     (r) => r.status === "pending" && (docsByReview[r.id] ?? []).length > 0,
   ).length;
+  const approvedCount = (reviews ?? []).filter((r) => r.status === "approved").length;
   const rejectedCount = (reviews ?? []).filter((r) => r.status === "rejected").length;
 
   return (
@@ -422,19 +441,26 @@ function QueuePage() {
       <Tabs
         value={tab}
         onValueChange={(v) => {
-          setTab(v as typeof tab);
+          setTab(v as QueueTab);
           setSelectedIds(new Set());
         }}
         className="mt-6"
       >
         <TabsList>
           <TabsTrigger value="pending">Pending ({pendingCount})</TabsTrigger>
+          <TabsTrigger value="approved">Approved ({approvedCount})</TabsTrigger>
           <TabsTrigger value="rejected">Rejected ({rejectedCount})</TabsTrigger>
         </TabsList>
       </Tabs>
 
-      {isAdmin && (
-        <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex flex-wrap gap-4 items-center">
+        <Input
+          placeholder="Search by student name or ID..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-72"
+        />
+        {isAdmin && (
           <Select value={deptCode} onValueChange={setDeptCode}>
             <SelectTrigger className="w-56">
               <SelectValue placeholder="Office" />
@@ -448,8 +474,8 @@ function QueuePage() {
               ))}
             </SelectContent>
           </Select>
-        </div>
-      )}
+        )}
+      </div>
 
       {isLoading ? (
         <p className="mt-8 text-sm text-muted-foreground">Loading requests…</p>
@@ -457,12 +483,18 @@ function QueuePage() {
         <div className="card-surface mt-6 p-8 text-center">
           <Inbox className="mx-auto size-7 text-primary" aria-hidden />
           <h2 className="mt-3 text-lg font-semibold">
-            {tab === "pending" ? "Nothing awaiting review" : "No rejections outstanding"}
+            {tab === "pending"
+              ? "Nothing awaiting review"
+              : tab === "approved"
+                ? "No approved requests"
+                : "No rejections outstanding"}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
             {tab === "pending"
               ? "New clearance requests for your office will appear here."
-              : "Students you rejected will reappear here while they prepare their fixes."}
+              : tab === "approved"
+                ? "Approved requests will appear here."
+                : "Students you rejected will reappear here while they prepare their fixes."}
           </p>
         </div>
       ) : (
@@ -477,6 +509,13 @@ function QueuePage() {
               />
               <span className="text-sm text-muted-foreground">Select all ({visible.length})</span>
             </div>
+          )}
+          {tab !== "pending" && (
+            <p className="text-sm text-muted-foreground">
+              {tab === "approved"
+                ? "Approved requests are read-only."
+                : "Rejected requests are read-only. Students can resubmit after fixing issues."}
+            </p>
           )}
           {visible.map((review) => {
             const student = review.clearance_applications?.profiles;
@@ -544,7 +583,7 @@ function QueuePage() {
                   </p>
                 ) : null}
 
-                {review.escalated && canResolveEscalations ? (
+                {tab === "pending" && review.escalated && canResolveEscalations ? (
                   <div className="mt-4 rounded-md border border-status-rejected p-4">
                     <h3 className="text-sm font-semibold text-status-rejected">
                       Escalated case — resolve
@@ -619,7 +658,7 @@ function QueuePage() {
                   </div>
                 )}
 
-                {review.status !== "approved" && (
+                {tab === "pending" && review.status !== "approved" && (
                   <div className="mt-4 border-t border-border pt-4">
                     <Textarea
                       rows={2}
