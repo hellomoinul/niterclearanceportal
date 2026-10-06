@@ -130,7 +130,7 @@ function HomePage() {
         ))}
       </section>
 
-      <section className="mt-10 space-y-6">
+      <section className="mt-10 grid gap-6 md:grid-cols-2">
         <div className="card-surface p-6">
           <h2 className="text-lg font-semibold">
             <span className="hero-surface notice-blink inline-block rounded-md px-2.5 py-1 shadow-sm">
