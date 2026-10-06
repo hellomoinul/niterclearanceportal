@@ -87,9 +87,6 @@ function UsersPage() {
         supabase.from("departments").select("id, code, name").order("sort_order"),
       ]);
       if (profiles.error) throw profiles.error;
-      if (roles.error) throw roles.error;
-      if (bindings.error) throw bindings.error;
-      if (departments.error) throw departments.error;
       return {
         profiles: (profiles.data ?? []) as unknown as {
           id: string;
@@ -352,33 +349,11 @@ function UsersPage() {
         </p>
       </div>
 
-      <Card>
+<Card>
         <CardHeader>
           <CardTitle>Create a staff account</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Test: departments Select (verify data + Select works) */}
-          {!isLoading && data?.departments && data.departments.length > 0 && (
-            <div className="mb-4 p-3 border rounded bg-green-50 dark:bg-green-900/20">
-              <p className="text-xs text-green-700 dark:text-green-400 mb-2">
-                Departments loaded: {data.departments.length} — Test Select:
-              </p>
-              <Select defaultValue={data.departments[0]?.id ?? ""} onValueChange={(v) => console.log('dept test:', v)}>
-                <SelectTrigger className="w-56">
-                  <SelectValue placeholder="Select office" />
-                </SelectTrigger>
-                <SelectContent>
-                  {data.departments.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          {isLoading && <p className="mb-4 text-sm text-muted-foreground">Loading departments…</p>}
-          {data?.departments?.length === 0 && !isLoading && (
-            <p className="mb-4 text-sm text-red-600">No departments found — check RLS/DB</p>
-          )}
           <form
             onSubmit={handleCreate}
             className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
