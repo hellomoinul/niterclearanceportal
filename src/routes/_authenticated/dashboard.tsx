@@ -232,13 +232,13 @@ function DashboardPage() {
             <Progress value={percent} className="mt-4" />
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 justify-items-center">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 justify-items-stretch grid-auto-rows-1fr">
             {(reviews ?? []).map((review) => (
               <Link
                 key={review.id}
                 to="/section/$code"
                 params={{ code: review.departments?.code ?? "" }}
-                className="card-surface block p-5 transition-shadow hover:shadow-raised"
+                className="card-surface h-full flex flex-col p-5 transition-shadow hover:shadow-raised"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
