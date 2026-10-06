@@ -469,7 +469,6 @@ function UsersPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All roles</SelectItem>
-                <SelectItem value="student">Students</SelectItem>
                 <SelectItem value="office">Office staff</SelectItem>
                 <SelectItem value="admin">Administrators</SelectItem>
               </SelectContent>
