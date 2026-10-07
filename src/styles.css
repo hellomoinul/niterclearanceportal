@@ -5,9 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * NITER Clearance Portal — Design System v3
- * UCAM-inspired pink→blue gradient identity; dark ink (#07172B) on vibrant surfaces.
- * Serif display (Playfair Display) + sans body (Inter).
+ * NITER Clearance Portal — Design System v4
+ * Unified neumorphic surface system.
  */
 
 @theme inline {
@@ -16,6 +15,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
+  --radius-card: 20px;
+  --radius-control: 14px;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
   --color-background: var(--background);
@@ -64,10 +65,12 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --shadow-card: 0 1px 3px rgba(18, 59, 87, 0.06), 0 8px 24px rgba(18, 59, 87, 0.08);
-  --shadow-raised: 0 2px 6px rgba(18, 59, 87, 0.08), 0 18px 44px rgba(18, 59, 87, 0.12);
-  --shadow-soft: 0 14px 40px -10px rgba(15, 23, 42, 0.18);
-  --shadow-soft-hover: 0 20px 50px -12px rgba(15, 23, 42, 0.22);
+  --shadow-dark: #c5cad3;
+  --shadow-light: #ffffff;
+  --shadow-raised: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+  --shadow-raised-sm: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+  --shadow-inset: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  --shadow-inset-sm: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
   --background-image-gradient-hero: linear-gradient(-135deg, #9333EA 0%, #4338CA 100%);
   --background-image-gradient-button: linear-gradient(135deg, #fbc1ff 0%, #4e65ff 100%);
 }
@@ -81,7 +84,7 @@
   --surface: #e4ebf5;
   --card: #e4ebf5;
   --card-foreground: #0f1d30;
-  --popover: #ffffff;
+  --popover: #e4ebf5;
   --popover-foreground: #0f1d30;
   /* Primary: navy #1C364E */
   --primary: #1C364E;
@@ -123,7 +126,7 @@
   --chart-4: #92400e;
   --chart-5: #991b1b;
   /* Sidebar */
-  --sidebar: #ffffff;
+  --sidebar: #e4ebf5;
   --sidebar-foreground: #0f1d30;
   --sidebar-primary: #1C364E;
   --sidebar-primary-foreground: #ffffff;
@@ -136,10 +139,10 @@
 .dark {
   --background: #0a1425;
   --foreground: #e8ecf1;
-  --surface: #111d30;
-  --card: #111d30;
+  --surface: #252a33;
+  --card: #252a33;
   --card-foreground: #e8ecf1;
-  --popover: #111d30;
+  --popover: #252a33;
   --popover-foreground: #e8ecf1;
   --primary: #4a8faa;
   --primary-foreground: #0a1425;
@@ -164,7 +167,7 @@
   --pending-foreground: #fde68a;
   --rejected: #7f1d1d;
   --rejected-foreground: #fca5a5;
-  --sidebar: #111d30;
+  --sidebar: #252a33;
   --sidebar-foreground: #e8ecf1;
   --sidebar-primary: #4a8faa;
   --sidebar-primary-foreground: #0a1425;
@@ -172,19 +175,8 @@
   --sidebar-accent-foreground: #e8ecf1;
   --sidebar-border: rgba(255, 255, 255, 0.1);
   --sidebar-ring: #4a8faa;
-}
-
-.neumorphic-card {
-  background: #e4ebf5;
-  box-shadow: 9px 9px 16px #cbced1, -9px -9px 16px #ffffff;
-  border: none;
-  border-radius: 20px;
-}
-
-.neumorphic-inset {
-  background: #e4ebf5;
-  box-shadow: inset 4px 4px 8px #cbced1, inset -4px -4px 8px #ffffff;
-  border: none;
+  --shadow-dark: #1c2027;
+  --shadow-light: #303640;
 }
 
 @layer base {
@@ -192,8 +184,9 @@
     border-color: var(--color-border);
   }
 
+  html,
   body {
-    background-color: var(--color-background);
+    background-color: var(--color-surface);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -208,18 +201,11 @@
   }
 }
 
-.tactile-card {
-  background-color: #e6edf5;
-  box-shadow: 14px 14px 30px #cbdfd8, -14px -14px 30px #ffffff, inset 1px 1px 2px rgba(255, 255, 255, 0.9);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-}
-
 @utility card-surface {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+  background-color: var(--color-surface);
+  border: none;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
 }
 
 @utility hero-surface {

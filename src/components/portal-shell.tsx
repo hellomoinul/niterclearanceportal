@@ -104,10 +104,10 @@ function AdminNavGroups({ onNavigate }: { onNavigate?: () => void }) {
                   to={item.to}
                   onClick={onNavigate}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                    "flex items-center gap-3 rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium transition-all duration-200",
                     isActive
-                      ? "bg-primary text-primary-foreground font-semibold hover:bg-primary/90 hover:text-primary-foreground"
-                      : "text-muted-foreground",
+                      ? "bg-[var(--surface)] text-primary shadow-[var(--shadow-inset-sm)] font-semibold"
+                      : "text-muted-foreground hover:bg-[var(--accent)] hover:text-accent-foreground hover:shadow-[var(--shadow-raised-sm)]",
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
@@ -124,7 +124,7 @@ function AdminNavGroups({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AdminSidebar() {
   return (
-    <aside className="w-64 shrink-0 border-r border-slate-200/50 bg-transparent p-4 min-h-[calc(100vh-4rem)] hidden md:block">
+    <aside className="w-64 shrink-0 border-r border-slate-200/50 bg-[var(--surface)] p-4 min-h-[calc(100vh-4rem)] hidden md:block">
       <div className="space-y-6">
         <div className="px-3 py-1">
           <h2 className="text-sm font-bold tracking-tight text-primary uppercase">Admin Panel</h2>
@@ -140,7 +140,7 @@ export function MobileAdminNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mb-6 neumorphic-card md:hidden">
+    <div className="mb-6 bg-[var(--surface)] rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none md:hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -214,9 +214,9 @@ export function PortalHeader() {
       ]
     : [];
 
-  return (
-<header className="sticky top-0 z-40 border-b border-slate-200/50 bg-transparent">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
+return (
+    <header className="sticky top-0 z-40 bg-[var(--surface)] shadow-[var(--shadow-raised-sm)] border-b border-slate-200/50">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
         <Link to="/" className="flex items-center gap-3">
           <img src="/niterLogo.png" alt="NITER crest" className="h-10 w-10 rounded-sm" />
           <span className="leading-tight">
@@ -235,9 +235,8 @@ export function PortalHeader() {
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "relative rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                  "after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:scale-x-0 after:transition-transform hover:after:scale-x-100",
-                  "[&[data-active]]:text-foreground [&[data-active]]:after:scale-x-100",
+                  "relative rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-[var(--accent)] hover:shadow-[var(--shadow-raised-sm)]",
+                  "[&[data-active]]:text-foreground [&[data-active]]:shadow-[var(--shadow-raised-sm)]",
                 )}
                 activeOptions={{ exact: link.to === "/home" }}
               >
@@ -311,7 +310,7 @@ export function PortalHeader() {
       {open && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm md:hidden" onClick={() => setOpen(false)}>
           <nav
-            className="animate-in fade-in slide-in-from-top-1 neumorphic-card px-4 py-2 shadow-lg duration-200 md:hidden"
+            className="animate-in fade-in slide-in-from-top-1 bg-[var(--surface)] rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none px-4 py-2 duration-200 md:hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {[...publicLinks, ...appLinks, guideLink]
@@ -321,7 +320,7 @@ export function PortalHeader() {
                   key={link.to}
                   to={link.to}
                   onClick={() => setOpen(false)}
-                  className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  className="block rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-[var(--accent)] hover:text-accent-foreground hover:shadow-[var(--shadow-raised-sm)] transition-all duration-200"
                 >
                   {link.label}
                 </Link>
@@ -331,7 +330,7 @@ export function PortalHeader() {
                 <Link
                   to="/profile"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  className="flex items-center gap-2 rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-[var(--accent)] hover:text-accent-foreground hover:shadow-[var(--shadow-raised-sm)] transition-all duration-200"
                 >
                   <User className="size-4" />
                   {profile?.user_code ?? "Profile"}
@@ -339,7 +338,7 @@ export function PortalHeader() {
                 <Link
                   to="/settings"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  className="flex items-center gap-2 rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-[var(--accent)] hover:text-accent-foreground hover:shadow-[var(--shadow-raised-sm)] transition-all duration-200"
                 >
                   <Settings className="size-4" />
                   Settings
@@ -349,7 +348,7 @@ export function PortalHeader() {
                     setOpen(false);
                     handleSignOut();
                   }}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
+                  className="flex w-full items-center gap-2 rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 hover:shadow-[var(--shadow-raised-sm)] transition-all duration-200"
                 >
                   <LogOut className="size-4" />
                   Sign out

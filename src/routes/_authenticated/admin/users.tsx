@@ -481,10 +481,10 @@ function UsersPage() {
             <p className="py-4 text-sm text-muted-foreground">No accounts match your filters.</p>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              <div className="bg-[var(--surface)] rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-muted-foreground">
+                    <tr className="border-b text-left text-muted-foreground [&_th]:bg-[var(--surface)]">
                       <th className="py-2 pr-4">Name</th>
                       <th className="py-2 pr-4">User code</th>
                       <th className="py-2 pr-4">Portal ID</th>

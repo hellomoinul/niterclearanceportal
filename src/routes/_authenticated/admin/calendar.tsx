@@ -222,9 +222,9 @@ function AdminCalendarPage() {
           </Button>
         </div>
 
-        <div className="border rounded-lg bg-card shadow-sm overflow-x-auto">
+        <div className="bg-[var(--surface)] rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none overflow-x-auto">
           <Table>
-            <TableHeader>
+            <TableHeader className="[&_th]:bg-[var(--surface)]">
               <TableRow>
                 <TableHead>Event Title</TableHead>
                 <TableHead>Type</TableHead>

@@ -399,9 +399,9 @@ export default function AuditLogPage() {
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+      <div className="bg-[var(--surface)] rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none overflow-x-auto">
         <Table className="min-w-[640px]">
-          <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-30 [&_th]:bg-card">
+          <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-30 [&_th]:bg-[var(--surface)]">
             <TableRow className="hover:bg-transparent">
               <TableHead>Time</TableHead>
               <TableHead>Actor</TableHead>
