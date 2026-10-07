@@ -185,31 +185,40 @@ export function AdminDashboard() {
 
       {/* S-v3.3: 4 Stat Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
+        <Link
+          to="/admin/users"
+          className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none hover:shadow-[var(--shadow-raised-sm)] hover:-translate-y-0.5 transition-all duration-200 block"
+        >
           <p className="text-sm text-muted-foreground">
             Registered students <span className="text-xs italic">(accounts)</span>
           </p>
           <p className="text-2xl font-bold mt-1">{stats.students}</p>
-        </div>
+        </Link>
 
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
+        <Link
+          to="/queue"
+          className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none hover:shadow-[var(--shadow-raised-sm)] hover:-translate-y-0.5 transition-all duration-200 block"
+        >
           <p className="text-sm text-muted-foreground">Cleared applications</p>
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
             {stats.cleared}
           </p>
-        </div>
+        </Link>
 
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
+        <Link
+          to="/queue"
+          className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none hover:shadow-[var(--shadow-raised-sm)] hover:-translate-y-0.5 transition-all duration-200 block"
+        >
           <p className="text-sm text-muted-foreground">Pending applications</p>
           <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">
             {stats.pending}
           </p>
-        </div>
+        </Link>
 
         {/* 4th Stat Card: Escalated - route added by S-v3.4 */}
         <Link
-          to={"/admin/escalations"}
-          className="bg-card p-4 rounded-lg border border-rose-200 dark:border-rose-900/50 shadow-sm hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition group block"
+          to="/admin/escalations"
+          className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border border-rose-200/50 dark:border-rose-900/20 hover:shadow-[var(--shadow-raised-sm)] hover:-translate-y-0.5 transition-all duration-200 block"
         >
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1.5">

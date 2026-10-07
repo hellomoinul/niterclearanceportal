@@ -246,14 +246,14 @@ export default function AdminSettingsPage() {
   function renderSignatureSection() {
     if (loading) {
       return (
-        <div className="h-32 flex items-center justify-center text-muted-foreground border rounded-lg">
+        <div className="h-32 flex items-center justify-center text-muted-foreground border rounded-lg w-full max-w-xs mx-auto">
           Loading signature...
         </div>
       );
     }
     if (activeSignature) {
       return (
-        <div className="relative h-32 w-64 border rounded-lg overflow-hidden bg-muted/30">
+        <div className="relative h-32 w-full max-w-xs mx-auto border rounded-lg overflow-hidden bg-muted/30">
           <img
             src={previewUrl ?? ""}
             alt="Active signature preview"
@@ -263,13 +263,13 @@ export default function AdminSettingsPage() {
       );
     }
     return (
-      <div className="h-32 flex items-center justify-center text-muted-foreground border rounded-lg border-dashed">
+      <div className="h-32 flex items-center justify-center text-muted-foreground border rounded-lg border-dashed w-full max-w-xs mx-auto">
         No active signature uploaded yet.
       </div>
     );
   }
 
-  function renderUploadSection() {
+function renderUploadSection() {
     return (
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Upload New Signature</h3>
@@ -309,7 +309,7 @@ export default function AdminSettingsPage() {
             </Label>
           </div>
           {preview && (
-            <div className="relative h-24 w-48 border rounded-lg overflow-hidden">
+            <div className="relative h-24 w-full max-w-xs mx-auto border rounded-lg overflow-hidden">
               <img src={preview} alt="Preview" className="w-full h-full object-contain" />
             </div>
           )}
@@ -453,7 +453,7 @@ export default function AdminSettingsPage() {
                 const refCount = certRefCounts[sig.id] ?? 0;
                 const { data } = supabase.storage.from("signatures").getPublicUrl(sig.storage_path);
                 return (
-                  <div key={sig.id} className="border rounded-lg p-3 space-y-2">
+                  <div key={sig.id} className="border rounded-lg p-3 space-y-2 min-w-0">
                     <div className="h-20 border rounded bg-muted/30 overflow-hidden">
                       <img
                         src={data.publicUrl}
@@ -461,11 +461,11 @@ export default function AdminSettingsPage() {
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground truncate">
                       Uploaded {new Date(sig.created_at).toLocaleDateString()}
                     </p>
                     {refCount > 0 ? (
-                      <span className="inline-block text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
+                      <span className="inline-block text-xs px-2 py-1 rounded bg-muted text-muted-foreground truncate">
                         Used by {refCount} certificate{refCount === 1 ? "" : "s"} — kept for history
                       </span>
                     ) : (
