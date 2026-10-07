@@ -10,11 +10,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-br from-[#fbc1ff] to-[#4e65ff] text-[#07172B] shadow-[var(--shadow-soft)] transition-transform duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] hover:from-[#fdcfff] hover:to-[#6b82ff] hover:-translate-y-0.5 hover:shadow-[var(--shadow-soft-hover)]",
-        destructive: "bg-destructive text-destructive-foreground shadow-[var(--shadow-soft)] transition-transform duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-destructive/90 hover:-translate-y-0.5 hover:shadow-[var(--shadow-soft-hover)]",
+          "bg-gradient-to-br from-[#fbc1ff] to-[#4e65ff] text-[#07172B] shadow-[var(--shadow-soft)] [inset-shadow:_0_1px_0_rgba(255,255,255,0.5)] transition-all duration-300 ease-out hover:from-[#fdcfff] hover:to-[#6b82ff] hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[var(--shadow-soft-hover)]",
+        destructive: "bg-destructive text-destructive-foreground shadow-[var(--shadow-soft)] [inset-shadow:_0_1px_0_rgba(255,255,255,0.5)] transition-all duration-300 ease-out hover:bg-destructive/90 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[var(--shadow-soft-hover)]",
         outline:
-          "border border-input bg-background shadow-[var(--shadow-soft)] transition-transform duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-accent hover:text-accent-foreground hover:-translate-y-0.5 hover:shadow-[var(--shadow-soft-hover)]",
-        secondary: "bg-secondary text-secondary-foreground shadow-[var(--shadow-soft)] transition-transform duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-secondary/80 hover:-translate-y-0.5 hover:shadow-[var(--shadow-soft-hover)]",
+          "border border-slate-200/60 bg-slate-50/80 backdrop-blur-sm text-accent-foreground shadow-[var(--shadow-soft)] [inset-shadow:_0_1px_0_rgba(255,255,255,0.5)] transition-all duration-300 ease-out hover:bg-accent hover:text-accent-foreground hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[var(--shadow-soft-hover)]",
+        secondary: "bg-slate-50/80 backdrop-blur-sm border border-slate-200/60 text-secondary-foreground shadow-[var(--shadow-soft)] [inset-shadow:_0_1px_0_rgba(255,255,255,0.5)] transition-all duration-300 ease-out hover:bg-secondary/80 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[var(--shadow-soft-hover)]",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
