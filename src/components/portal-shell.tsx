@@ -124,7 +124,7 @@ function AdminNavGroups({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AdminSidebar() {
   return (
-    <aside className="w-64 shrink-0 border-r border-border bg-card/50 p-4 min-h-[calc(100vh-4rem)] hidden md:block">
+    <aside className="w-64 shrink-0 border-r border-slate-200/50 bg-transparent p-4 min-h-[calc(100vh-4rem)] hidden md:block">
       <div className="space-y-6">
         <div className="px-3 py-1">
           <h2 className="text-sm font-bold tracking-tight text-primary uppercase">Admin Panel</h2>
@@ -140,7 +140,7 @@ export function MobileAdminNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mb-6 rounded-lg border border-border bg-card/50 md:hidden">
+    <div className="mb-6 neumorphic-card md:hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -215,8 +215,8 @@ export function PortalHeader() {
     : [];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
+<header className="sticky top-0 z-40 border-b border-slate-200/50 bg-transparent">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
         <Link to="/" className="flex items-center gap-3">
           <img src="/niterLogo.png" alt="NITER crest" className="h-10 w-10 rounded-sm" />
           <span className="leading-tight">
@@ -311,7 +311,7 @@ export function PortalHeader() {
       {open && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm md:hidden" onClick={() => setOpen(false)}>
           <nav
-            className="animate-in fade-in slide-in-from-top-1 border-t border-border bg-surface px-4 py-2 shadow-lg duration-200 md:hidden"
+            className="animate-in fade-in slide-in-from-top-1 neumorphic-card px-4 py-2 shadow-lg duration-200 md:hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {[...publicLinks, ...appLinks, guideLink]

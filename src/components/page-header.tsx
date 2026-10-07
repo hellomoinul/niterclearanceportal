@@ -23,7 +23,7 @@ export function PageHeader({
   back?: BackLink;
 }) {
   return (
-    <section className="tactile-card hero-surface hero-fade-in -mt-8 mb-8 rounded-3xl px-6 py-8 sm:px-10 sm:py-10">
+    <section className="hero-surface hero-fade-in -mt-8 mb-8 rounded-3xl px-6 py-8 sm:px-10 sm:py-10">
       {back && (
         <Link
           to={back.to}

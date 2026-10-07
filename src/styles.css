@@ -75,11 +75,11 @@
 :root {
   --radius: 0.75rem;
   /* Brand: near-white warm background */
-  --background: #c8d0dc;
+  --background: #e4ebf5;
   /* Brand: deep navy text */
   --foreground: #0f1d30;
-  --surface: #e6edf5;
-  --card: #e6edf5;
+  --surface: #e4ebf5;
+  --card: #e4ebf5;
   --card-foreground: #0f1d30;
   --popover: #ffffff;
   --popover-foreground: #0f1d30;
@@ -172,6 +172,19 @@
   --sidebar-accent-foreground: #e8ecf1;
   --sidebar-border: rgba(255, 255, 255, 0.1);
   --sidebar-ring: #4a8faa;
+}
+
+.neumorphic-card {
+  background: #e4ebf5;
+  box-shadow: 9px 9px 16px #cbced1, -9px -9px 16px #ffffff;
+  border: none;
+  border-radius: 20px;
+}
+
+.neumorphic-inset {
+  background: #e4ebf5;
+  box-shadow: inset 4px 4px 8px #cbced1, inset -4px -4px 8px #ffffff;
+  border: none;
 }
 
 @layer base {

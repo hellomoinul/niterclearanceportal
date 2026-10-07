@@ -110,7 +110,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-[#edf2f7] text-slate-800 min-h-screen">
+      <body className="text-slate-800 min-h-screen">
         {children}
         <Scripts />
       </body>
