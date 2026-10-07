@@ -222,7 +222,7 @@ function AdminCalendarPage() {
           </Button>
         </div>
 
-        <div className="border rounded-lg bg-card shadow-sm overflow-hidden">
+        <div className="border rounded-lg bg-card shadow-sm overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

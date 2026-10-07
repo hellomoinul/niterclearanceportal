@@ -75,11 +75,11 @@
 :root {
   --radius: 0.75rem;
   /* Brand: near-white warm background */
-  --background: #f8f9fb;
+  --background: #c8d0dc;
   /* Brand: deep navy text */
   --foreground: #0f1d30;
-  --surface: #ffffff;
-  --card: #ffffff;
+  --surface: #e6edf5;
+  --card: #e6edf5;
   --card-foreground: #0f1d30;
   --popover: #ffffff;
   --popover-foreground: #0f1d30;

@@ -308,52 +308,57 @@ export function PortalHeader() {
         </div>
       </div>
 
-      {open ? (
-        <nav className="animate-in fade-in slide-in-from-top-1 border-t border-border bg-surface px-4 py-2 duration-200 md:hidden">
-          {[...publicLinks, ...appLinks, guideLink]
-            .filter((link) => (session ? link.to !== "/about" : true))
-            .map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={() => setOpen(false)}
-                className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
-          {session ? (
-            <div className="mt-2 border-t border-border pt-2">
-              <Link
-                to="/profile"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                <User className="size-4" />
-                {profile?.user_code ?? "Profile"}
-              </Link>
-              <Link
-                to="/settings"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                <Settings className="size-4" />
-                Settings
-              </Link>
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  handleSignOut();
-                }}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
-              >
-                <LogOut className="size-4" />
-                Sign out
-              </button>
-            </div>
-          ) : null}
-        </nav>
-      ) : null}
+      {open && (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm md:hidden" onClick={() => setOpen(false)}>
+          <nav
+            className="animate-in fade-in slide-in-from-top-1 border-t border-border bg-surface px-4 py-2 shadow-lg duration-200 md:hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {[...publicLinks, ...appLinks, guideLink]
+              .filter((link) => (session ? link.to !== "/about" : true))
+              .map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            {session ? (
+              <div className="mt-2 border-t border-border pt-2">
+                <Link
+                  to="/profile"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  <User className="size-4" />
+                  {profile?.user_code ?? "Profile"}
+                </Link>
+                <Link
+                  to="/settings"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  <Settings className="size-4" />
+                  Settings
+                </Link>
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    handleSignOut();
+                  }}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
+                >
+                  <LogOut className="size-4" />
+                  Sign out
+                </button>
+              </div>
+            ) : null}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
