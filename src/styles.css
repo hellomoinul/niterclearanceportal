@@ -196,10 +196,10 @@
 }
 
 .tactile-card {
-  background-color: #f0f4f8;
-  box-shadow: 12px 12px 24px #cbced1, -12px -12px 24px #ffffff, inset 1px 1px 0px rgba(255, 255, 255, 0.8);
+  background-color: #e6edf5;
+  box-shadow: 14px 14px 30px #cbdfd8, -14px -14px 30px #ffffff, inset 1px 1px 2px rgba(255, 255, 255, 0.9);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 @utility card-surface {
