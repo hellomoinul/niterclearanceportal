@@ -396,7 +396,7 @@ export function PortalShell({
     <div className="flex min-h-screen flex-col bg-background">
       <PortalHeader />
       {isAdminPath ? (
-        <div className="mx-auto flex w-full max-w-7xl flex-1">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 shadow-[var(--shadow-panel)]">
           <AdminSidebar />
           <main className={cn("flex-1 px-6 py-8 overflow-x-hidden", className)}>
             <MobileAdminNav />
