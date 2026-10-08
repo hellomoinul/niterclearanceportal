@@ -353,8 +353,8 @@ function renderUploadSection() {
             active version.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CardContent className="space-y-6 overflow-x-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full overflow-x-hidden">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Current Active Signature</h3>
               {renderSignatureSection()}
@@ -442,7 +442,7 @@ function renderUploadSection() {
             certificates are kept for history.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-hidden">
           {oldSignatures.length === 0 ? (
             <div className="h-24 flex items-center justify-center text-muted-foreground border rounded-lg border-dashed w-full">
               No old signatures.
