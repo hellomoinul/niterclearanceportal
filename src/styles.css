@@ -67,8 +67,10 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --shadow-dark: #c5cad3;
   --shadow-light: #ffffff;
-  --shadow-raised: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
-  --shadow-raised-sm: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+  --shadow-panel: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light), 0 4px 12px rgba(120,130,150,0.06);
+  --shadow-raised: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light), 0 3px 8px rgba(120,130,150,0.08);
+  --shadow-raised-sm: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light), 0 2px 6px rgba(120,130,150,0.06);
+  --shadow-control: 4px 4px 9px var(--shadow-dark), -4px -4px 9px var(--shadow-light);
   --shadow-inset: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
   --shadow-inset-sm: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
   --background-image-gradient-hero: linear-gradient(-135deg, #9333EA 0%, #4338CA 100%);
@@ -186,10 +188,14 @@
 
   html,
   body {
-    background-color: var(--color-surface);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(255,255,255,0.5), transparent 30%),
+      radial-gradient(circle at 85% 90%, rgba(190,200,215,0.12), transparent 35%),
+      var(--color-surface);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
   h1,
@@ -206,6 +212,21 @@
   border: none;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-raised);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0.22),
+      rgba(255,255,255,0) 40%
+    );
+  }
 }
 
 @utility hero-surface {
