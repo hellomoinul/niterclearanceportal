@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Upload, Loader2 } from "lucide-react";
@@ -263,7 +262,7 @@ export default function AdminSettingsPage() {
       );
     }
     return (
-      <div className="h-32 flex items-center justify-center text-muted-foreground border rounded-lg border-dashed w-full max-w-xs mx-auto break-words">
+      <div className="h-32 flex items-center justify-center text-muted-foreground border rounded-lg border-dashed w-full max-w-xs mx-auto">
         No active signature uploaded yet.
       </div>
     );
@@ -273,46 +272,46 @@ function renderUploadSection() {
     return (
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Upload New Signature</h3>
-<div className="space-y-4 border p-4 rounded-lg bg-muted/30 overflow-hidden">
-                <div className="space-y-2">
-                  <Label htmlFor="signature-upload" className="font-medium break-words">
-                    Select Image (JPG/PNG, max 2MB)
-                  </Label>
-                  <Input
-                    id="signature-upload"
-                    type="file"
-                    accept="image/jpeg,image/png"
-                    onChange={handleFileSelect}
-                    disabled={uploading}
-                    className="sr-only"
-                  />
-                  <Label
-                    htmlFor="signature-upload"
-                    className={cn(
-                      "flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors break-words",
-                      selectedFile ? "bg-green-50 border-green-300" : "hover:bg-muted border-primary",
-                    )}
-                  >
-                    {selectedFile ? (
-                      <div className="break-words">
-                        <span className="text-sm font-medium break-words">{selectedFile.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {Math.round(selectedFile.size / 1024)} KB
-                        </span>
-                      </div>
-                    ) : (
-                      <div>
-                        <Upload className="w-6 h-6 flex-shrink-0" />
-                        <span className="break-words">Click or drag to upload</span>
-                      </div>
-                    )}
-                  </Label>
+        <div className="space-y-4 border p-4 rounded-lg bg-muted/30">
+          <div className="space-y-2">
+            <Label htmlFor="signature-upload" className="font-medium">
+              Select Image (JPG/PNG, max 2MB)
+            </Label>
+            <input
+              id="signature-upload"
+              type="file"
+              accept="image/jpeg,image/png"
+              onChange={handleFileSelect}
+              disabled={uploading}
+              className="sr-only"
+            />
+            <Label
+              htmlFor="signature-upload"
+              className={cn(
+                "flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors",
+                selectedFile ? "bg-green-50 border-green-300" : "hover:bg-muted border-primary",
+              )}
+            >
+              {selectedFile ? (
+                <div>
+                  <span className="text-sm font-medium">{selectedFile.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {Math.round(selectedFile.size / 1024)} KB
+                  </span>
                 </div>
+              ) : (
+                <div>
+                  <Upload className="w-6 h-6" />
+                  <span>Click or drag to upload</span>
+                </div>
+              )}
+            </Label>
+          </div>
 {preview && (
-                    <div className="relative h-24 w-full max-w-xs mx-auto border rounded-lg overflow-hidden">
-                      <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-                    </div>
-                  )}
+                      <div className="relative h-24 w-full max-w-xs mx-auto border rounded-lg overflow-hidden">
+                        <img src={preview} alt="Preview" className="w-full h-full object-contain" />
+                      </div>
+                    )}
           <Button
             onClick={handleUpload}
             disabled={!selectedFile || uploading}
@@ -336,7 +335,7 @@ function renderUploadSection() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 overflow-x-clip">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
         <p className="text-muted-foreground text-sm">
@@ -353,8 +352,8 @@ function renderUploadSection() {
             active version.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6 overflow-x-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full overflow-x-hidden">
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Current Active Signature</h3>
               {renderSignatureSection()}
@@ -374,7 +373,7 @@ function renderUploadSection() {
                   <Label htmlFor="signature-upload" className="font-medium">
                     Select Image (JPG/PNG, max 2MB)
                   </Label>
-                  <Input
+                  <input
                     id="signature-upload"
                     type="file"
                     accept="image/jpeg,image/png"
@@ -442,18 +441,18 @@ function renderUploadSection() {
             certificates are kept for history.
           </CardDescription>
         </CardHeader>
-        <CardContent className="overflow-x-hidden">
+        <CardContent>
           {oldSignatures.length === 0 ? (
-            <div className="h-24 flex items-center justify-center text-muted-foreground border rounded-lg border-dashed w-full">
+            <div className="h-24 flex items-center justify-center text-muted-foreground border rounded-lg border-dashed">
               No old signatures.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-hidden">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {oldSignatures.map((sig) => {
                 const refCount = certRefCounts[sig.id] ?? 0;
                 const { data } = supabase.storage.from("signatures").getPublicUrl(sig.storage_path);
                 return (
-                  <div key={sig.id} className="border rounded-lg p-3 space-y-2 min-w-0 break-words">
+                  <div key={sig.id} className="border rounded-lg p-3 space-y-2 min-w-0">
                     <div className="h-20 border rounded bg-muted/30 overflow-hidden">
                       <img
                         src={data.publicUrl}
@@ -465,7 +464,7 @@ function renderUploadSection() {
                       Uploaded {new Date(sig.created_at).toLocaleDateString()}
                     </p>
                     {refCount > 0 ? (
-                      <span className="inline-block text-xs px-2 py-1 rounded bg-muted text-muted-foreground truncate break-words">
+                      <span className="inline-block text-xs px-2 py-1 rounded bg-muted text-muted-foreground truncate">
                         Used by {refCount} certificate{refCount === 1 ? "" : "s"} — kept for history
                       </span>
                     ) : (
