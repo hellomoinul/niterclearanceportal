@@ -336,7 +336,7 @@ function renderUploadSection() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 overflow-x-hidden">
+    <div className="p-6 max-w-7xl mx-auto space-y-6 overflow-x-clip">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
         <p className="text-muted-foreground text-sm">
