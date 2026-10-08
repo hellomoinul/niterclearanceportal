@@ -308,11 +308,11 @@ function renderUploadSection() {
               )}
             </Label>
           </div>
-          {preview && (
-            <div className="relative h-24 w-full max-w-xs mx-auto border rounded-lg overflow-hidden">
-              <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-            </div>
-          )}
+{preview && (
+                      <div className="relative h-24 w-full max-w-xs mx-auto border rounded-lg overflow-hidden">
+                        <img src={preview} alt="Preview" className="w-full h-full object-contain" />
+                      </div>
+                    )}
           <Button
             onClick={handleUpload}
             disabled={!selectedFile || uploading}
@@ -406,11 +406,11 @@ function renderUploadSection() {
                     )}
                   </Label>
                 </div>
-                {preview && (
-                  <div className="relative h-24 w-48 border rounded-lg overflow-hidden">
-                    <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-                  </div>
-                )}
+{preview && (
+                    <div className="relative h-24 w-full max-w-xs mx-auto border rounded-lg overflow-hidden">
+                      <img src={preview} alt="Preview" className="w-full h-full object-contain" />
+                    </div>
+                  )}
                 <Button
                   onClick={handleUpload}
                   disabled={!selectedFile || uploading}

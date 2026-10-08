@@ -183,53 +183,38 @@ export function AdminDashboard() {
         </p>
       </div>
 
-      {/* S-v3.3: 4 Stat Cards Grid */}
+      {/* S-v3.3: 4 Stat Cards Grid (no links — just info cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link
-          to="/admin/users"
-          className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none hover:shadow-[var(--shadow-raised-sm)] hover:-translate-y-0.5 transition-all duration-200 block"
-        >
+        <div className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none">
           <p className="text-sm text-muted-foreground">
             Registered students <span className="text-xs italic">(accounts)</span>
           </p>
           <p className="text-2xl font-bold mt-1">{stats.students}</p>
-        </Link>
+        </div>
 
-        <Link
-          to="/queue"
-          className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none hover:shadow-[var(--shadow-raised-sm)] hover:-translate-y-0.5 transition-all duration-200 block"
-        >
+        <div className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none">
           <p className="text-sm text-muted-foreground">Cleared applications</p>
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
             {stats.cleared}
           </p>
-        </Link>
+        </div>
 
-        <Link
-          to="/queue"
-          className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none hover:shadow-[var(--shadow-raised-sm)] hover:-translate-y-0.5 transition-all duration-200 block"
-        >
+        <div className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border-none">
           <p className="text-sm text-muted-foreground">Pending applications</p>
           <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">
             {stats.pending}
           </p>
-        </Link>
+        </div>
 
-        {/* 4th Stat Card: Escalated - route added by S-v3.4 */}
-        <Link
-          to="/admin/escalations"
-          className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border border-rose-200/50 dark:border-rose-900/20 hover:shadow-[var(--shadow-raised-sm)] hover:-translate-y-0.5 transition-all duration-200 block"
-        >
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-              <ShieldAlert className="w-4 h-4" /> Escalated Cases
-            </p>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-rose-600 transition" />
-          </div>
+        {/* 4th Stat Card: Escalated */}
+        <div className="bg-[var(--surface)] p-4 rounded-[var(--radius-card)] shadow-[var(--shadow-raised)] border border-rose-200/50 dark:border-rose-900/20">
+          <p className="text-sm font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+            <ShieldAlert className="w-4 h-4" /> Escalated Cases
+          </p>
           <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">
             {escalatedCount}
           </p>
-        </Link>
+        </div>
       </div>
 
       {/* Needs Attention Panel - S-v3.2 */}
