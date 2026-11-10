@@ -81,25 +81,25 @@
   --radius: 0.75rem;
   /* Brand: near-white warm background */
   --background: #e4ebf5;
-  /* Brand: deep navy text */
-  --foreground: #0f1d30;
+  /* Brand: near-black text */
+  --foreground: #05070a;
   --surface: #e4ebf5;
   --card: #e4ebf5;
-  --card-foreground: #0f1d30;
+  --card-foreground: #05070a;
   --popover: #e4ebf5;
-  --popover-foreground: #0f1d30;
+  --popover-foreground: #05070a;
   /* Primary: navy #1C364E */
   --primary: #1C364E;
   --primary-foreground: #ffffff;
   /* Secondary: soft gray-blue for hover/focus states */
   --secondary: #edf0f5;
-  --secondary-foreground: #1C364E;
+  --secondary-foreground: #05070a;
   /* Muted: slightly warmer gray for disabled/secondary text */
   --muted: #f1f3f6;
   --muted-foreground: #64748b;
   /* Accent: soft teal for hover backgrounds (NOT mint — kept semantic) */
   --accent: #e8f4f8;
-  --accent-foreground: #0f1d30;
+  --accent-foreground: #05070a;
   /* Destructive: red */
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
@@ -110,10 +110,10 @@
   --ring: #146572;
   /* Mint accent — for eyebrow labels, approved highlights */
   --brand-accent: #66D4AD;
-  --brand-accent-foreground: #0f1d30;
+  --brand-accent-foreground: #05070a;
   /* Gold highlight — for badges, warnings, "NEW" tags */
   --highlight: #FFE342;
-  --highlight-foreground: #0f1d30;
+  --highlight-foreground: #05070a;
   /* Status: semantic pill colors */
   --approved: #d1fae5;
   --approved-foreground: #065f46;
@@ -129,11 +129,11 @@
   --chart-5: #991b1b;
   /* Sidebar */
   --sidebar: #e4ebf5;
-  --sidebar-foreground: #0f1d30;
+  --sidebar-foreground: #05070a;
   --sidebar-primary: #1C364E;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #edf0f5;
-  --sidebar-accent-foreground: #1C364E;
+  --sidebar-accent-foreground: #05070a;
   --sidebar-border: #dde2e8;
   --sidebar-ring: #146572;
 }

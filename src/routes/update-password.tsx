@@ -60,7 +60,7 @@ function UpdatePasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4">
       <Card className="w-full max-w-md shadow-lg border-0">
         <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-2xl font-bold text-[#0f172a]">Create New Password</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground">Create New Password</CardTitle>
           <CardDescription className="text-[#64748b]">
             Please enter a strong new password for your account.
           </CardDescription>
@@ -68,7 +68,7 @@ function UpdatePasswordPage() {
         <CardContent>
           <form onSubmit={handleUpdatePassword} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#0f172a]">New Password</label>
+              <label className="text-sm font-medium text-foreground">New Password</label>
               <Input
                 type="password"
                 value={password}
@@ -80,7 +80,7 @@ function UpdatePasswordPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#0f172a]">Confirm Password</label>
+              <label className="text-sm font-medium text-foreground">Confirm Password</label>
               <Input
                 type="password"
                 value={confirmPassword}

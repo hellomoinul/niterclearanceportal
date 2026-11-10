@@ -45,7 +45,7 @@ function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4">
       <Card className="w-full max-w-md shadow-lg border-0">
         <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-2xl font-bold text-[#0f172a]">Reset Password</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground">Reset Password</CardTitle>
           <CardDescription className="text-[#64748b]">
             Enter your email to receive a secure password reset link.
           </CardDescription>

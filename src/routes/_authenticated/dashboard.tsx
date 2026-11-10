@@ -282,7 +282,7 @@ function DashboardPage() {
           >
             <div className="border-[6px] border-double border-[#cbd5e1] rounded-2xl p-10 flex-1 flex flex-col justify-between bg-[#ffffff]">
               <div className="text-center space-y-2 mt-2">
-                <h2 className="text-3xl font-serif font-bold uppercase tracking-wider text-[#0f172a]">
+                <h2 className="text-3xl font-serif font-bold uppercase tracking-wider text-foreground">
                   National Institute of Textile Engineering and Research
                 </h2>
                 <p className="text-[#64748b] uppercase tracking-widest text-sm">
@@ -334,7 +334,7 @@ function DashboardPage() {
                     <p className="text-[10px] font-semibold text-[#334155] uppercase tracking-wider">
                       Date Issued
                     </p>
-                    <p className="text-xs font-medium text-[#0f172a] mt-0.5">
+                    <p className="text-xs font-medium text-foreground mt-0.5">
                       {certificate.issued_at
                         ? new Date(certificate.issued_at).toLocaleDateString("en-GB")
                         : new Date().toLocaleDateString("en-GB")}
@@ -344,7 +344,7 @@ function DashboardPage() {
                         <p className="text-[10px] font-semibold text-[#334155] uppercase tracking-wider mt-1.5">
                           Certificate ID
                         </p>
-                        <p className="text-xs font-bold font-mono text-[#0f172a] mt-0.5 tracking-wide">
+                        <p className="text-xs font-bold font-mono text-foreground mt-0.5 tracking-wide">
                           {formatCertificateId(certificate.id)}
                         </p>
                         <p className="text-[8px] font-mono text-[#94a3b8] mt-0.5 break-all">
