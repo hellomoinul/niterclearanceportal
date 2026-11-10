@@ -166,11 +166,9 @@ function AuthPage() {
         </span>
       </Link>
 
-      {activeTab === "signin" && (
-        <p className="text-center text-sm text-muted-foreground">
-          Universal sign in page for Students, Office & Admin
-        </p>
-      )}
+      <p className="relative z-10 mb-4 max-w-md px-2 text-center text-sm font-medium text-foreground/75">
+        Universal sign in page for Students, Office &amp; Admin
+      </p>
 
       <div className="card-surface w-full max-w-md p-6">
         <Tabs value={activeTab} defaultValue="signin" onValueChange={setActiveTab}>
